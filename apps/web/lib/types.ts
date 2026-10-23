@@ -1,4 +1,11 @@
-import type { ComplianceReason, ComplianceStatus, PolicyChange, PolicySettings } from '@dw/contracts';
+import type {
+  CommandState,
+  CommandType,
+  ComplianceReason,
+  ComplianceStatus,
+  PolicyChange,
+  PolicySettings,
+} from '@dw/contracts';
 import type { Connectivity } from '@/components/status';
 
 export interface ObservedValue<T> {
@@ -31,6 +38,7 @@ export interface DeviceItem {
     reportedAt: string | null;
   } | null;
   compliance: { status: ComplianceStatus; reasons: ComplianceReason[]; evaluatedAt: string | null };
+  lostModeSince: string | null;
 }
 
 export interface DeviceDetail extends DeviceItem {
@@ -62,6 +70,9 @@ export interface Summary {
     complianceUnknown: number;
     noPolicy: number;
     policyPending: number;
+    commandsPending: number;
+    approvalsPending: number;
+    lostMode: number;
   };
   noncompliant: DeviceItem[];
   byManufacturer: { key: string; n: number }[];
@@ -175,4 +186,57 @@ export interface PolicyPreview {
   };
   estimate: true;
   generatedAt: string;
+}
+
+export interface CommandEventItem {
+  state: CommandState;
+  actor: string;
+  detail: string | null;
+  occurredAt: string;
+}
+
+export interface CommandItem {
+  id: string;
+  deviceId: string;
+  deviceName: string | null;
+  batchId: string | null;
+  type: CommandType;
+  params: Record<string, unknown>;
+  reason: string | null;
+  state: CommandState;
+  stateDetail: string | null;
+  requestedByName: string;
+  providerRef: string | null;
+  sendAttempts: number;
+  expiresAt: string;
+  finishedAt: string | null;
+  createdAt: string;
+  cancellable: boolean;
+  source: string;
+  events: CommandEventItem[];
+}
+
+export interface CommandList {
+  items: CommandItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  generatedAt: string;
+  source: string;
+}
+
+export interface BatchItem {
+  id: string;
+  type: CommandType;
+  reason: string | null;
+  status: 'not_required' | 'waiting_approval' | 'approved' | 'rejected' | 'expired';
+  deviceCount: number;
+  devices: { id: string; name: string }[];
+  requestedByName: string;
+  decidedByName: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  canDecide: boolean;
 }

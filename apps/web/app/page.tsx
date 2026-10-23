@@ -95,18 +95,16 @@ function Overview() {
           </>
         }
       />
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.5fr_1fr_1fr_1fr]">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <Link
           href="/aparelhos"
-          className="dw-rise relative flex flex-col justify-center overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] md:col-span-2 lg:col-span-3 xl:col-span-1 xl:row-span-2"
+          className="dw-rise relative flex flex-col justify-center overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] md:col-span-2 lg:col-span-4 xl:col-span-1 xl:row-span-2"
           style={{ background: 'linear-gradient(135deg,#0A1F4D 0%,#1A4FD6 100%)' }}
         >
           <div className="text-[13px] font-semibold text-[#C9DAFF]">Aparelhos gerenciados</div>
-          <div className="mt-1 text-[40px] font-extrabold leading-tight tracking-tight">
-            {c.total}{' '}
-            <small className="text-[15px] font-semibold text-[#C9DAFF]">
-              · {c.online} com sinal nas últimas 24 h
-            </small>
+          <div className="mt-1 text-[40px] font-extrabold leading-tight tracking-tight">{c.total}</div>
+          <div className="text-[14px] font-semibold text-[#C9DAFF]">
+            {c.online} com sinal nas últimas 24 h
           </div>
           <div className="mt-4 h-2 overflow-hidden rounded bg-white/20">
             <span className="dw-bar block h-full rounded-r bg-white" style={{ width: `${pct}%` }} />
@@ -123,14 +121,6 @@ function Overview() {
         />
         <Kpi
           i={2}
-          label="Fora da política"
-          value={c.noncompliant}
-          hint="não conformes, com motivo"
-          href="/aparelhos?compliance=noncompliant"
-          tone="text-crit"
-        />
-        <Kpi
-          i={3}
           label="Desconhecido"
           value={c.unknown}
           hint="nunca comunicaram"
@@ -138,7 +128,39 @@ function Overview() {
           tone="text-unk"
         />
         <Kpi
+          i={3}
+          label="Fora da política"
+          value={c.noncompliant}
+          hint="não conformes, com motivo"
+          href="/aparelhos?compliance=noncompliant"
+          tone="text-crit"
+        />
+        <Kpi
           i={4}
+          label="Comandos em andamento"
+          value={c.commandsPending}
+          hint="até a aplicação verificada"
+          href="/comandos?pending=1"
+          tone="text-royal"
+        />
+        <Kpi
+          i={5}
+          label="Aguardando aprovação"
+          value={c.approvalsPending}
+          hint="pedidos de 2º administrador"
+          href="/comandos"
+          tone="text-warn"
+        />
+        <Kpi
+          i={6}
+          label="Em modo perdido"
+          value={c.lostMode}
+          hint="relatado pelo aparelho"
+          href="/aparelhos"
+          tone="text-warn"
+        />
+        <Kpi
+          i={7}
           label="Sem responsável"
           value={c.unassigned}
           hint="reserva ou estoque"
@@ -146,19 +168,11 @@ function Overview() {
           tone="text-warn"
         />
         <Kpi
-          i={5}
+          i={8}
           label="Aguardando aplicar política"
           value={c.policyPending}
           hint="aplicam na próxima comunicação"
           href="/politicas"
-          tone="text-royal"
-        />
-        <Kpi
-          i={6}
-          label="Cadastros pendentes"
-          value={c.pendingEnrollments}
-          hint="QR ainda válido"
-          href="/aparelhos/cadastrar"
           tone="text-royal"
         />
       </section>

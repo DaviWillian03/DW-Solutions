@@ -11,8 +11,8 @@
 | Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | ✅ concluída |
 | CP5 | Revisão das primeiras telas reais | Fase B | ✅ concluído (telas aprovadas) |
 | Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ✅ concluída (ADR-0007) |
-| Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | 🟡 em andamento |
-| Fase E | Dashboard, alertas, incidentes, relatórios | Fase D | ⚪ |
+| Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | ✅ concluída (ADR-0008) |
+| Fase E | MVP: tela de Auditoria (M11) e acabamento. Alertas, incidentes e relatórios ficaram fora do MVP (CP4) | Fase D | 🟡 próxima (aguardando o usuário) |
 | CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | ⚪ |
 | CP7 / Fase G | Automações e IA supervisionada | Fase E | ⚪ |
 | CP8 / Fase H | Hardening, piloto e publicação | Tudo acima | ⚪ |

@@ -32,6 +32,9 @@ const workerEnv = {
   QUEUE_PREFIX: 'dw-e2e',
   SIM_ENROLL_DELAY_MS: '800',
   SIM_TICK_SECONDS: '3600',
+  // Comandos: aparelho alcançável comunica logo após o aceite; provedor simulado sem falhas aleatórias.
+  SIM_PUSH_DELAY_MS: '500',
+  SIM_PROVIDER_FAILURE_RATE: '0',
 };
 
 export default defineConfig({

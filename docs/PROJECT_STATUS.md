@@ -2,8 +2,8 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **Fase D — comandos** (em andamento; ilustrações e limite de patch aprovados)
-**Código:** Fases A, B e C completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade. 141 testes + 23 E2E.
+**Fase atual:** **Fase D concluída** → definir o próximo passo com o usuário (auditoria na tela / CHECKPOINT 6)
+**Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla. 175 testes + 27 E2E.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -23,6 +23,8 @@
   colorida vem com a Fase C, nenhum formato extra de logo. CI da Fase B4 verde.
 - Fase C: políticas Vendas e Merchandising versionadas (ADR-0007), simulação de impacto antes de publicar,
   conflito em vez de sobrescrita, troca em lote, conformidade com motivo/como resolver/horário, 2 ilustrações.
+- Fase D: comandos com estados verificáveis (ADR-0008), apagar desligado por padrão, 1 aparelho com nome + MFA,
+  vários com 2º admin, refazer MFA com limite e uso único, aparelho que volta depois do prazo não executa.
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
@@ -38,9 +40,10 @@
 | 8 | ✅ Fase B — Simulador + aparelhos | Simulador, worker, cadastro QR demo, aparelhos, responsáveis, usuários, visão geral | — |
 | 9 | ✅ CHECKPOINT 5 | Telas aprovadas | — |
 | 10 | ✅ Fase C — Políticas | C1 modelo + banco + simulador · C2 API · C3 telas, ilustrações e E2E | — |
-| 11 | Fase D — Comandos | Bloquear, reiniciar, modo perdido, limpar dados de app e wipe com estados verificáveis | — (em andamento) |
+| 11 | ✅ Fase D — Comandos | D1 banco/simulador/worker · D2 API (aprovação dupla, refazer MFA) · D3 telas e E2E | — |
+| 12 | Próximo | Tela de Auditoria (M11) e acabamento do MVP, depois CHECKPOINT 6 | Decisão do usuário |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fases A, B e C: 141 testes + 23 E2E passando).
+Ver `docs/TEST_REPORT.md` (Fases A–D: 175 testes + 27 E2E passando).

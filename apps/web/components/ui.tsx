@@ -33,13 +33,15 @@ export function Monogram({ size = 36 }: { size?: number }) {
   );
 }
 
-export function Brand() {
+export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
       <Monogram />
-      <div className="leading-tight">
+      <div className="whitespace-nowrap leading-tight">
         <div className="text-[17px] font-extrabold tracking-tight">DW Solutions</div>
-        <div className="text-[11px] font-semibold text-muted">Gestão de aparelhos Android</div>
+        <div className={`text-[11px] font-semibold text-muted ${compact ? 'hidden 2xl:block' : ''}`}>
+          Gestão de aparelhos Android
+        </div>
       </div>
     </div>
   );

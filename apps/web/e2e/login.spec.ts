@@ -170,7 +170,7 @@ const shotB = async (p: Page, name: string) => {
 test('visão geral mostra números reais do simulador, com origem e horário', async () => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Visão geral' })).toBeVisible();
-  await expect(page.getByText(/^120\s/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /Aparelhos gerenciados/ })).toContainText('120');
   await expect(page.getByText('origem:', { exact: false }).first()).toBeVisible();
   await expect(page.getByText('Precisam de atenção')).toBeVisible();
   await shotB(page, '01-visao-geral');
@@ -274,6 +274,8 @@ test('perfil Leitura consulta aparelhos mas não vê ações de administrador', 
   await expect(v.getByText('Seu perfil (Leitura) não permite alterar o responsável.')).toBeVisible();
   await v.getByRole('tab', { name: 'Política' }).click();
   await expect(v.getByText('Seu perfil (Leitura) não permite trocar a política.')).toBeVisible();
+  await v.getByRole('tab', { name: 'Comandos' }).click();
+  await expect(v.getByText('Somente administradores').first()).toBeVisible();
   await v.goto('/politicas');
   await v.getByRole('link', { name: 'Abrir política Vendas' }).click();
   await expect(v.getByText('Editar', { exact: true })).toHaveAttribute('aria-disabled', 'true');
@@ -428,4 +430,129 @@ test('ilustrações: nenhum aparelho fora da política e política sem aparelhos
   await expect(dark.getByText('Nenhum aparelho usa esta política ainda')).toBeVisible();
   await shotC(dark, '09-ilustracao-escuro');
   await ctx.close();
+});
+
+// ---------------------------------------------------------------------------
+// Fase D — comandos (mesma sessão do administrador). Cada código do app só vale uma vez no
+// “refazer MFA”, então cada uso pega uma janela de 30 s diferente e crescente.
+// ---------------------------------------------------------------------------
+const SHOTS_D = process.env.CAPTURAS ? new URL('../../../docs/design/telas-d/', import.meta.url) : null;
+const shotD = async (p: Page, name: string, fullPage = true) => {
+  if (SHOTS_D) {
+    if (fullPage) await p.evaluate(() => window.scrollTo(0, 0));
+    await p.waitForTimeout(900);
+    await p.screenshot({ path: new URL(`${name}.png`, SHOTS_D).pathname, fullPage });
+  }
+};
+const onlineDevice = async (index: number) => {
+  await page.goto('/aparelhos?connectivity=online&sort=name');
+  const link = page.locator('tbody tr td a').nth(index);
+  const name = (await link.innerText()).trim();
+  await link.click();
+  await expect(page.getByRole('heading', { name })).toBeVisible();
+  return name;
+};
+
+test('modo perdido: do pedido até a aplicação verificada pelo aparelho', async () => {
+  const name = await onlineDevice(0);
+  await page.getByRole('tab', { name: 'Comandos' }).click();
+  await page.getByRole('button', { name: 'Ativar modo perdido…' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Telefone de contato (opcional)').fill('(11) 4000-0000');
+  await dialog.getByLabel(/Motivo/).fill('perdido na rota Norte');
+  await dialog.getByLabel(/Para confirmar, digite o nome do aparelho/).fill(name);
+  await shotD(page, '01-dialogo-modo-perdido', false);
+  await dialog.getByRole('button', { name: 'Ativar modo perdido', exact: true }).click();
+  await expect(page.getByText('“Ativar modo perdido” enviado.')).toBeVisible();
+  // Aparelho intermitente pode não ser “acordado” pelo provedor: força a comunicação (simulador).
+  await page.getByRole('button', { name: 'Simular comunicação do aparelho agora' }).click();
+  const cmd = page.getByTestId('command').first();
+  await expect(cmd.getByText('✓ Aplicação verificada')).toBeVisible({ timeout: 20_000 });
+  await expect(cmd.getByText('✓ Confirmado pelo provedor')).toBeVisible();
+  await expect(cmd.getByText('✓ Recebido pelo aparelho')).toBeVisible();
+  await expect(page.locator('main').getByText('Em modo perdido').first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole('button', { name: 'Desativar modo perdido…' })).toBeVisible();
+  await shotD(page, '02-aparelho-comandos');
+});
+
+test('apagar 1 aparelho: desligado por padrão; ligar e apagar exigem o código do app', async () => {
+  const name = await onlineDevice(1);
+  await page.getByRole('tab', { name: 'Comandos' }).click();
+  await page.getByRole('button', { name: 'Apagar aparelho…' }).click();
+  await expect(page.getByRole('dialog').getByText('Apagar aparelhos está desligado')).toBeVisible();
+  const deviceUrl = page.url();
+  await page.getByRole('dialog').getByRole('link', { name: 'Configurações' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Configurações' })).toBeVisible();
+  await page.getByLabel('Código do app autenticador').fill('000000');
+  await page.getByRole('button', { name: 'Ligar apagamento de aparelhos' }).click();
+  await expect(page.locator('main').getByRole('alert')).toContainText('Código inválido');
+  await page.getByLabel('Código do app autenticador').fill(totp(secret, Date.now() - 30_000));
+  await page.getByRole('button', { name: 'Ligar apagamento de aparelhos' }).click();
+  await expect(page.getByText('Apagar aparelhos foi ligado.')).toBeVisible();
+  await shotD(page, '03-configuracoes');
+
+  await page.goto(deviceUrl);
+  await page.getByRole('tab', { name: 'Comandos' }).click();
+  await page.getByRole('button', { name: 'Apagar aparelho…' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText('IRREVERSÍVEL')).toBeVisible();
+  await dialog.getByLabel(/Motivo/).fill('aparelho roubado, boletim 1234');
+  await dialog.getByLabel(/Para confirmar, digite o nome do aparelho/).fill('nome errado');
+  await dialog.getByLabel('Código do app autenticador').fill(totp(secret));
+  await shotD(page, '04-dialogo-apagar', false);
+  await dialog.getByRole('button', { name: 'Apagar aparelho', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('nome do aparelho');
+  await dialog.getByLabel(/Para confirmar, digite o nome do aparelho/).fill(name);
+  await dialog.getByRole('button', { name: 'Apagar aparelho', exact: true }).click();
+  await expect(page.getByText('“Apagar aparelho” enviado.')).toBeVisible();
+  await page.getByRole('button', { name: 'Simular comunicação do aparelho agora' }).click();
+  await expect(page.getByTestId('command').first().getByText('✓ Aplicação verificada')).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByText('Apagado · fora do gerenciamento')).toBeVisible({ timeout: 10_000 });
+});
+
+test('lote: bloquear vários; apagar vários só com aprovação de OUTRO administrador', async () => {
+  await page.goto('/aparelhos?connectivity=online&sort=name');
+  const rows = page.locator('tbody tr');
+  await rows.nth(3).getByRole('checkbox').check();
+  await rows.nth(4).getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Bloquear', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Enviar comando' }).click();
+  await expect(page.getByText('2 comando(s) na fila.')).toBeVisible();
+
+  await rows.nth(5).getByRole('checkbox').check();
+  await rows.nth(6).getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Apagar…' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel(/Motivo/).fill('loja Centro fechada');
+  await dialog.getByLabel(/Para confirmar, digite/).fill('APAGAR 2');
+  await dialog.getByLabel('Código do app autenticador').fill(totp(secret, Date.now() + 30_000));
+  await dialog.getByRole('button', { name: 'Pedir aprovação' }).click();
+  await expect(page.getByText(/enviado para aprovação de outro administrador/)).toBeVisible();
+
+  await page.getByRole('link', { name: 'Comandos', exact: true }).first().click();
+  const approval = page.getByTestId('approval').first();
+  await expect(approval.getByText('Aguardando outro administrador aprovar.')).toBeVisible();
+  await expect(approval.getByRole('button', { name: 'Aprovar apagamento…' })).toHaveCount(0);
+  // Aceite do provedor aparece logo; a aplicação depende de cada aparelho comunicar.
+  await expect(page.getByText('✓ Confirmado pelo provedor').first()).toBeVisible({ timeout: 20_000 });
+  await shotD(page, '05-comandos-aprovacao');
+
+  await approval.getByRole('button', { name: 'Retirar pedido…' }).click();
+  await page
+    .getByRole('dialog')
+    .getByLabel(/Motivo/)
+    .fill('aparelhos foram recolhidos');
+  await page.getByRole('dialog').getByRole('button', { name: 'Recusar pedido' }).click();
+  await expect(page.getByText('Pedido recusado. Os comandos foram cancelados.')).toBeVisible();
+  await expect(page.getByText('Nenhum pedido aguardando aprovação.')).toBeVisible();
+});
+
+test('visão geral mostra comandos em andamento e modo perdido', async () => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Comandos em andamento/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Em modo perdido/ })).toContainText('1');
+  await shotD(page, '06-visao-geral');
 });

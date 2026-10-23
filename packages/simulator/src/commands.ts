@@ -110,9 +110,20 @@ export async function deliverCommands(tx: Tx, tenantId: string, deviceId: string
         break;
       }
       case 'wipe': {
+        // Fora do gerenciamento: sem política, conformidade “não se aplica”.
         await tx
           .update(devices)
-          .set({ enrollmentState: 'unenrolled', lostModeSince: null })
+          .set({
+            enrollmentState: 'unenrolled',
+            lostModeSince: null,
+            policyId: null,
+            policyVersion: null,
+            appliedPolicyVersion: null,
+            policyReport: null,
+            compliance: 'not_applicable',
+            complianceReasons: [],
+            complianceEvaluatedAt: now,
+          })
           .where(eq(devices.id, deviceId));
         await tx.update(simDevices).set({ nextCheckInAt: null }).where(eq(simDevices.deviceId, deviceId));
         await deviceEvent(tx, c, now, 'wiped', {});

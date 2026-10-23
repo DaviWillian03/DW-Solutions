@@ -222,6 +222,8 @@ describe('aparelho recebe e relata', () => {
       tx.select().from(devices).where(eq(devices.id, id)),
     );
     expect(d!.enrollmentState).toBe('unenrolled');
+    expect(d!.policyId).toBeNull();
+    expect(d!.compliance).toBe('not_applicable');
     // Novo comando para aparelho apagado nunca é enviado.
     const late = await queued(id, 'lock');
     await processCommand(deps, { tenantId, commandId: late.id });

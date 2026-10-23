@@ -33,7 +33,7 @@ monograma M2 (M1 no favicon), animações expressivas com `prefers-reduced-motio
 Monólito modular TypeScript 6: `apps/web` (Next.js 16), `apps/api` (NestJS 12), `apps/worker` (BullMQ),
 `packages/contracts|db|config`. PostgreSQL com **RLS por `tenant_id`** (toda consulta via `withTenant`),
 Drizzle, Better Auth (TOTP + passkey, MFA obrigatório para admins), plataforma **sem acesso** a dados de
-clientes. Ver `docs/adr/0002`–`0007`.
+clientes. Ver `docs/adr/0002`–`0008`.
 
 ## Escopo (CP4)
 MVP enxuto: colocar smartphones de **vendas e merchandising** sob gerenciamento. Perfis Admin e Leitura;
@@ -63,6 +63,9 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 - Políticas (ADR-0007): modelo em `@dw/contracts` (`policySettingsSchema`, `evaluateCompliance`); versões
   imutáveis; publicar exige `baseVersion` (409 em conflito); conformidade nunca presumida — “Desconhecido” até o
   aparelho relatar; nenhuma regra bloqueia/apaga aparelho automaticamente.
+- Comandos (ADR-0008): estados em `@dw/contracts`; mudar estado só com `transitionCommand` (grava histórico);
+  aceite do provedor nunca é “aplicado”; ações sensíveis usam `StepUpService` (MFA de novo, uso único) e
+  tentativas negadas vão para a auditoria.
 - Verificação antes de commit: rode lint, format:check, typecheck e test em sequência parando no 1º erro
   (nunca `comando | grep && git commit`).
 - Site: textos em pt-BR, componentes de `apps/web/components/ui.tsx`, tokens do design system em

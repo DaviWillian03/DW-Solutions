@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { AppShell, Card, PageHeader, useMe } from '@/components/app-shell';
+import { DeviceCommands } from '@/components/device-commands';
 import { CompliancePill, ConnectivityPill, Observed, Pill } from '@/components/status';
 import { Alert, Button } from '@/components/ui';
 import { api, ApiError } from '@/lib/api';
@@ -26,14 +27,14 @@ export default function AparelhoPage() {
   );
 }
 
-type Tab = 'resumo' | 'politica' | 'responsavel' | 'linha' | 'capacidades';
-const TABS: { id: Tab | 'comandos'; label: string; future?: string }[] = [
+type Tab = 'resumo' | 'politica' | 'comandos' | 'responsavel' | 'linha' | 'capacidades';
+const TABS: { id: Tab; label: string; future?: string }[] = [
   { id: 'resumo', label: 'Resumo' },
   { id: 'politica', label: 'Política' },
+  { id: 'comandos', label: 'Comandos' },
   { id: 'responsavel', label: 'Responsável' },
   { id: 'linha', label: 'Linha do tempo' },
   { id: 'capacidades', label: 'Capacidades' },
-  { id: 'comandos', label: 'Comandos', future: 'Fase D' },
 ];
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -92,6 +93,12 @@ function Aparelho() {
             </span>
             <ConnectivityPill value={d.connectivity} lastSeenAt={d.lastSeenAt} />
             <CompliancePill status={d.compliance.status} at={d.compliance.evaluatedAt} />
+            {d.lostModeSince && (
+              <span title={`Desde ${dateTime(d.lostModeSince)} (relatado pelo aparelho)`}>
+                <Pill tone="warn">Em modo perdido</Pill>
+              </span>
+            )}
+            {d.enrollmentState === 'unenrolled' && <Pill tone="crit">Apagado · fora do gerenciamento</Pill>}
             <Pill tone="info">origem: {SOURCE[d.source]}</Pill>
           </div>
         }
@@ -180,6 +187,8 @@ function Aparelho() {
       )}
 
       {tab === 'politica' && <PolicyTab device={d} canEdit={me.user.role === 'admin'} onChanged={load} />}
+
+      {tab === 'comandos' && <DeviceCommands device={d} onDeviceChanged={load} />}
 
       {tab === 'responsavel' && <HolderTab device={d} canEdit={me.user.role === 'admin'} onChanged={load} />}
 

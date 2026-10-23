@@ -41,4 +41,9 @@ export const EVENT_LABEL: Record<string, string> = {
   policy_updated: 'Nova versão da política publicada',
   policy_applied: 'Aparelho relatou a política aplicada',
   compliance_changed: 'Conformidade mudou',
+  rebooted: 'Aparelho reiniciou',
+  lost_mode_started: 'Modo perdido ativado',
+  lost_mode_stopped: 'Modo perdido desativado',
+  app_data_cleared: 'Dados de app apagados',
+  wiped: 'Aparelho apagado (saiu do gerenciamento)',
 };

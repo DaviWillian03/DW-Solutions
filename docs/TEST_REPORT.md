@@ -202,3 +202,41 @@ aparelhos no navegador (API testada com lote de até 500 IDs na validação, 50�
 **CI da Fase C (commit 23d6854):** ✅ todos os jobs, incluindo os 23 testes de navegador:
 https://github.com/DaviWillian03/DW-Solutions/actions/runs/39994031473 (runs de C1 e da correção foram
 canceladas pela run seguinte; C2 verde: https://github.com/DaviWillian03/DW-Solutions/actions/runs/39991728606)
+
+## 2026-10-23 · Fase D (comandos) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` | ✅ **175 testes**: contratos 10 · banco 51 · simulador 17 · API 82 · worker 15 |
+| `pnpm e2e` (API + site + worker reais, banco de teste) | ✅ **27 testes de navegador** (4 execuções; 1 falhou por verificação fraca no próprio teste — corrigida) |
+| `pnpm lint` · `pnpm typecheck` (8 pacotes) · `pnpm format:check` · `pnpm build` | ✅ |
+| `pnpm audit --audit-level high` | ✅ nenhuma vulnerabilidade conhecida |
+| `pnpm db:migrate` (dev) | ✅ migrações 0009–0010 aplicadas |
+
+**Cobertura nova:**
+- Banco: comandos isolados por empresa; FK composta impede comando para aparelho de outra empresa; tipo, alvo e
+  solicitante imutáveis; sem DELETE; histórico somente inserção; estado final não volta; quem pede não aprova;
+  decisão do lote é única; apagamento desligado por padrão.
+- Worker: aceite do provedor ≠ aplicação; idempotência; 3 tentativas com falha explicada; vencido e cancelado não
+  são enviados; bloquear com todas as etapas; modo perdido liga/desliga (e falha se não estava ativo); limpar dados
+  falha se o app não existe; apagar tira o aparelho do gerenciamento e cancela pendentes; **aparelho sem sinal:
+  comando expira e não executa quando ele volta 3 dias depois**; com prazo válido, executa ao voltar.
+- API: fila + tarefa para o worker; idempotência; sem duplicar pendente; modo perdido exige mensagem, motivo e
+  nome; cancelamento auditado; perfil Leitura só acompanha; wipe desligado recusado e auditado; ligar exige MFA;
+  código reutilizado recusado; código errado recusado e auditado; wipe de 1 aparelho; lote de wipe com 2º admin
+  (quem pede não aprova, aprovar exige MFA, decisão única); recusa cancela com motivo; lote de bloqueio informa
+  ignorados; isolamento entre empresas; **5 códigos errados bloqueiam por 15 min**; validação de tipo/parâmetros.
+- E2E (fluxo 4 do CP4): modo perdido até “aplicação verificada”; apagar 1 aparelho com wipe desligado → ligar em
+  Configurações (código errado e certo) → nome errado recusado → apagado e fora do gerenciamento; lote de bloqueio;
+  lote de apagamento aguardando outro admin (quem pediu não vê “Aprovar”) e retirado; visão geral com comandos e
+  modo perdido; perfil Leitura sem ações.
+
+**Capturas:** `docs/design/telas-d/` (`CAPTURAS=1 pnpm e2e`); telas B e C recapturadas.
+
+**Problemas encontrados e corrigidos:** aparelho apagado continuava em “fora da política” (agora sai do
+gerenciamento sem política); menu do topo com 7 itens quebrava texto em 1280 px (subtítulo da marca só em telas
+largas, itens sem quebra); geração de migração dependia do build de `@dw/contracts` (script `db:generate` agora
+compila antes); teste E2E aceitava o rótulo de etapa ainda não concluída (passou a exigir a marca ✓).
+
+**NÃO EXECUTADO:** aprovação de lote pelo 2º admin no navegador (coberta nos testes da API); leitor de tela real;
+celular por captura; carga de 500 comandos em lote no worker.

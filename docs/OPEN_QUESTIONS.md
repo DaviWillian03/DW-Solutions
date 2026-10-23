@@ -14,6 +14,9 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 
 ## CHECKPOINT 5 — ✅ respondido em 2026-10-23 (telas aprovadas; ilustrações junto com a Fase C)
 
+## Próximo passo — ABERTO
+- Depois da Fase D: tela de Auditoria (M11) + acabamento, ou outro foco? (perguntado em múltipla escolha)
+
 ## Checkpoints futuros
 
 ## Pendências que não bloqueiam agora

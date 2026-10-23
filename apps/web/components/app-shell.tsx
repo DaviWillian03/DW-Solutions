@@ -11,9 +11,10 @@ const NAV: { href: string; label: string; future?: string }[] = [
   { href: '/', label: 'Visão geral' },
   { href: '/aparelhos', label: 'Aparelhos' },
   { href: '/politicas', label: 'Políticas' },
+  { href: '/comandos', label: 'Comandos' },
   { href: '/responsaveis', label: 'Responsáveis' },
   { href: '/usuarios', label: 'Usuários' },
-  { href: '#comandos', label: 'Comandos', future: 'Fase D' },
+  { href: '/configuracoes', label: 'Configurações' },
 ];
 
 const MeContext = createContext<Me | null>(null);
@@ -52,16 +53,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-bg">
         <header className="sticky top-0 z-20 flex h-[68px] items-center gap-6 border-b border-border bg-surface px-4 md:px-10">
           <Link href="/" aria-label="DW Solutions — Visão geral">
-            <Brand />
+            <Brand compact />
           </Link>
-          <nav aria-label="Principal" className="hidden gap-0.5 rounded-xl bg-surface-2 p-1 lg:flex">
+          <nav aria-label="Principal" className="hidden gap-0.5 rounded-xl bg-surface-2 p-1 xl:flex">
             {NAV.map((item) =>
               item.future ? (
                 <span
                   key={item.label}
                   aria-disabled="true"
                   title={`Disponível na ${item.future}`}
-                  className="cursor-not-allowed rounded-[9px] px-3 py-1.5 text-[13px] font-semibold text-muted opacity-70"
+                  className="cursor-not-allowed whitespace-nowrap rounded-[9px] px-2.5 py-1.5 text-[13px] font-semibold text-muted opacity-70"
                 >
                   {item.label}
                 </span>
@@ -70,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={item.href}
                   href={item.href}
                   aria-current={active(item.href) ? 'page' : undefined}
-                  className={`rounded-[9px] px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+                  className={`whitespace-nowrap rounded-[9px] px-2.5 py-1.5 text-[13px] font-semibold transition-colors ${
                     active(item.href) ? 'bg-royal text-on-royal' : 'text-text-2 hover:text-text'
                   }`}
                 >
@@ -81,8 +82,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden text-right leading-tight sm:block">
-              <div className="text-[13px] font-bold">{me.user.name}</div>
-              <div className="text-[11.5px] text-muted">
+              <div className="whitespace-nowrap text-[13px] font-bold">{me.user.name}</div>
+              <div className="max-w-[260px] truncate text-[11.5px] text-muted">
                 {papel} · {me.tenant.name}
               </div>
             </div>
@@ -93,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <nav
           aria-label="Principal (celular)"
-          className="flex gap-1 overflow-x-auto border-b border-border bg-surface px-4 py-2 lg:hidden"
+          className="flex gap-1 overflow-x-auto border-b border-border bg-surface px-4 py-2 xl:hidden"
         >
           {NAV.filter((i) => !i.future).map((item) => (
             <Link

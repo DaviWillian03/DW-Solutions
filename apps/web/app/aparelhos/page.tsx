@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type FormEvent, Suspense, useCallback, useEffect, useState } from 'react';
 import { AppShell, Card, PageHeader, SourceLine, useMe } from '@/components/app-shell';
-import { CompliancePill, ConnectivityPill, Observed } from '@/components/status';
+import { MfaField } from '@/components/commands';
+import { Dialog } from '@/components/dialog';
+import { CompliancePill, ConnectivityPill, Observed, Pill } from '@/components/status';
 import { Alert, Button } from '@/components/ui';
 import { api, ApiError } from '@/lib/api';
 import { MANUFACTURER } from '@/lib/format';
@@ -181,6 +183,16 @@ function Aparelhos() {
           </div>
         )}
         {isAdmin && selected.size > 0 && (
+          <BulkCommands
+            ids={[...selected]}
+            onDone={(message) => {
+              setNotice(message);
+              setSelected(new Set());
+              load();
+            }}
+          />
+        )}
+        {isAdmin && selected.size > 0 && (
           <BulkPolicy
             ids={[...selected]}
             policies={policies}
@@ -247,6 +259,8 @@ function Aparelhos() {
                     <div className="text-[12px] text-muted">
                       {MANUFACTURER[d.manufacturer]} {d.model}
                     </div>
+                    {d.lostModeSince && <Pill tone="warn">Em modo perdido</Pill>}
+                    {d.enrollmentState === 'unenrolled' && <Pill tone="crit">Apagado</Pill>}
                   </td>
                   <td className="px-3 py-3">
                     {d.holder?.name ?? <span className="text-muted">Sem responsável</span>}
@@ -374,5 +388,124 @@ function BulkPolicy({
         </div>
       )}
     </form>
+  );
+}
+
+/** Comandos para vários aparelhos. Apagar em lote vai para aprovação de um 2º administrador. */
+function BulkCommands({ ids, onDone }: { ids: string[]; onDone: (message: string) => void }) {
+  const [type, setType] = useState<'lock' | 'reboot' | 'wipe' | null>(null);
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const n = ids.length;
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    setBusy(true);
+    setError(undefined);
+    try {
+      const r = await api<{
+        created: number;
+        skipped: { deviceName: string; reason: string }[];
+        status: string;
+      }>('/commands/batch', {
+        method: 'POST',
+        body: JSON.stringify({
+          type,
+          deviceIds: ids,
+          reason: String(f.get('reason') ?? '') || null,
+          confirmText: f.get('confirmText') ? String(f.get('confirmText')) : null,
+          mfaCode: f.get('mfaCode') ? String(f.get('mfaCode')) : null,
+        }),
+      });
+      const skipped = r.skipped.length
+        ? ` ${r.skipped.length} ignorado(s): ${r.skipped.map((s) => `${s.deviceName} (${s.reason})`).join(', ')}.`
+        : '';
+      onDone(
+        r.status === 'waiting_approval'
+          ? `Pedido de apagamento de ${r.created} aparelho(s) enviado para aprovação de outro administrador (página Comandos).${skipped}`
+          : `${r.created} comando(s) na fila. Acompanhe em Comandos.${skipped}`,
+      );
+      setType(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Não foi possível enviar.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="dw-rise mb-3 flex flex-wrap items-center gap-2.5 rounded-xl border border-border bg-surface-2 p-3">
+      <strong className="text-[14px]">Comando para {n} selecionado(s):</strong>
+      <Button variant="secondary" onClick={() => setType('lock')}>
+        Bloquear
+      </Button>
+      <Button variant="secondary" onClick={() => setType('reboot')}>
+        Reiniciar
+      </Button>
+      <Button
+        variant="secondary"
+        className="!border-crit/50 !text-crit"
+        disabled={n < 2}
+        onClick={() => setType('wipe')}
+      >
+        Apagar…
+      </Button>
+      {n < 2 && <span className="text-[12px] text-muted">Para apagar 1 aparelho, use a página dele.</span>}
+      <Dialog
+        open={type !== null}
+        onClose={() => setType(null)}
+        danger={type === 'wipe'}
+        title={
+          type === 'wipe'
+            ? `Pedir apagamento de ${n} aparelhos`
+            : `${type === 'lock' ? 'Bloquear' : 'Reiniciar'} ${n} aparelho(s)`
+        }
+      >
+        <form onSubmit={submit} className="flex flex-col gap-3">
+          {type === 'wipe' ? (
+            <div className="rounded-xl bg-crit-s p-3 text-[14px] text-crit">
+              <p className="font-bold">IRREVERSÍVEL depois de aprovado: tudo nos aparelhos é apagado.</p>
+              <p>O pedido só é executado se OUTRO administrador aprovar em até 24 h.</p>
+            </div>
+          ) : (
+            <p className="text-[14px] text-text-2">
+              {type === 'lock'
+                ? 'As telas são bloqueadas; cada responsável desbloqueia com a própria senha.'
+                : 'Os aparelhos reiniciam; apps abertos são fechados.'}{' '}
+              Aparelhos sem sinal recebem quando voltarem a comunicar, se ainda dentro do prazo.
+            </p>
+          )}
+          <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
+            Motivo {type === 'wipe' ? '(obrigatório)' : '(opcional)'}
+            <input
+              name="reason"
+              required={type === 'wipe'}
+              minLength={3}
+              maxLength={300}
+              className={SELECT}
+            />
+          </label>
+          {type === 'wipe' && (
+            <>
+              <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
+                Para confirmar, digite <strong className="text-crit">APAGAR {n}</strong>
+                <input name="confirmText" required autoComplete="off" className={SELECT} />
+              </label>
+              <MfaField />
+            </>
+          )}
+          {error && <Alert>{error}</Alert>}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => setType(null)}>
+              Voltar
+            </Button>
+            <Button type="submit" disabled={busy} className={type === 'wipe' ? '!bg-crit !shadow-none' : ''}>
+              {type === 'wipe' ? 'Pedir aprovação' : 'Enviar comando'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
+    </div>
   );
 }

@@ -220,3 +220,11 @@ Capturas avaliadas: `docs/design/telas-b/` (dados simulados).
 | C-3 | Próximo passo | **iniciar Fase D (rec.)** · ajustar telas · pausar | **Iniciar Fase D — comandos** |
 
 Decisões técnicas da Fase C (delegadas): ADR-0007 (políticas versionadas, conflito 409, conformidade nunca presumida).
+
+## Fase D — decisões técnicas delegadas (2026-10-23)
+
+ADR-0008: estados verificáveis com histórico; 3 tentativas de envio; validade por tipo (24 h bloquear/reiniciar,
+7 dias modo perdido, 72 h limpar dados, 30 dias apagar, 24 h aprovação); cancelamento só antes de o aparelho
+receber; apagar desligado por padrão e ligado só com MFA; lote de apagamento com 2º admin; refazer MFA com limite
+de 5 erros/15 min e código de uso único; modo perdido sem coleta de localização. Todas reversíveis — podem mudar
+por decisão do usuário.
