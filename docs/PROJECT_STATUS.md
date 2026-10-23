@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **Fase C concluída** → aprovação das 2 amostras de ilustração e início da **Fase D — comandos** (aguardando o usuário)
+**Fase atual:** **Fase D — comandos** (em andamento; ilustrações e limite de patch aprovados)
 **Código:** Fases A, B e C completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade. 141 testes + 23 E2E.
 
 ## Feito
@@ -38,7 +38,7 @@
 | 8 | ✅ Fase B — Simulador + aparelhos | Simulador, worker, cadastro QR demo, aparelhos, responsáveis, usuários, visão geral | — |
 | 9 | ✅ CHECKPOINT 5 | Telas aprovadas | — |
 | 10 | ✅ Fase C — Políticas | C1 modelo + banco + simulador · C2 API · C3 telas, ilustrações e E2E | — |
-| 11 | Fase D — Comandos | Bloquear, reiniciar, modo perdido, limpar dados de app e wipe com estados verificáveis | Aprovação do usuário |
+| 11 | Fase D — Comandos | Bloquear, reiniciar, modo perdido, limpar dados de app e wipe com estados verificáveis | — (em andamento) |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 

@@ -17,8 +17,6 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 ## Checkpoints futuros
 
 ## Pendências que não bloqueiam agora
-- Aprovação das 2 amostras de ilustração colorida (A1 “política sem aparelhos”, A2 “nenhum fora da política”) —
-  capturas em `docs/design/telas-c/07`–`09`; perguntado ao fim da Fase C.
 - Região de hospedagem dos dados (CP3-4) — CHECKPOINT 8.
 - Processo de verificação de identidade para recuperar acesso do admin de uma empresa (ADR-0005) — CHECKPOINT 8.
 - Aparelho Android resetável para laboratório — necessário só no CHECKPOINT 6.

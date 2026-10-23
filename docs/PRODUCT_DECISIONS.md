@@ -210,3 +210,13 @@ Capturas avaliadas: `docs/design/telas-b/` (dados simulados).
 | CP5-2 | Estados de comunicação | **manter (rec.)** · outros nomes · outro limite que 24 h | **Manter** “Com sinal” / “Sem sinal há +24 h” / “Desconhecido”, com horário da leitura |
 | CP5-3 | Amostra de ilustração colorida | **junto com a Fase C (rec.)** · agora · não usar | **Junto com a Fase C**: 2 amostras aplicadas às telas vazias de Políticas, para aprovação |
 | CP5-4 | “Outro formato” de logo (CP2-12) | **nenhum além dos atuais (rec.)** · PDF · redes sociais · timbrado | **Nenhum** — SVG, PNG, favicon e ícone de app bastam |
+
+## Fim da Fase C (DECIDIDO em 2026-10-23)
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| C-1 | Amostras de ilustração A1/A2 | **aprovadas (rec.)** · mais simples · mais coloridas · não usar | **Aprovadas** — estilo oficial das telas vazias e de ajuda |
+| C-2 | Limite padrão da idade do patch de segurança | **180 dias (rec.)** · 365 · 90 · sem limite | **180 dias** nas políticas prontas (editável por política) |
+| C-3 | Próximo passo | **iniciar Fase D (rec.)** · ajustar telas · pausar | **Iniciar Fase D — comandos** |
+
+Decisões técnicas da Fase C (delegadas): ADR-0007 (políticas versionadas, conflito 409, conformidade nunca presumida).

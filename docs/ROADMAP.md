@@ -11,7 +11,7 @@
 | Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | ✅ concluída |
 | CP5 | Revisão das primeiras telas reais | Fase B | ✅ concluído (telas aprovadas) |
 | Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ✅ concluída (ADR-0007) |
-| Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | 🟡 próxima (aguardando “pode começar”) |
+| Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | 🟡 em andamento |
 | Fase E | Dashboard, alertas, incidentes, relatórios | Fase D | ⚪ |
 | CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | ⚪ |
 | CP7 / Fase G | Automações e IA supervisionada | Fase E | ⚪ |

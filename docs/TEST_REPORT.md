@@ -198,3 +198,7 @@ https://github.com/DaviWillian03/DW-Solutions/actions/runs/39975906990
 
 **NÃO EXECUTADO:** leitor de tela real; responsividade em celular por captura; carga de políticas com 500
 aparelhos no navegador (API testada com lote de até 500 IDs na validação, 50–120 aparelhos reais por empresa).
+
+**CI da Fase C (commit 23d6854):** ✅ todos os jobs, incluindo os 23 testes de navegador:
+https://github.com/DaviWillian03/DW-Solutions/actions/runs/39994031473 (runs de C1 e da correção foram
+canceladas pela run seguinte; C2 verde: https://github.com/DaviWillian03/DW-Solutions/actions/runs/39991728606)

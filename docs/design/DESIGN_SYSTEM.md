@@ -79,7 +79,7 @@ Faixa de simulação: `#6E4600` sobre `#FFF6DC` (claro) · `#FCD679` sobre âmba
   Antes de uso comercial: revisão por designer e busca de marca no INPI.
 
 ## 7. Ilustrações — coloridas (CP2-11)
-- Amostras (Fase C, aguardando aprovação): **A1** “política sem aparelhos” e **A2** “nenhum aparelho fora da
+- Estilo **aprovado** (C-1, 2026-10-23) a partir das amostras da Fase C: **A1** “política sem aparelhos” e **A2** “nenhum aparelho fora da
   política” em `apps/web/components/illustrations.tsx` (SVG em linha, cores pelos tokens, flutuação suave
   desligada com “reduzir movimento”). Capturas: `docs/design/telas-c/07`–`09`.
 - Acento quente `--warm` (#FF9B54 claro / #FFB27D escuro) só para decoração das ilustrações.
