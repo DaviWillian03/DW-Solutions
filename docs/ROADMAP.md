@@ -6,12 +6,12 @@
 | CP1 | Nome e posicionamento | CP0 | ✅ concluído (DW Solutions) |
 | CP2 | Direção visual, logo, protótipos | CP1 | ✅ concluído (design system v1) |
 | CP3 | Arquitetura e implantação (ADRs) | CP0 | ✅ concluído (ADRs 0002–0006) |
-| CP4 | Escopo do MVP (MoSCoW) | CP3 | 🟡 próximo |
-| Fase A | Fundamentos: monorepo, Docker, auth, schema, RBAC, tenant | CP3 | ⚪ |
-| Fase B | Inventário com simulador | Fase A | ⚪ |
+| CP4 | Escopo do MVP (MoSCoW) | CP3 | ✅ concluído (MVP enxuto) |
+| Fase A | Fundamentos: monorepo, setup do container, banco + RLS, login + MFA, perfis | CP4 | 🟡 em andamento |
+| Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | ⚪ |
 | CP5 | Revisão das primeiras telas reais | Fase B | ⚪ |
-| Fase C | Políticas versionadas e conformidade | Fase B | ⚪ |
-| Fase D | Orquestração de comandos (filas, estados, aprovações) | Fase C | ⚪ |
+| Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ⚪ |
+| Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | ⚪ |
 | Fase E | Dashboard, alertas, incidentes, relatórios | Fase D | ⚪ |
 | CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | ⚪ |
 | CP7 / Fase G | Automações e IA supervisionada | Fase E | ⚪ |

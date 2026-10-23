@@ -181,3 +181,21 @@ Proposta: `docs/architecture/CHECKPOINT_3_PROPOSTA.md`. ADRs 0002–0006 em `doc
 Decisões técnicas delegadas (ADR-0002/0006): TypeScript 6, Node 22, pnpm workspaces, Next.js 16, NestJS 12,
 Zod 4, BullMQ/Redis, pino, Vitest/Supertest/Playwright, ambiente sem Docker com PostgreSQL/Redis nativos,
 CI GitHub Actions gratuita, `minimumReleaseAge` de 7 dias.
+
+## CHECKPOINT 4 — Escopo do MVP (DECIDIDO em 2026-10-23)
+
+Documento: `docs/product/CHECKPOINT_4_MVP.md` (v2 simplificada, aprovada).
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| CP4-1 | Foco do primeiro produto | inventário+políticas (rec.) · PDV/quiosque · segurança · comandos | **Resposta livre:** “somente colocar smartphones em um gerenciamento MDM […] usado para **vendas e merchandising**”. Escopo reduzido (v1 74 pts → v2 52 pts) |
+| CP4-2 | Comandos no MVP | bloquear+reiniciar (rec.) · modo perdido · limpar dados de app · wipe | **Todos**: bloquear, reiniciar, modo perdido, limpar dados de app, wipe (só simulador) |
+| CP4-3 | Perfis | 4 essenciais (rec.) · **só admin e leitura** · 7 perfis · personalizáveis | **Administrador e Leitura** |
+| CP4-4 | Itens desejáveis | **QR demo (rec.)** · catálogo de apps · CSV · rollout | **Cadastro com QR de demonstração** |
+| CP4-5 | Organização dos aparelhos | equipe+responsável (rec.) · **só responsável** · região+responsável | **Só responsável** (política escolhida por aparelho) |
+| CP4-6 | Regra do wipe | **1 aparelho: admin + MFA (rec.)** · sempre 2 admins · admin sozinho | **1 aparelho: admin + nome + MFA novamente; vários: 2º admin aprova** |
+| CP4-7 | Aprovação do escopo | **aprovado (rec.)** · ainda grande · falta algo | **Aprovado — iniciar Fase A** |
+
+**Consequências:** sem lojas/PDV/quiosque/departamentos no MVP; criação de empresa por script (ADR-0005
+mantido); a referência visual troca “cartões por loja” por “aparelhos que precisam de atenção”; políticas
+Vendas e Merchandising. Simplificação reversível: a estrutura multiempresa e RLS continuam (ADR-0004).

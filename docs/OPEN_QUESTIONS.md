@@ -10,8 +10,11 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 
 ## CHECKPOINT 3 — ✅ respondido em 2026-10-23 (ADRs 0002–0006)
 
-## CHECKPOINT 4 — Escopo do primeiro MVP (próximo)
-- Backlog MoSCoW, fluxos, mapa de telas, esforço relativo, critérios de aceite, foco do primeiro produto.
+## CHECKPOINT 4 — ✅ respondido em 2026-10-23 (MVP enxuto: smartphones de vendas e merchandising)
+
+## CHECKPOINT 5 — Revisão das primeiras telas reais (após Fase B)
+- Feedback sobre visão geral, lista e página do aparelho, políticas, estados e linguagem visual.
+- Amostra de ilustração colorida.
 
 ## Checkpoints futuros
 

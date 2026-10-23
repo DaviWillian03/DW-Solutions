@@ -35,8 +35,13 @@ Monólito modular TypeScript 6: `apps/web` (Next.js 16), `apps/api` (NestJS 12),
 Drizzle, Better Auth (TOTP + passkey, MFA obrigatório para admins), plataforma **sem acesso** a dados de
 clientes. Ver `docs/adr/0002`–`0006`.
 
+## Escopo (CP4)
+MVP enxuto: colocar smartphones de **vendas e merchandising** sob gerenciamento. Perfis Admin e Leitura;
+aparelho ligado a um responsável; políticas Vendas e Merchandising; comandos bloquear, reiniciar, modo
+perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin). Não expandir sem pedido.
+
 ## Comandos
-Ainda não há código. Esta seção será preenchida na Fase A (após o CHECKPOINT 3).
+Ainda não há código. Esta seção será preenchida na Fase A.
 
 ## Git
 - Branch de desenvolvimento: `claude/mdm-android-corporate-bgfuws`.

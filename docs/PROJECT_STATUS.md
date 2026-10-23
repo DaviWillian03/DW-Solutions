@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** CHECKPOINT 3 concluído → próximo: **CHECKPOINT 4 — Escopo do MVP**, depois **Fase A**
+**Fase atual:** CHECKPOINT 4 concluído → **Fase A em andamento** (fundação)
 **Código:** nenhum ainda.
 
 ## Feito
@@ -17,6 +17,8 @@
   Design system v1 em `docs/design/DESIGN_SYSTEM.md`; marca em `docs/design/marca/`.
 - CHECKPOINT 3 respondido: Better Auth (TOTP + passkey), banco único + RLS, Drizzle, plataforma sem acesso
   a dados de clientes, empresas criadas pela plataforma, região no CP8. ADRs 0002–0006.
+- CHECKPOINT 4 respondido: MVP enxuto para smartphones de vendas e merchandising (≈ 52 pts), perfis Admin e
+  Leitura, responsável por aparelho, 5 comandos simulados, QR de demonstração. `docs/product/CHECKPOINT_4_MVP.md`.
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
@@ -24,11 +26,11 @@
 | 1 | ✅ CHECKPOINT 1 — nome | DW Solutions · acessível · português | — |
 | 2 | ✅ CHECKPOINT 2 — visual | Design system v1 + arquivos da marca + protótipo de referência | — |
 | 3 | ✅ CHECKPOINT 3 — arquitetura | ADRs 0002–0006 | — |
-| 4 | CHECKPOINT 4 — MVP | Backlog MoSCoW e critérios de aceite | Fatia 3 |
+| 4 | ✅ CHECKPOINT 4 — MVP | Escopo enxuto aprovado | — |
 | 5 | A1 — Esqueleto | Monorepo pnpm, lint/typecheck/test, CI, script de setup do container | Fatia 3 |
 | 6 | A2 — Banco | Drizzle + PostgreSQL com RLS, Tenant/User/Role, migrações, seed sintético | Fatia 5 |
-| 7 | A3 — Auth + RBAC | Better Auth + TOTP/passkey, sessões, permissões no backend, testes de isolamento RLS | Fatia 6 |
-| 8 | B1 — Simulador + inventário | `SimulatorProvider`, 100–500 aparelhos, listagem paginada | Fatia 7 |
+| 7 | A3 — Auth + perfis | Better Auth + TOTP/passkey, sessões, perfis Admin/Leitura no backend, testes | Fatia 6 |
+| 8 | B1 — Simulador + aparelhos | `SimulatorProvider`, cadastro com QR demo, lista e página do aparelho | Fatia 7 |
 | 9 | CHECKPOINT 5 | Revisão das primeiras telas reais | Fatias 2 e 8 |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
