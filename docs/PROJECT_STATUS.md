@@ -3,7 +3,7 @@
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
 **Fase atual:** CHECKPOINT 4 concluído → **Fase A em andamento** (fundação)
-**Código:** Fase A1 concluída (fundação: monorepo, setup do container, API com `/health`, CI).
+**Código:** Fases A1 e A2 concluídas (fundação + banco com RLS, auditoria encadeada, seed). 29 testes.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -28,7 +28,7 @@
 | 3 | ✅ CHECKPOINT 3 — arquitetura | ADRs 0002–0006 | — |
 | 4 | ✅ CHECKPOINT 4 — MVP | Escopo enxuto aprovado | — |
 | 5 | ✅ A1 — Esqueleto | Monorepo pnpm, setup do container + hook, API `/health`, CI, Dependabot | — |
-| 6 | A2 — Banco | Drizzle + PostgreSQL com RLS, Tenant/User/Role, migrações, seed sintético | Fatia 5 |
+| 6 | ✅ A2 — Banco | Drizzle + RLS forçado, empresas, responsáveis, auditoria com cadeia de hash, seed | — |
 | 7 | A3 — Auth + perfis | Better Auth + TOTP/passkey, sessões, perfis Admin/Leitura no backend, testes | Fatia 6 |
 | 8 | B1 — Simulador + aparelhos | `SimulatorProvider`, cadastro com QR demo, lista e página do aparelho | Fatia 7 |
 | 9 | CHECKPOINT 5 | Revisão das primeiras telas reais | Fatias 2 e 8 |
@@ -36,4 +36,4 @@
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fase A1: 8 testes passando, lint/tipos/build/auditoria OK).
+Ver `docs/TEST_REPORT.md` (A1 + A2: 29 testes passando; CI da A1 verde no GitHub).

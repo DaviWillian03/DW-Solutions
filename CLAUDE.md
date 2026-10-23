@@ -43,6 +43,7 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 ## Comandos
 - `pnpm setup` — prepara PostgreSQL/Redis/.env.local (o hook SessionStart já roda isso na nuvem)
 - `pnpm test` · `pnpm lint` · `pnpm format` · `pnpm typecheck` · `pnpm build`
+- `pnpm db:migrate` · `pnpm db:seed` · `pnpm db:generate` (após mudar `packages/db/src/schema.ts`)
 - `pnpm --filter @dw/api start` — API em http://127.0.0.1:3001 (`/health`)
 - Registrar resultados reais em `docs/TEST_REPORT.md`.
 
@@ -50,6 +51,8 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 - API em **ESM** (NestJS 12): imports relativos com extensão `.js`; testes com Vitest + `unplugin-swc`.
 - Dependências: versão exata; `minimumReleaseAge` de 7 dias bloqueia versões novas — escolha a anterior.
 - Sem `console.log`: usar o logger pino; nunca logar segredos.
+- Dados de empresa **só** via `withTenant()` de `@dw/db`; RLS, permissões e gatilhos ficam em migrações SQL
+  próprias (`packages/db/migrations/*_*.sql`), nunca editar migração já aplicada fora do ambiente local.
 
 ## Git
 - Branch de desenvolvimento: `claude/mdm-android-corporate-bgfuws`.

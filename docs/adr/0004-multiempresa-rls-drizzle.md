@@ -21,3 +21,12 @@ Arquitetura deve ser multiempresa desde o início (CP0-1); vazamento entre empre
 - Toda consulta passa por um helper `withTenant(tx => …)`; consultas fora dele falham por design.
 - Testes obrigatórios: leitura/escrita/atualização/exclusão cruzada entre empresas, IDOR por ID, filial não autorizada.
 - Drizzle ainda é 0.x: fixar versão e ler notas antes de atualizar.
+
+## Notas de implementação (Fase A2, 2026-10-23)
+- `FORCE ROW LEVEL SECURITY` vale também para o dono das tabelas: funções `SECURITY DEFINER` não enxergam
+  linhas sem política para `dw_migrator`. Padrão adotado: funções de leitura rodam como quem chama
+  (`SECURITY INVOKER`); só tabelas internas sem dados de cliente (ex.: `audit_chain_heads`) são acessadas por
+  funções `SECURITY DEFINER` mínimas e com `search_path` fixo.
+- Auditoria: `audit_events` append-only (gatilhos bloqueiam UPDATE/DELETE/TRUNCATE), cadeia SHA-256 por
+  empresa calculada no banco, verificação por `audit_verify_chain()`.
+- Responsáveis (`device_holders`) sem permissão de DELETE: desativação por `status`.
