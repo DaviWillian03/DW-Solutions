@@ -1,3 +1,4 @@
+import { COMPLIANCE_LABEL, type ComplianceStatus } from '@dw/contracts';
 import type { ReactNode } from 'react';
 import { relative } from '@/lib/format';
 
@@ -40,6 +41,18 @@ export function ConnectivityPill({ value, lastSeenAt }: { value: Connectivity; l
       }
     >
       <Pill tone={tone}>{label}</Pill>
+    </span>
+  );
+}
+
+/** Conformidade com a política: sempre com o horário da avaliação no title. */
+export function CompliancePill({ status, at }: { status: ComplianceStatus; at?: string | null }) {
+  const tone: Tone = { compliant: 'ok', noncompliant: 'crit', unknown: 'unk', not_applicable: 'info' }[
+    status
+  ] as Tone;
+  return (
+    <span title={at ? `Avaliada em ${new Date(at).toLocaleString('pt-BR')}` : undefined}>
+      <Pill tone={tone}>{COMPLIANCE_LABEL[status]}</Pill>
     </span>
   );
 }

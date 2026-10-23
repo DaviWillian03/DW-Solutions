@@ -36,4 +36,9 @@ export const EVENT_LABEL: Record<string, string> = {
   went_silent: 'Ficou sem sinal por mais de 24 h',
   reconnected: 'Voltou a comunicar',
   battery_low: 'Bateria baixa informada',
+  policy_assigned: 'Política definida',
+  policy_removed: 'Política removida',
+  policy_updated: 'Nova versão da política publicada',
+  policy_applied: 'Aparelho relatou a política aplicada',
+  compliance_changed: 'Conformidade mudou',
 };

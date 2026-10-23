@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AppShell, Card, PageHeader, SourceLine, useMe } from '@/components/app-shell';
-import { ConnectivityPill } from '@/components/status';
+import { CompliancePill, ConnectivityPill } from '@/components/status';
 import { api } from '@/lib/api';
 import { MANUFACTURER, relative } from '@/lib/format';
 import type { Summary } from '@/lib/types';
@@ -95,10 +95,10 @@ function Overview() {
           </>
         }
       />
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <Link
           href="/aparelhos"
-          className="dw-rise relative overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] md:col-span-2 xl:col-span-1"
+          className="dw-rise relative flex flex-col justify-center overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] md:col-span-2 lg:col-span-3 xl:col-span-1 xl:row-span-2"
           style={{ background: 'linear-gradient(135deg,#0A1F4D 0%,#1A4FD6 100%)' }}
         >
           <div className="text-[13px] font-semibold text-[#C9DAFF]">Aparelhos gerenciados</div>
@@ -123,6 +123,14 @@ function Overview() {
         />
         <Kpi
           i={2}
+          label="Fora da política"
+          value={c.noncompliant}
+          hint="não conformes, com motivo"
+          href="/aparelhos?compliance=noncompliant"
+          tone="text-crit"
+        />
+        <Kpi
+          i={3}
           label="Desconhecido"
           value={c.unknown}
           hint="nunca comunicaram"
@@ -130,7 +138,7 @@ function Overview() {
           tone="text-unk"
         />
         <Kpi
-          i={3}
+          i={4}
           label="Sem responsável"
           value={c.unassigned}
           hint="reserva ou estoque"
@@ -138,7 +146,15 @@ function Overview() {
           tone="text-warn"
         />
         <Kpi
-          i={4}
+          i={5}
+          label="Aguardando aplicar política"
+          value={c.policyPending}
+          hint="aplicam na próxima comunicação"
+          href="/politicas"
+          tone="text-royal"
+        />
+        <Kpi
+          i={6}
           label="Cadastros pendentes"
           value={c.pendingEnrollments}
           hint="QR ainda válido"
@@ -148,34 +164,64 @@ function Overview() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.55fr_1fr]">
-        <Card title="Precisam de atenção" i={2}>
-          <p className="-mt-2 mb-4 text-[13px] text-muted">
-            Sem comunicação há mais tempo. Sem sinal não significa desligado, perdido ou roubado — confirme
-            com o responsável.
-          </p>
-          {s.attention.length === 0 ? (
-            <p className="text-text-2">Nenhum aparelho sem sinal. 🎉</p>
-          ) : (
-            <ul className="flex flex-col gap-2.5">
-              {s.attention.map((d) => (
-                <li key={d.id}>
-                  <Link
-                    href={`/aparelhos/${d.id}`}
-                    className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3.5 transition-colors hover:border-sky"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-bold">{d.displayName}</div>
-                      <div className="text-[13px] text-text-2">
-                        {d.holder?.name ?? 'Sem responsável'} · última comunicação {relative(d.lastSeenAt)}
+        <div className="flex flex-col gap-6">
+          <Card title="Precisam de atenção" i={2}>
+            <p className="-mt-2 mb-4 text-[13px] text-muted">
+              Sem comunicação há mais tempo. Sem sinal não significa desligado, perdido ou roubado — confirme
+              com o responsável.
+            </p>
+            {s.attention.length === 0 ? (
+              <p className="text-text-2">Nenhum aparelho sem sinal. 🎉</p>
+            ) : (
+              <ul className="flex flex-col gap-2.5">
+                {s.attention.map((d) => (
+                  <li key={d.id}>
+                    <Link
+                      href={`/aparelhos/${d.id}`}
+                      className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3.5 transition-colors hover:border-sky"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold">{d.displayName}</div>
+                        <div className="text-[13px] text-text-2">
+                          {d.holder?.name ?? 'Sem responsável'} · última comunicação {relative(d.lastSeenAt)}
+                        </div>
                       </div>
-                    </div>
-                    <ConnectivityPill value={d.connectivity} lastSeenAt={d.lastSeenAt} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+                      <ConnectivityPill value={d.connectivity} lastSeenAt={d.lastSeenAt} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+          <Card title="Fora da política" i={3}>
+            <p className="-mt-2 mb-4 text-[13px] text-muted">
+              Conforme o último relatório de cada aparelho. {c.policyPending} aparelho(s) ainda vão aplicar a
+              versão atual da política e {c.noPolicy} não têm política.
+            </p>
+            {s.noncompliant.length === 0 ? (
+              <p className="text-text-2">Nenhum aparelho fora da política.</p>
+            ) : (
+              <ul className="flex flex-col gap-2.5">
+                {s.noncompliant.map((d) => (
+                  <li key={d.id}>
+                    <Link
+                      href={`/aparelhos/${d.id}`}
+                      className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3.5 transition-colors hover:border-sky"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold">{d.displayName}</div>
+                        <div className="text-[13px] text-text-2">
+                          {d.policy?.name} · {d.compliance.reasons[0]?.message}
+                        </div>
+                      </div>
+                      <CompliancePill status={d.compliance.status} at={d.compliance.evaluatedAt} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
         <div className="flex flex-col gap-6">
           <Card title="Versões do Android" i={3}>
             <Bars total={c.total} rows={s.byAndroid.map((r) => ({ label: `Android ${r.key}`, n: r.n }))} />

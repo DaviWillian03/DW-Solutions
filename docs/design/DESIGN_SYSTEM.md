@@ -79,8 +79,10 @@ Faixa de simulação: `#6E4600` sobre `#FFF6DC` (claro) · `#FCD679` sobre âmba
   Antes de uso comercial: revisão por designer e busca de marca no INPI.
 
 ## 7. Ilustrações — coloridas (CP2-11)
-- Estilo a definir na primeira tela que precisar (estados vazios, boas-vindas, ajuda) — **amostra será
-  apresentada para aprovação no CHECKPOINT 5** antes de produzir em série.
+- Amostras (Fase C, aguardando aprovação): **A1** “política sem aparelhos” e **A2** “nenhum aparelho fora da
+  política” em `apps/web/components/illustrations.tsx` (SVG em linha, cores pelos tokens, flutuação suave
+  desligada com “reduzir movimento”). Capturas: `docs/design/telas-c/07`–`09`.
+- Acento quente `--warm` (#FF9B54 claro / #FFB27D escuro) só para decoração das ilustrações.
 - Restrições: paleta derivada dos azuis + um acento quente; sem cores de status como decoração;
   nada que remeta a vigilância (olhos, câmeras, lupas sobre pessoas).
 

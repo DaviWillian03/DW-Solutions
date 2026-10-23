@@ -159,3 +159,42 @@ navegador (a API foi testada com até 120 por empresa nos E2E e 400 na geração
 **CI da Fase B4 (commit 63e726d):** ✅ todos os jobs passaram — lint/tipos/testes em Node 22 e 24,
 segurança da cadeia de suprimentos e testes de navegador (17 E2E com worker real):
 https://github.com/DaviWillian03/DW-Solutions/actions/runs/39975906990
+
+## 2026-10-23 · Fase C (políticas e conformidade) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` | ✅ **141 testes**: contratos 10 · banco 45 · simulador 17 · API 65 · worker 4 |
+| `pnpm e2e` (API + site + worker reais, banco de teste) | ✅ **23 testes de navegador** (5 execuções; 1 falhou por corrida no próprio teste — corrigida) |
+| `pnpm lint` · `pnpm typecheck` (8 pacotes) · `pnpm format:check` · `pnpm build` | ✅ |
+| `pnpm audit --audit-level high` | ✅ nenhuma vulnerabilidade conhecida |
+| `pnpm db:migrate` + `pnpm db:seed` (dev recriado) | ✅ 250 aparelhos: 178 conformes · 69 não conformes (50 patch de segurança com mais de 180 dias, 15 senha não criada, 8 app obrigatório não instalado) · 3 desconhecidos |
+
+**Cobertura nova:**
+- Contratos: esquema estrito (campo desconhecido, pacote inválido, app repetido, janela vazia, limites de senha),
+  comparação legível entre versões, conformidade nunca “conforme” por suposição, motivo + correção em cada regra.
+- Banco: políticas e versões isoladas por empresa (RLS), FK composta impede política de outra empresa, versões
+  imutáveis, política sem DELETE, nome/modelo imutáveis, versão só avança de 1 em 1, número de versão único.
+- Simulador: frota ligada às políticas (promotores → Merchandising), nunca vistos ficam “Desconhecido”, check-in
+  aplica a versão nova e registra linha do tempo, cadastro com política já sai com a versão aplicada.
+- API: perfis (Leitura só consulta), isolamento 404 em política/versão/comparação, simulação sem efeito colateral,
+  400 para configuração inválida, 422 sem mudanças, **409 em edição sobre versão antiga**, aparelhos passam a
+  “aguardando” ao publicar, lote idempotente, lote recusado inteiro com aparelho de outra empresa, limite de 500,
+  filtros e resumo de conformidade consistentes, cadastro por QR com política.
+- E2E: aparelho não conforme mostra motivo e “como resolver” (fluxo 3 do CP4); publicar só depois de simular (e
+  simular de novo se algo mudou); histórico e comparação; **conflito entre duas abas**; troca em lote; as duas
+  ilustrações (claro e escuro); perfil Leitura sem edição.
+
+**Capturas:** `docs/design/telas-c/` (`CAPTURAS=1 pnpm e2e`); `docs/design/telas-b/` atualizadas.
+
+**Problemas encontrados e corrigidos:**
+- Um commit (C1) foi enviado com 1 teste do simulador falhando: o comando de verificação usava `| grep &&`, que
+  não para em falha. Causa do teste: escolha não determinística de aparelho. Corrigido no commit seguinte; a
+  verificação passou a usar um script que para no primeiro erro.
+- Seletores “Trocar política” e “Novo responsável” mostravam a 1ª opção em vez do valor atual (opções chegam
+  depois do valor inicial) — risco de remover a política sem querer. Corrigido e coberto por teste E2E.
+- Visão geral com 6 indicadores numa linha ficou espremida em 1280 px — reorganizada em grade 3×2.
+- Capturas de página inteira mostravam o cabeçalho fixo no meio (efeito da captura) — rolagem ao topo antes.
+
+**NÃO EXECUTADO:** leitor de tela real; responsividade em celular por captura; carga de políticas com 500
+aparelhos no navegador (API testada com lote de até 500 IDs na validação, 50–120 aparelhos reais por empresa).

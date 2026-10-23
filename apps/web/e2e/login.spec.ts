@@ -10,6 +10,7 @@ const PASSWORD = 'Frase-Longa-de-Teste-E2E-2026';
 // CAPTURAS=1 salva imagens das telas em docs/design/telas-a3 (revisão visual).
 const SHOTS = process.env.CAPTURAS ? new URL('../../../docs/design/telas-a3/', import.meta.url) : null;
 const shot = async (p: Page, name: string) => {
+  if (SHOTS) await p.evaluate(() => window.scrollTo(0, 0));
   if (SHOTS) await p.screenshot({ path: new URL(`${name}.png`, SHOTS).pathname, fullPage: true });
 };
 
@@ -160,6 +161,7 @@ test('cookie de sessão é HttpOnly, Secure e SameSite=Lax', async () => {
 const SHOTS_B = process.env.CAPTURAS ? new URL('../../../docs/design/telas-b/', import.meta.url) : null;
 const shotB = async (p: Page, name: string) => {
   if (SHOTS_B) {
+    await p.evaluate(() => window.scrollTo(0, 0));
     await p.waitForTimeout(900);
     await p.screenshot({ path: new URL(`${name}.png`, SHOTS_B).pathname, fullPage: true });
   }
@@ -270,6 +272,11 @@ test('perfil Leitura consulta aparelhos mas não vê ações de administrador', 
   await v.locator('tbody tr td a').first().click();
   await v.getByRole('tab', { name: 'Responsável' }).click();
   await expect(v.getByText('Seu perfil (Leitura) não permite alterar o responsável.')).toBeVisible();
+  await v.getByRole('tab', { name: 'Política' }).click();
+  await expect(v.getByText('Seu perfil (Leitura) não permite trocar a política.')).toBeVisible();
+  await v.goto('/politicas');
+  await v.getByRole('link', { name: 'Abrir política Vendas' }).click();
+  await expect(v.getByText('Editar', { exact: true })).toHaveAttribute('aria-disabled', 'true');
   await ctx.close();
 });
 
@@ -279,5 +286,146 @@ test('visão geral no tema escuro', async ({ browser }) => {
   await p.goto('/');
   await expect(p.getByRole('heading', { name: 'Visão geral' })).toBeVisible();
   await shotB(p, '07-visao-geral-escuro');
+  await ctx.close();
+});
+
+// ---------------------------------------------------------------------------
+// Fase C — políticas e conformidade (mesma sessão do administrador)
+// ---------------------------------------------------------------------------
+const SHOTS_C = process.env.CAPTURAS ? new URL('../../../docs/design/telas-c/', import.meta.url) : null;
+const shotC = async (p: Page, name: string) => {
+  if (SHOTS_C) {
+    await p.evaluate(() => window.scrollTo(0, 0));
+    await p.waitForTimeout(900);
+    await p.screenshot({ path: new URL(`${name}.png`, SHOTS_C).pathname, fullPage: true });
+  }
+};
+
+test('aparelho não conforme mostra o motivo e como resolver', async () => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Fora da política/ })).toBeVisible();
+  await page.goto('/aparelhos');
+  await page.getByLabel('Conformidade').selectOption('noncompliant');
+  await expect(page).toHaveURL(/compliance=noncompliant/);
+  await page.locator('tbody tr td a').first().click();
+  await page.getByRole('tab', { name: 'Política' }).click();
+  await expect(page.locator('main').getByText('Não conforme').first()).toBeVisible();
+  await expect(page.getByText('Como resolver:').first()).toBeVisible();
+  await expect(page.getByText('Versão aplicada')).toBeVisible();
+  // O seletor mostra a política atual (não “Sem política”) depois que as opções carregam.
+  await expect(page.getByLabel('Trocar política')).toHaveValue(/^[0-9a-f-]{36}$/);
+  await shotC(page, '05-aparelho-politica');
+});
+
+test('políticas: lista com conformidade e configuração da política', async () => {
+  await page.goto('/politicas');
+  await expect(page.getByRole('heading', { name: 'Políticas', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Abrir política Merchandising' })).toBeVisible();
+  await shotC(page, '01-politicas');
+  await page.getByRole('link', { name: 'Abrir política Vendas' }).click();
+  await expect(page.getByRole('heading', { name: 'Política Vendas' })).toBeVisible();
+  await expect(page.getByText('Configuração da versão 1')).toBeVisible();
+  await expect(page.getByText('Pedidos (fictício)')).toBeVisible();
+  await shotC(page, '02-politica-configuracao');
+});
+
+test('editar: só publica depois de simular o impacto; histórico e comparação', async () => {
+  await page.getByRole('tab', { name: 'Editar' }).click();
+  await page.getByLabel('Versão mínima do Android').selectOption('14');
+  await expect(page.getByRole('button', { name: 'Publicar versão 2' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Simular impacto' }).click();
+  await expect(page.getByRole('cell', { name: 'Versão mínima do Android' })).toBeVisible();
+  await expect(page.getByText('passariam a ficar não conformes')).toBeVisible();
+  await page
+    .getByLabel('Motivo da mudança (fica no histórico e na auditoria)')
+    .fill('Exigir Android 14 na rua');
+  await shotC(page, '03-politica-simulacao');
+  // Mudou depois de simular → precisa simular de novo.
+  await page.getByLabel('Bloqueio automático da tela').selectOption('5');
+  await expect(page.getByRole('button', { name: 'Publicar versão 2' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Simular impacto' }).click();
+  await page.getByRole('button', { name: 'Publicar versão 2' }).click();
+
+  await expect(page.getByRole('tab', { name: 'Versões (2)' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByText('“Exigir Android 14 na rua”')).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Android 14' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Após 5 min sem uso' })).toBeVisible();
+  await shotC(page, '04-politica-versoes');
+});
+
+test('conflito: edição feita sobre versão antiga não sobrescreve a mais nova', async () => {
+  const other = await context.newPage();
+  await other.goto(page.url());
+  await other.getByRole('tab', { name: 'Editar' }).click();
+  await other.getByLabel('Tamanho mínimo da senha').fill('8');
+  await other.getByRole('button', { name: 'Simular impacto' }).click();
+  await other.getByLabel('Motivo da mudança (fica no histórico e na auditoria)').fill('senha maior');
+
+  // Enquanto isso, outra aba publica a versão 3.
+  await page.getByRole('tab', { name: 'Editar' }).click();
+  await page.getByLabel('Bloqueio automático da tela').selectOption('10');
+  await page.getByRole('button', { name: 'Simular impacto' }).click();
+  await page.getByLabel('Motivo da mudança (fica no histórico e na auditoria)').fill('bloqueio em 10 min');
+  await page.getByRole('button', { name: 'Publicar versão 3' }).click();
+  await expect(page.getByRole('tab', { name: 'Versões (3)' })).toBeVisible();
+
+  await other.getByRole('button', { name: 'Publicar versão 3' }).click();
+  await expect(other.locator('main').getByRole('alert')).toContainText('mudou enquanto você editava');
+  await other.getByRole('button', { name: 'Carregar a versão atual' }).click();
+  await expect(other.getByText('Editando a partir da versão 3')).toBeVisible();
+  await other.close();
+});
+
+test('lista: troca a política de vários aparelhos de uma vez', async () => {
+  await page.goto('/aparelhos');
+  await page.getByLabel('Política', { exact: true }).selectOption({ label: 'Merchandising' });
+  await page.getByLabel('Conformidade').selectOption('noncompliant');
+  await expect(page).toHaveURL(/compliance=noncompliant/);
+  await expect(page.locator('tbody tr').first()).toBeVisible();
+  await page.getByLabel('Selecionar todos desta página').check();
+  await page.getByLabel('Nova política').selectOption({ label: 'Vendas' });
+  await page.getByLabel('Motivo (fica na auditoria)').fill('promotores remanejados para vendas');
+  await shotC(page, '06-aparelhos-lote');
+  await page.getByRole('button', { name: 'Aplicar aos selecionados' }).click();
+  await expect(page.getByText(/aparelho\(s\) atualizado\(s\)/)).toBeVisible();
+  await expect(page.getByText('Nenhum aparelho encontrado com estes filtros.')).toBeVisible();
+});
+
+test('ilustrações: nenhum aparelho fora da política e política sem aparelhos', async () => {
+  await page.goto('/politicas');
+  await page.getByRole('link', { name: 'Abrir política Merchandising' }).click();
+  await page.getByRole('tab', { name: /Aparelhos/ }).click();
+  await page.getByRole('button', { name: 'Não conformes' }).click();
+  await expect(page.getByText('Nenhum aparelho fora da política')).toBeVisible();
+  await shotC(page, '07-ilustracao-tudo-conforme');
+
+  // Move o restante para Vendas: a política fica sem aparelhos.
+  const merchUrl = page.url();
+  await page.getByRole('link', { name: 'Abrir na lista de Aparelhos' }).click();
+  await expect(page).toHaveURL(/\/aparelhos\?policy=/);
+  await page.goto(`${page.url()}&pageSize=100`);
+  await expect(page.locator('tbody tr').first()).toBeVisible();
+  await page.getByLabel('Selecionar todos desta página').check();
+  await page.getByLabel('Nova política').selectOption({ label: 'Vendas' });
+  await page.getByLabel('Motivo (fica na auditoria)').fill('equipe de merchandising encerrada');
+  await page.getByRole('button', { name: 'Aplicar aos selecionados' }).click();
+  await expect(page.getByText('Nenhum aparelho encontrado com estes filtros.')).toBeVisible();
+  await page.goto(merchUrl);
+  await page.getByRole('tab', { name: 'Aparelhos (0)' }).click();
+  await expect(page.getByText('Nenhum aparelho usa esta política ainda')).toBeVisible();
+  await shotC(page, '08-ilustracao-sem-aparelhos');
+
+  const ctx = await page
+    .context()
+    .browser()!
+    .newContext({
+      colorScheme: 'dark',
+      storageState: await context.storageState(),
+    });
+  const dark = await ctx.newPage();
+  await dark.goto(merchUrl);
+  await dark.getByRole('tab', { name: 'Aparelhos (0)' }).click();
+  await expect(dark.getByText('Nenhum aparelho usa esta política ainda')).toBeVisible();
+  await shotC(dark, '09-ilustracao-escuro');
   await ctx.close();
 });

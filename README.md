@@ -1,7 +1,7 @@
 # DW Solutions
 
 MDM web para colocar **smartphones Android corporativos de vendas e merchandising** sob gerenciamento.
-Estado atual: **Fases A e B concluídas** — login seguro e gestão de aparelhos **simulados**; próximo: políticas (Fase C) — modo simulador, nenhum aparelho real é gerenciado.
+Estado atual: **Fases A, B e C concluídas** — login seguro, gestão de aparelhos **simulados** e políticas com conformidade; próximo: comandos (Fase D) — modo simulador, nenhum aparelho real é gerenciado.
 
 ## Começando (container do Claude Code na nuvem)
 O gancho de início de sessão já executa o setup. Para rodar manualmente:

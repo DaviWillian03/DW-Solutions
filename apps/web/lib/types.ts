@@ -1,3 +1,4 @@
+import type { ComplianceReason, ComplianceStatus, PolicyChange, PolicySettings } from '@dw/contracts';
 import type { Connectivity } from '@/components/status';
 
 export interface ObservedValue<T> {
@@ -21,6 +22,15 @@ export interface DeviceItem {
   storageFree: ObservedValue<number> | null;
   network: ObservedValue<string> | null;
   source: string;
+  policy: {
+    id: string;
+    name: string | null;
+    version: number;
+    appliedVersion: number | null;
+    assignedAt: string | null;
+    reportedAt: string | null;
+  } | null;
+  compliance: { status: ComplianceStatus; reasons: ComplianceReason[]; evaluatedAt: string | null };
 }
 
 export interface DeviceDetail extends DeviceItem {
@@ -48,7 +58,12 @@ export interface Summary {
     unassigned: number;
     lowBattery: number;
     pendingEnrollments: number;
+    noncompliant: number;
+    complianceUnknown: number;
+    noPolicy: number;
+    policyPending: number;
   };
+  noncompliant: DeviceItem[];
   byManufacturer: { key: string; n: number }[];
   byAndroid: { key: number; n: number }[];
   attention: DeviceItem[];
@@ -80,6 +95,7 @@ export interface Enrollment {
   demo: boolean;
   managementMode: string;
   holder: { id: string; name: string | null } | null;
+  policy: { id: string; name: string | null } | null;
   displayNameHint: string | null;
   expiresAt: string;
   createdAt: string;
@@ -121,3 +137,42 @@ export const CAPABILITY_STATUS: Record<string, string> = {
   unsupported: 'Não suportada',
   to_research: 'A pesquisar',
 };
+
+export interface PolicyStats {
+  devices: number;
+  compliant: number;
+  noncompliant: number;
+  unknown: number;
+  pending: number;
+}
+
+export interface PolicySummary {
+  id: string;
+  name: string;
+  description: string;
+  template: 'sales' | 'merchandising';
+  currentVersion: number;
+  updatedAt: string;
+  updatedByName: string;
+  settings: PolicySettings;
+  stats: PolicyStats;
+}
+
+export interface PolicyDetail extends Omit<PolicySummary, 'updatedAt' | 'updatedByName'> {
+  versions: { version: number; note: string; createdByName: string; createdAt: string }[];
+}
+
+export interface PolicyPreview {
+  baseVersion: number;
+  changes: PolicyChange[];
+  impact: {
+    devices: number;
+    silentOrUnknown: number;
+    failingByRule: { min_android: number; security_patch: number };
+    newlyFailing: number;
+    newlyFailingSample: { id: string; displayName: string; reasons: ComplianceReason[] }[];
+    resolved: number;
+  };
+  estimate: true;
+  generatedAt: string;
+}

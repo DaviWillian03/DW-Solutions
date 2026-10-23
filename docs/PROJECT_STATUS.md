@@ -2,8 +2,8 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **CHECKPOINT 5 concluído** (telas aprovadas) → **Fase C — políticas Vendas/Merchandising e conformidade** (aguardando “pode começar”)
-**Código:** Fases A e B completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker. 100 testes + 17 E2E.
+**Fase atual:** **Fase C concluída** → aprovação das 2 amostras de ilustração e início da **Fase D — comandos** (aguardando o usuário)
+**Código:** Fases A, B e C completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade. 141 testes + 23 E2E.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -21,6 +21,8 @@
   Leitura, responsável por aparelho, 5 comandos simulados, QR de demonstração. `docs/product/CHECKPOINT_4_MVP.md`.
 - CHECKPOINT 5 respondido: telas da Fase B aprovadas, estados de comunicação mantidos, amostra de ilustração
   colorida vem com a Fase C, nenhum formato extra de logo. CI da Fase B4 verde.
+- Fase C: políticas Vendas e Merchandising versionadas (ADR-0007), simulação de impacto antes de publicar,
+  conflito em vez de sobrescrita, troca em lote, conformidade com motivo/como resolver/horário, 2 ilustrações.
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
@@ -35,9 +37,10 @@
 | 7b | ✅ A3b — Telas de login | Next.js: entrar, convite, MFA, chave de acesso, visão geral inicial; 9 E2E | — |
 | 8 | ✅ Fase B — Simulador + aparelhos | Simulador, worker, cadastro QR demo, aparelhos, responsáveis, usuários, visão geral | — |
 | 9 | ✅ CHECKPOINT 5 | Telas aprovadas | — |
-| 10 | Fase C — Políticas | Políticas Vendas e Merchandising, conformidade por aparelho, 2 amostras de ilustração | Aprovação do usuário |
+| 10 | ✅ Fase C — Políticas | C1 modelo + banco + simulador · C2 API · C3 telas, ilustrações e E2E | — |
+| 11 | Fase D — Comandos | Bloquear, reiniciar, modo perdido, limpar dados de app e wipe com estados verificáveis | Aprovação do usuário |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fases A e B: 100 testes + 17 E2E passando).
+Ver `docs/TEST_REPORT.md` (Fases A, B e C: 141 testes + 23 E2E passando).

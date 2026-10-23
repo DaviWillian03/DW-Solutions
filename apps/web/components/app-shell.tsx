@@ -10,9 +10,9 @@ import { authClient } from '@/lib/auth-client';
 const NAV: { href: string; label: string; future?: string }[] = [
   { href: '/', label: 'Visão geral' },
   { href: '/aparelhos', label: 'Aparelhos' },
+  { href: '/politicas', label: 'Políticas' },
   { href: '/responsaveis', label: 'Responsáveis' },
   { href: '/usuarios', label: 'Usuários' },
-  { href: '#politicas', label: 'Políticas', future: 'Fase C' },
   { href: '#comandos', label: 'Comandos', future: 'Fase D' },
 ];
 

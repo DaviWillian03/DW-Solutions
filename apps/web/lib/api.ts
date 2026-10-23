@@ -5,6 +5,7 @@ export class ApiError extends Error {
     readonly status: number,
     readonly code: string | undefined,
     message: string,
+    readonly body: Record<string, unknown> | null = null,
   ) {
     super(message);
   }
@@ -19,7 +20,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
   const body = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) {
-    throw new ApiError(res.status, body?.code, body?.message ?? 'Erro inesperado.');
+    throw new ApiError(res.status, body?.code, body?.message ?? 'Erro inesperado.', body);
   }
   return body as T;
 }

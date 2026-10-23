@@ -8,7 +8,7 @@ import { Pill } from '@/components/status';
 import { Alert, Button } from '@/components/ui';
 import { api, ApiError } from '@/lib/api';
 import { dateTime } from '@/lib/format';
-import type { Enrollment, Holder } from '@/lib/types';
+import type { Enrollment, Holder, PolicySummary } from '@/lib/types';
 
 export default function CadastrarPage() {
   return (
@@ -29,6 +29,7 @@ const INPUT = 'rounded-xl border border-border bg-surface px-3 py-2.5 font-norma
 function Cadastrar() {
   const me = useMe();
   const [holders, setHolders] = useState<Holder[]>([]);
+  const [policies, setPolicies] = useState<PolicySummary[]>([]);
   const [created, setCreated] = useState<Created>();
   const [qr, setQr] = useState('');
   const [status, setStatus] = useState<Enrollment>();
@@ -37,6 +38,7 @@ function Cadastrar() {
 
   useEffect(() => {
     void api<Holder[]>('/holders').then((h) => setHolders(h.filter((x) => x.status === 'active')));
+    void api<PolicySummary[]>('/policies').then(setPolicies);
   }, []);
 
   useEffect(() => {
@@ -74,6 +76,7 @@ function Cadastrar() {
         body: JSON.stringify({
           managementMode: f.get('managementMode'),
           holderId: String(f.get('holderId')) || null,
+          policyId: String(f.get('policyId')) || null,
           displayNameHint: String(f.get('displayNameHint')).trim() || null,
           durationMinutes: Number(f.get('durationMinutes')),
         }),
@@ -144,6 +147,23 @@ function Cadastrar() {
                 {holders.map((h) => (
                   <option key={h.id} value={h.id}>
                     {h.fullName} {h.employeeCode ? `(${h.employeeCode})` : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
+              Política
+              <select
+                name="policyId"
+                className={INPUT}
+                defaultValue=""
+                disabled={!!created}
+                key={policies.length}
+              >
+                <option value="">Definir depois</option>
+                {policies.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} (versão {p.currentVersion})
                   </option>
                 ))}
               </select>
