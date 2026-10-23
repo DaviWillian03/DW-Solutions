@@ -14,6 +14,9 @@ import { HoldersService } from './devices/holders.service.js';
 import { PROVIDER } from './devices/provider.js';
 import { SimulatorProvider } from '@dw/simulator';
 import { HealthController } from './health/health.controller.js';
+import { StepUpService } from './auth/step-up.js';
+import { CommandsController } from './commands/commands.controller.js';
+import { CommandsService } from './commands/commands.service.js';
 import { PoliciesController } from './policies/policies.controller.js';
 import { PoliciesService } from './policies/policies.service.js';
 import { OriginMiddleware } from './http/origin.middleware.js';
@@ -31,7 +34,13 @@ export class AppModule implements NestModule {
       module: AppModule,
       global: true,
       imports: [InfraModule],
-      controllers: [HealthController, UsersController, DevicesController, PoliciesController],
+      controllers: [
+        HealthController,
+        UsersController,
+        DevicesController,
+        PoliciesController,
+        CommandsController,
+      ],
       providers: [
         { provide: ENV, useValue: env },
         { provide: LOGGER, useValue: logger },
@@ -47,6 +56,8 @@ export class AppModule implements NestModule {
         HoldersService,
         EnrollmentsService,
         PoliciesService,
+        StepUpService,
+        CommandsService,
         // ADR-0001: o único provedor ativo é o simulador.
         { provide: PROVIDER, useValue: new SimulatorProvider() },
       ],

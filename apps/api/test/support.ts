@@ -145,3 +145,25 @@ export async function viewerOf(server: unknown, admin: Client, email: string) {
   await signIn(c, email);
   return c;
 }
+
+/** Segundo administrador (com MFA) na empresa do admin — para testar aprovação dupla. */
+export async function secondAdminOf(server: unknown, admin: Client, email: string) {
+  const inv = await admin.post('/api/users/invite', { name: 'Bruno Segundo Admin', email, role: 'admin' });
+  const c = new Client(server);
+  await c.post('/api/invitations/accept', { token: inv.body.inviteUrl.split('#')[1], password: STRONG });
+  await signIn(c, email);
+  const en = await c.post('/api/auth/two-factor/enable', { password: STRONG });
+  const secret = secretFromUri(en.body.totpURI);
+  await c.post('/api/auth/two-factor/verify-totp', { code: totp(secret) });
+  return { c, secret };
+}
+
+/** Método PUT com cookies e origem (o Client só expõe GET/POST/PATCH). */
+export async function put(server: unknown, c: Client, path: string, body: object) {
+  return request(server as never)
+    .put(path)
+    .set('cookie', c.cookieHeader())
+    .set('x-forwarded-for', c.ip)
+    .set('origin', ORIGIN)
+    .send(body);
+}

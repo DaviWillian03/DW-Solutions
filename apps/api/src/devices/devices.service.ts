@@ -3,8 +3,10 @@ import { SILENT_AFTER_HOURS, type Connectivity, type DeviceManagementProvider } 
 import {
   and,
   asc,
+  commandBatches,
   count,
   desc,
+  deviceCommands,
   deviceEvents,
   deviceHolders,
   devices,
@@ -13,6 +15,7 @@ import {
   gt,
   gte,
   ilike,
+  inArray,
   isNotNull,
   isNull,
   lt,
@@ -86,6 +89,7 @@ export class DevicesService {
             reportedAt: d.policyReportedAt,
           }
         : null,
+      lostModeSince: d.lostModeSince,
       compliance: {
         status: d.compliance,
         reasons: d.complianceReasons,
@@ -210,8 +214,30 @@ export class DevicesService {
         .where(eq(devices.compliance, 'noncompliant'))
         .orderBy(sql`${devices.complianceEvaluatedAt} desc nulls last`, asc(devices.displayName))
         .limit(5);
+      const [cmd] = await tx
+        .select({ n: count() })
+        .from(deviceCommands)
+        .where(
+          inArray(deviceCommands.state, [
+            'queued',
+            'sent_to_provider',
+            'provider_accepted',
+            'device_acknowledged',
+          ]),
+        );
+      const [approvals] = await tx
+        .select({ n: count() })
+        .from(commandBatches)
+        .where(eq(commandBatches.status, 'waiting_approval'));
+      const [lost] = await tx.select({ n: count() }).from(devices).where(isNotNull(devices.lostModeSince));
       return {
-        counts: { ...c!, pendingEnrollments: pending?.n ?? 0 },
+        counts: {
+          ...c!,
+          pendingEnrollments: pending?.n ?? 0,
+          commandsPending: cmd?.n ?? 0,
+          approvalsPending: approvals?.n ?? 0,
+          lostMode: lost?.n ?? 0,
+        },
         noncompliant: noncompliantRows.map((r) => this.view(r.d, r.holderName, now, r.policyName)),
         byManufacturer,
         byAndroid,

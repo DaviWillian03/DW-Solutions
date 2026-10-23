@@ -1,4 +1,10 @@
-import { queuePrefix, SIMULATOR_QUEUE, type SimulatorEnrollJob } from '@dw/contracts';
+import {
+  queuePrefix,
+  SIMULATOR_QUEUE,
+  type CommandJob,
+  type SimulatorCheckInJob,
+  type SimulatorEnrollJob,
+} from '@dw/contracts';
 import { Queue } from 'bullmq';
 
 export const SIM_QUEUE = Symbol('SIM_QUEUE');
@@ -16,10 +22,11 @@ export function redisConnection(url: string) {
   };
 }
 
-export type SimQueue = Queue<SimulatorEnrollJob>;
+export type SimJob = SimulatorEnrollJob | CommandJob | SimulatorCheckInJob;
+export type SimQueue = Queue<SimJob>;
 
 export function createSimQueue(redisUrl: string, nodeEnv: string, prefix?: string): SimQueue {
-  return new Queue<SimulatorEnrollJob>(SIMULATOR_QUEUE, {
+  return new Queue<SimJob>(SIMULATOR_QUEUE, {
     prefix: prefix ?? queuePrefix(nodeEnv),
     connection: redisConnection(redisUrl),
     defaultJobOptions: {
