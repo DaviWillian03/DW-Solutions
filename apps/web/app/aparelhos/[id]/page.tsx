@@ -193,7 +193,19 @@ function Aparelho() {
       {tab === 'responsavel' && <HolderTab device={d} canEdit={me.user.role === 'admin'} onChanged={load} />}
 
       {tab === 'linha' && (
-        <Card title="Linha do tempo" i={1}>
+        <Card
+          title={
+            <span className="flex flex-wrap items-center gap-3">
+              Linha do tempo
+              {me.user.role === 'admin' && (
+                <Link href={`/auditoria?targetId=${d.id}`} className="text-[13px] font-bold text-royal">
+                  Ver na auditoria
+                </Link>
+              )}
+            </span>
+          }
+          i={1}
+        >
           {events.length === 0 ? (
             <p className="text-text-2">Sem eventos registrados.</p>
           ) : (

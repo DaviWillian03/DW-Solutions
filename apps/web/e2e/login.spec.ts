@@ -92,7 +92,7 @@ test('convite: cria senha, cadastra app autenticador, guarda códigos e chave de
   await page.getByRole('button', { name: 'Cadastrar chave de acesso' }).click();
   await expect(page.getByText('Olá, Ana ·')).toBeVisible();
   await expect(page.getByText('DADOS SIMULADOS')).toBeVisible();
-  await expect(page.getByText('Administrador · Comercial Exemplo Ltda (fictícia)')).toBeVisible();
+  await expect(page.locator('header').getByText('Administrador')).toBeVisible();
   await page.waitForTimeout(800); // fim das animações de entrada
 });
 
@@ -276,6 +276,8 @@ test('perfil Leitura consulta aparelhos mas não vê ações de administrador', 
   await expect(v.getByText('Seu perfil (Leitura) não permite trocar a política.')).toBeVisible();
   await v.getByRole('tab', { name: 'Comandos' }).click();
   await expect(v.getByText('Somente administradores').first()).toBeVisible();
+  await v.goto('/auditoria');
+  await expect(v.getByText('Somente administradores consultam a auditoria')).toBeVisible();
   await v.goto('/politicas');
   await v.getByRole('link', { name: 'Abrir política Vendas' }).click();
   await expect(v.getByText('Editar', { exact: true })).toHaveAttribute('aria-disabled', 'true');
@@ -555,4 +557,35 @@ test('visão geral mostra comandos em andamento e modo perdido', async () => {
   await expect(page.getByRole('link', { name: /Comandos em andamento/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Em modo perdido/ })).toContainText('1');
   await shotD(page, '06-visao-geral');
+});
+
+// ---------------------------------------------------------------------------
+// Fase E — auditoria (M11)
+// ---------------------------------------------------------------------------
+test('auditoria: quem fez o quê, tentativas negadas, filtros e integridade do registro', async () => {
+  await page.goto('/auditoria');
+  await expect(page.getByText(/^Íntegro: \d+ registros conferidos/)).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Comando pedido' }).first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Ana Admin' }).first()).toBeVisible();
+  await shotD(page, '07-auditoria');
+
+  await page.getByLabel('Resultado').selectOption('denied');
+  await expect(page).toHaveURL(/outcome=denied/);
+  await expect(page.getByRole('cell', { name: 'Verificação em duas etapas refeita' }).first()).toBeVisible();
+  for (const pill of await page
+    .locator('tbody')
+    .getByText(/^Concluída$/)
+    .all())
+    await expect(pill).not.toBeVisible();
+  await page.getByRole('button', { name: 'Detalhes' }).first().click();
+  await expect(page.getByText('código inválido').first()).toBeVisible();
+
+  // Do aparelho para a auditoria dele.
+  await page.goto('/aparelhos?connectivity=online&sort=name');
+  const name = (await page.locator('tbody tr td a').first().innerText()).trim();
+  await page.locator('tbody tr td a').first().click();
+  await page.getByRole('tab', { name: 'Linha do tempo' }).click();
+  await page.getByRole('link', { name: 'Ver na auditoria' }).click();
+  await expect(page).toHaveURL(/targetId=/);
+  await expect(page.getByRole('link', { name }).first()).toBeVisible();
 });

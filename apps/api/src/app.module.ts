@@ -14,6 +14,8 @@ import { HoldersService } from './devices/holders.service.js';
 import { PROVIDER } from './devices/provider.js';
 import { SimulatorProvider } from '@dw/simulator';
 import { HealthController } from './health/health.controller.js';
+import { AuditController } from './audit/audit.controller.js';
+import { AuditService } from './audit/audit.service.js';
 import { StepUpService } from './auth/step-up.js';
 import { CommandsController } from './commands/commands.controller.js';
 import { CommandsService } from './commands/commands.service.js';
@@ -40,6 +42,7 @@ export class AppModule implements NestModule {
         DevicesController,
         PoliciesController,
         CommandsController,
+        AuditController,
       ],
       providers: [
         { provide: ENV, useValue: env },
@@ -58,6 +61,7 @@ export class AppModule implements NestModule {
         PoliciesService,
         StepUpService,
         CommandsService,
+        AuditService,
         // ADR-0001: o único provedor ativo é o simulador.
         { provide: PROVIDER, useValue: new SimulatorProvider() },
       ],

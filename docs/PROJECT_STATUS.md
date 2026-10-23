@@ -2,8 +2,8 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **Fase D concluída** → definir o próximo passo com o usuário (auditoria na tela / CHECKPOINT 6)
-**Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla. 175 testes + 27 E2E.
+**Fase atual:** **MVP completo no simulador (Fases A–E)** → revisão geral do MVP com o usuário e preparação do CHECKPOINT 6
+**Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -41,9 +41,10 @@
 | 9 | ✅ CHECKPOINT 5 | Telas aprovadas | — |
 | 10 | ✅ Fase C — Políticas | C1 modelo + banco + simulador · C2 API · C3 telas, ilustrações e E2E | — |
 | 11 | ✅ Fase D — Comandos | D1 banco/simulador/worker · D2 API (aprovação dupla, refazer MFA) · D3 telas e E2E | — |
-| 12 | Próximo | Tela de Auditoria (M11) e acabamento do MVP, depois CHECKPOINT 6 | Decisão do usuário |
+| 12 | ✅ Fase E — Auditoria | Lista com filtros, tentativas negadas, verificação da cadeia | — |
+| 13 | Próximo | Revisão geral do MVP e CHECKPOINT 6 (Android real) | Decisão do usuário |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fases A–D: 175 testes + 27 E2E passando).
+Ver `docs/TEST_REPORT.md` (Fases A–E: 181 testes + 28 E2E passando).

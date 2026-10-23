@@ -240,3 +240,22 @@ compila antes); teste E2E aceitava o rótulo de etapa ainda não concluída (pas
 
 **NÃO EXECUTADO:** aprovação de lote pelo 2º admin no navegador (coberta nos testes da API); leitor de tela real;
 celular por captura; carga de 500 comandos em lote no worker.
+
+## 2026-10-23 · Fase E (auditoria na tela) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` | ✅ **181 testes**: contratos 10 · banco 51 · simulador 17 · API 88 · worker 15 |
+| `pnpm e2e` | ✅ **28 testes de navegador** (2 execuções; 1 falhou porque o cabeçalho deixou de mostrar o perfil — corrigido) |
+| `pnpm lint` · `pnpm typecheck` · `pnpm format:check` · `pnpm build` | ✅ |
+
+**Cobertura nova:** API — lista do mais recente ao mais antigo com autor e alvo legíveis; tentativas negadas
+filtráveis; filtros por assunto, alvo, motivo (sem curingas do usuário) e período; data inválida recusada;
+verificação da cadeia de hashes íntegra; isolamento entre empresas; perfil Leitura sem acesso; nenhum código de
+MFA ou segredo aparece nos registros. E2E — auditoria com integridade, filtro de negadas com detalhes, caminho
+aparelho → “Ver na auditoria”, perfil Leitura vê o aviso de acesso restrito.
+
+**Capturas:** `docs/design/telas-d/07-auditoria.png`.
+
+**NÃO EXECUTADO:** adulteração real de registro no banco para ver a verificação acusar o problema pela tela (a
+detecção é coberta pelos testes do banco da Fase A2).

@@ -146,3 +146,4 @@ export const SILENT_AFTER_HOURS = 24;
 
 export * from './policy.js';
 export * from './commands.js';
+export * from './audit.js';

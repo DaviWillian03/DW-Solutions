@@ -14,6 +14,7 @@ const NAV: { href: string; label: string; future?: string }[] = [
   { href: '/comandos', label: 'Comandos' },
   { href: '/responsaveis', label: 'Responsáveis' },
   { href: '/usuarios', label: 'Usuários' },
+  { href: '/auditoria', label: 'Auditoria' },
   { href: '/configuracoes', label: 'Configurações' },
 ];
 
@@ -84,7 +85,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="hidden text-right leading-tight sm:block">
               <div className="whitespace-nowrap text-[13px] font-bold">{me.user.name}</div>
               <div className="max-w-[260px] truncate text-[11.5px] text-muted">
-                {papel} · {me.tenant.name}
+                {papel}
+                <span className="hidden 2xl:inline"> · {me.tenant.name}</span>
               </div>
             </div>
             <Button variant="secondary" onClick={sair}>

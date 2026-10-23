@@ -228,3 +228,13 @@ ADR-0008: estados verificáveis com histórico; 3 tentativas de envio; validade 
 receber; apagar desligado por padrão e ligado só com MFA; lote de apagamento com 2º admin; refazer MFA com limite
 de 5 erros/15 min e código de uso único; modo perdido sem coleta de localização. Todas reversíveis — podem mudar
 por decisão do usuário.
+
+## Após a Fase D (DECIDIDO em 2026-10-23)
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| D-1 | Próximo passo | **tela de Auditoria (rec.)** · ajustar telas · CHECKPOINT 6 · pausar | **Tela de Auditoria (M11)** |
+| D-2 | Prazos de validade dos comandos | **manter (rec.)** · mais curtos · mais longos | **Manter** (ADR-0008) |
+
+Decisão técnica delegada (Fase E): auditoria visível **só para administradores** (contém IP e dados de acesso de
+outras pessoas — minimização LGPD). Reversível: pode ser liberada ao perfil Leitura por decisão do usuário.
