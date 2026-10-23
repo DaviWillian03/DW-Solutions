@@ -8,6 +8,10 @@ updates:
     groups:
       menores:
         update-types: [minor, patch]
+    ignore:
+      # Tipos do Node devem acompanhar a versão de runtime (Node 22 LTS); troca de major é decisão manual.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
