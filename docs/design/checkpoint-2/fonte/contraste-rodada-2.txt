@@ -1,0 +1,29 @@
+Tema Claro
+  texto/fundo                      #0A1730 sobre #F6F8FC: 16.76  OK AA
+  texto-2/superfície               #3E4E69 sobre #FFFFFF:  8.40  OK AA
+  apagado/superfície               #5C6B84 sobre #FFFFFF:  5.40  OK AA
+  apagado/fundo                    #5C6B84 sobre #F6F8FC:  5.08  OK AA
+  link royal/branco                #1A4FD6 sobre #FFFFFF:  6.70  OK AA
+  branco/royal (aba ativa)         #FFFFFF sobre #1A4FD6:  6.70  OK AA
+  herói subtítulo/marinho          #BFD2FA sobre #0A1F4D: 10.50  OK AA
+  herói subtítulo/marinho-2        #BFD2FA sobre #13306E:  8.24  OK AA
+  herói subtítulo/royal (canto)    #BFD2FA sobre #1A4FD6:  4.41  AA grande
+  destaque rótulo/royal            #C9DAFF sobre #1A4FD6:  4.77  OK AA
+  ok pílula                        #0F7A43 sobre #E4F5EB:  4.78  OK AA
+  atenção pílula                   #94560A sobre #FDF2DE:  5.27  OK AA
+  crítico pílula                   #BF2A2A sobre #FDEBEB:  5.10  OK AA
+  desconhecido pílula              #566176 sobre #EDF0F4:  5.46  OK AA
+  info pílula                      #1A4FD6 sobre #E9F0FF:  5.86  OK AA
+  faixa simulado                   #6E4600 sobre #FFF6DC:  7.67  OK AA
+Tema Escuro
+  texto/fundo                      #EEF3FF sobre #060D1C: 17.47  OK AA
+  texto-2/superfície               #B9C6E2 sobre #0C1730: 10.36  OK AA
+  apagado/superfície               #8E9CBC sobre #0C1730:  6.46  OK AA
+  link/superfície                  #6E9BFF sobre #0C1730:  6.60  OK AA
+  aba ativa texto/royal            #06102A sobre #6E9BFF:  6.99  OK AA
+  ok/superfície                    #4ADE80 sobre #0C1730: 10.21  OK AA
+  atenção/superfície               #FBBF24 sobre #0C1730: 10.65  OK AA
+  crítico/superfície               #F87171 sobre #0C1730:  6.43  OK AA
+  desconhecido/superfície          #A6B1C9 sobre #0C1730:  8.26  OK AA
+  info/superfície                  #8FB2FF sobre #0C1730:  8.45  OK AA
+  faixa simulado                   #FCD679 sobre #060D1C: 13.89  OK AA

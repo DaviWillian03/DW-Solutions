@@ -55,6 +55,26 @@ Princípios aplicados nas três (vêm do prompt-mestre, não são opcionais):
 dela (validado separadamente, não inversão automática). Motivo: o CP1 definiu marca *acessível* e o
 público são empresas de varejo sem TI grande; C explica a situação em termos de loja e caixa.
 
+## Rodada 2 — Branco + azuis (pedido do usuário)
+Decididos: tema segue o sistema · monograma DW · menu no topo. Arquivos em `checkpoint-2/rodada-2/`
+(HTML com claro/escuro automático + PNG claro e escuro). Contraste: `fonte/contraste-rodada-2.txt`.
+
+**Tokens comuns (claro):** fundo `#F6F8FC` · superfície `#FFFFFF` · gelo `#E9F0FF` · borda `#DCE4F2` ·
+texto `#0A1730` · secundário `#3E4E69` · apagado `#5C6B84` · marinho `#0A1F4D` · marinho-2 `#13306E` ·
+royal `#1A4FD6` (ação principal) · azure `#2F6BFF` (degradês) · céu `#8CB4FF` (detalhes).
+**Escuro:** fundo `#060D1C` · superfície `#0C1730` · texto `#EEF3FF` · royal `#6E9BFF`.
+**Status (reservados, sempre com ícone + rótulo):** sucesso `#0F7A43` · atenção `#94560A` ·
+crítico `#BF2A2A` · desconhecido `#566176` · informação = royal.
+**Tipografia:** Plus Jakarta Sans (SIL OFL 1.1), números tabulares.
+
+- **D1 · Azul Real:** topo branco com abas sublinhadas; **faixa-herói azul-marinho** com os 6 indicadores
+  em cartões translúcidos; resto em branco. Mais contraste e sensação de luxo; o azul ocupa mais espaço.
+- **D2 · Azul Gelo:** **tudo branco**, menu em pílulas com aba ativa royal; um **cartão-destaque em
+  degradê marinho → royal** com total e % com sinal; demais indicadores em cartões brancos. Branco
+  domina, azul como acento. **Recomendada**, por seguir à risca “cor principal branca”.
+- **Monogramas:** M1 Selo (quadrado marinho → royal, legível até 16 px — recomendado) · M2 Traço
+  contínuo (elegante, fraco em 16 px) · M3 Círculo (forte, mas “DW” some em 16 px).
+
 ## Ainda não decidido (perguntas do CHECKPOINT 2)
-Direção, tema, estilo do logotipo, navegação, densidade, animações, ilustrações, slogan.
+Variação D1/D2, monograma M1/M2/M3, densidade, animações, ilustrações, slogan.
 Os logos acima são **conceitos em SVG simples**, não logotipos profissionais finalizados.

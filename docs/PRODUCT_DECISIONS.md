@@ -102,3 +102,28 @@ Pesquisa completa: `docs/naming/CHECKPOINT_1_NOMES.md`.
 - **Decisão:** **tudo em português** (slogan, interface, documentação, comunicação).
 - **Observação registrada:** o nome “DW Solutions” é em inglês por escolha explícita do usuário (CP1-1);
   é a única exceção à regra do idioma.
+
+## CHECKPOINT 2 — Design e identidade visual (EM ANDAMENTO)
+
+Material: `docs/design/CHECKPOINT_2_DIRECOES.md` e `docs/design/checkpoint-2/`.
+
+### CP2-1 · Direção visual — DECIDIDA (resposta livre do usuário, 2026-10-23)
+- **Opções apresentadas (rodada 1):** A Clareza · B Noturno · C Operação de loja (recomendada) · mistura A+C.
+- **Decisão do usuário:** nenhuma das três. “Cor principal será **branca**, com **tons de azul diferentes**
+  complementando; contraste moderno e **luxuoso**, mas **totalmente visível** em cada parte das telas.”
+- **Consequências:** nova direção “Branco + azuis” com duas variações (D1 Azul Real, D2 Azul Gelo) na
+  rodada 2; tipografia Plus Jakarta Sans (OFL); legibilidade WCAG AA obrigatória em todos os textos.
+  Mantidos da rodada 1: cartões por loja, prioridades por impacto, estados distintos e faixa de simulação.
+
+### CP2-2 · Tema — DECIDIDA
+- **Opções:** seguir o sistema (recomendado) · só claro · escuro como padrão.
+- **Decisão:** **seguir o sistema**, com troca manual pelo usuário. Escuro tem paleta própria validada.
+
+### CP2-3 · Logotipo — DECIDIDA (estilo); variante pendente
+- **Opções:** monograma DW (recomendado) · símbolo abstrato · só o nome · monograma + símbolo.
+- **Decisão:** **monograma DW**. Três conceitos (M1 Selo, M2 Traço, M3 Círculo) aguardando escolha.
+
+### CP2-4 · Navegação — DECIDIDA
+- **Opções:** lateral agrupada (recomendada) · lateral só ícones · menu no topo.
+- **Decisão:** **menu no topo** (abas horizontais + “Mais” para Auditoria e Configurações).
+- **Consequências:** no celular/tela estreita, o menu vira botão “☰”; itens raros vão para “Mais”.
