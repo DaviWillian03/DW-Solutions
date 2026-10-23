@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** CHECKPOINT 1 concluído → próximo: **CHECKPOINT 2 — Design e identidade visual**
+**Fase atual:** CHECKPOINT 2 concluído → próximo: **CHECKPOINT 3 — Arquitetura e implantação**
 **Código:** nenhum ainda.
 
 ## Feito
@@ -12,12 +12,15 @@
 - Ambiente do container verificado (Node 22, pnpm 10, PostgreSQL 16, Redis 7).
 - CHECKPOINT 1 respondido: nome **DW Solutions**, posicionamento acessível, tudo em português
   (pesquisa em `docs/naming/CHECKPOINT_1_NOMES.md`).
+- CHECKPOINT 2 respondido: branco + azuis (D2 Azul Gelo), Plus Jakarta Sans, menu no topo, tema do
+  sistema, monograma M2 (M1 no favicon), animações expressivas, sem slogan, ilustrações coloridas.
+  Design system v1 em `docs/design/DESIGN_SYSTEM.md`; marca em `docs/design/marca/`.
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
 |---|-------|---------------------|---------------|
 | 1 | ✅ CHECKPOINT 1 — nome | DW Solutions · acessível · português | — |
-| 2 | CHECKPOINT 2 — visual | 3 direções + protótipos em screenshot; design aprovado | Fatia 1 |
+| 2 | ✅ CHECKPOINT 2 — visual | Design system v1 + arquivos da marca + protótipo de referência | — |
 | 3 | CHECKPOINT 3 — arquitetura | ADRs de stack, auth/IdP, multiempresa | Usuário |
 | 4 | CHECKPOINT 4 — MVP | Backlog MoSCoW e critérios de aceite | Fatia 3 |
 | 5 | A1 — Esqueleto | Monorepo pnpm, lint/typecheck/test, CI, script de setup do container | Fatia 3 |
@@ -29,4 +32,9 @@
 As fatias 5–7 só começam após o CHECKPOINT 3; o visual (fatia 2) não bloqueia o backend.
 
 ## Testes executados
-Nenhum (não há código). **NÃO EXECUTADO.**
+Ainda não há código do produto. Verificações dos protótipos de design (2026-10-23, Chromium headless):
+- Fontes carregadas em todas as páginas; sem rolagem horizontal em 1440 px; sem erros de JavaScript.
+- Contraste WCAG: todos os textos ≥ 4,5:1 nos temas claro e escuro (`docs/design/checkpoint-2/fonte/contraste-rodada-2.txt`).
+- “Reduzir movimento”: animações desligadas e números exibidos no valor final.
+- `favicon.ico` validado (3 imagens: 16, 32, 48 px).
+- **NÃO EXECUTADO:** testes de responsividade no celular e leitor de tela (ficam para a Fase A/CP5).

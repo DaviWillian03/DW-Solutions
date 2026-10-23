@@ -103,7 +103,7 @@ Pesquisa completa: `docs/naming/CHECKPOINT_1_NOMES.md`.
 - **Observação registrada:** o nome “DW Solutions” é em inglês por escolha explícita do usuário (CP1-1);
   é a única exceção à regra do idioma.
 
-## CHECKPOINT 2 — Design e identidade visual (EM ANDAMENTO)
+## CHECKPOINT 2 — Design e identidade visual (DECIDIDO em 2026-10-23)
 
 Material: `docs/design/CHECKPOINT_2_DIRECOES.md` e `docs/design/checkpoint-2/`.
 
@@ -121,9 +121,45 @@ Material: `docs/design/CHECKPOINT_2_DIRECOES.md` e `docs/design/checkpoint-2/`.
 
 ### CP2-3 · Logotipo — DECIDIDA (estilo); variante pendente
 - **Opções:** monograma DW (recomendado) · símbolo abstrato · só o nome · monograma + símbolo.
-- **Decisão:** **monograma DW**. Três conceitos (M1 Selo, M2 Traço, M3 Círculo) aguardando escolha.
+- **Decisão:** **monograma DW** (variante em CP2-6).
 
 ### CP2-4 · Navegação — DECIDIDA
 - **Opções:** lateral agrupada (recomendada) · lateral só ícones · menu no topo.
 - **Decisão:** **menu no topo** (abas horizontais + “Mais” para Auditoria e Configurações).
 - **Consequências:** no celular/tela estreita, o menu vira botão “☰”; itens raros vão para “Mais”.
+
+### CP2-5 · Variação — DECIDIDA
+- **Opções:** D2 Azul Gelo (recomendada) · D1 Azul Real · mistura.
+- **Decisão:** **D2 · Azul Gelo** — tudo branco, menu em pílulas, um cartão-destaque em degradê marinho → royal.
+
+### CP2-6 · Monograma — DECIDIDA
+- **Opções:** M1 Selo (recomendado) · M2 Traço contínuo · M3 Círculo.
+- **Decisão:** **M2 · Traço contínuo** (degradê marinho → azure no claro; céu → branco no escuro).
+
+### CP2-7 · Densidade — DECIDIDA
+- **Opções:** equilibrada (recomendada) · espaçada · compacta · usuário escolhe.
+- **Decisão:** **equilibrada**.
+
+### CP2-8 · Animações — DECIDIDA
+- **Opções:** sutis (recomendada) · nenhuma · expressivas.
+- **Decisão:** **expressivas** (cascata, contadores, barras crescendo, brilho, elevação no hover).
+- **Condição inegociável registrada:** respeitar “reduzir movimento” do sistema e nunca animar sucesso
+  antes de confirmação real.
+
+### CP2-9 · Slogan — DECIDIDA
+- **Opções:** “Seus aparelhos em ordem…” (recomendado) · “…sem complicação” · “…em um só lugar” · “Controle claro…”.
+- **Decisão (resposta livre):** **sem slogan**.
+
+### CP2-10 · Ícone pequeno — DECIDIDA
+- **Opções:** M2 sobre placa (recomendado) · M2 puro sempre · M1 só no ícone pequeno.
+- **Decisão:** **M1 (Selo) apenas no favicon e ícone de app**; M2 em todo o resto (≥ 24 px).
+
+### CP2-11 · Ilustrações — DECIDIDA
+- **Opções:** traço azul leve (recomendado) · só ícones · coloridas.
+- **Decisão:** **ilustrações coloridas**. Amostra de estilo será aprovada no CHECKPOINT 5.
+
+### CP2-12 · Formatos do logo — DECIDIDA (parcial)
+- **Decisão:** SVG, PNG claro/escuro, favicon e ícone de app — **gerados** em `docs/design/marca/`.
+- O usuário marcou também “outro formato” sem especificar → pergunta aberta em `OPEN_QUESTIONS.md`.
+
+**Resultado:** design system v1 em `docs/design/DESIGN_SYSTEM.md`.

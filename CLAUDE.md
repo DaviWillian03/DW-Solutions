@@ -25,6 +25,10 @@
   de cada etapa, mostrar telas por screenshot. Sem Docker daemon; usar PostgreSQL/Redis nativos.
 - Orçamento R$ 0: não contratar serviço, domínio ou cloud sem aprovação.
 
+## Design (CP2)
+Seguir `docs/design/DESIGN_SYSTEM.md`: branco + azuis, Plus Jakarta Sans, menu no topo, tema do sistema,
+monograma M2 (M1 no favicon), animações expressivas com `prefers-reduced-motion`, contraste AA verificado.
+
 ## Comandos
 Ainda não há código. Esta seção será preenchida na Fase A (após o CHECKPOINT 3).
 

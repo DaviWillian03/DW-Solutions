@@ -277,3 +277,44 @@ fs.writeFileSync(path.join(OUT, 'direcao-d1-azul-real.html'), page('Direção D1
 fs.writeFileSync(path.join(OUT, 'direcao-d2-azul-gelo.html'), page('Direção D2 — Azul Gelo', cssD2, bodyD2()));
 fs.writeFileSync(path.join(OUT, 'monogramas-dw.html'), page('Monogramas DW', cssSheet, sheet()));
 console.log('ok');
+
+// =====================================================================
+// REFERÊNCIA APROVADA (CP2): D2 + monograma M2 + animações expressivas
+// (sempre desligadas com "reduzir movimento" do sistema)
+// =====================================================================
+const ANIM = `
+:root{--ease-out:cubic-bezier(.2,.8,.2,1);--dur-1:180ms;--dur-2:320ms;--dur-3:700ms}
+@keyframes dw-rise{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes dw-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes dw-shine{from{transform:translateX(-120%)}to{transform:translateX(220%)}}
+@keyframes dw-pulse{0%,100%{box-shadow:0 0 0 0 rgba(191,42,42,.35)}50%{box-shadow:0 0 0 6px rgba(191,42,42,0)}}
+.anim .head,.anim .kpis>*,.anim .store,.anim .grid2>*,.anim .wrap>section.card{animation:dw-rise var(--dur-2) var(--ease-out) both;animation-delay:calc(var(--i,0) * 60ms)}
+.anim .bar-fill,.anim .s-meter span,.anim .feature .meter span{transform-origin:left;animation:dw-grow var(--dur-3) var(--ease-out) both;animation-delay:calc(200ms + var(--i,0) * 60ms)}
+.anim .feature::after{content:'';position:absolute;inset:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);animation:dw-shine 1.6s var(--ease-out) .5s both}
+.anim .card,.anim .kpi,.anim .feature{transition:transform var(--dur-1) var(--ease-out),box-shadow var(--dur-1) var(--ease-out),border-color var(--dur-1)}
+.anim .card:hover,.anim .kpi:hover{transform:translateY(-2px);border-color:var(--sky);box-shadow:0 10px 30px rgba(26,79,214,.12)}
+.anim .alert-critico .alert-icon{animation:dw-pulse 2s ease-in-out 3}
+.anim .nav a{transition:background var(--dur-1),color var(--dur-1)}
+@media (prefers-reduced-motion: reduce){.anim *,.anim *::before,.anim *::after{animation:none!important;transition:none!important}}
+`;
+const COUNT_JS = `<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.anim .kpis>*,.anim .store,.anim .grid2>*').forEach((el, i) => el.style.setProperty('--i', i));
+  document.querySelectorAll('.anim .bar-fill,.anim .s-meter span').forEach((el, i) => el.style.setProperty('--i', i % 6));
+  if (reduce) return;
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const end = +el.dataset.count, t0 = performance.now(), dur = 900;
+    const tick = (t) => { const k = Math.min(1, (t - t0) / dur); el.firstChild.nodeValue = Math.round(end * (1 - Math.pow(1 - k, 3))).toLocaleString('pt-BR'); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+})();
+</script>`;
+const refBody = bodyD2()
+  .replace(M.circulo(36), M.traco(36, 'ref'))
+  .replace(/<div class="v">(\d+)/g, '<div class="v" data-count="$1">$1')
+  .replace(/<div class="s-big">(\d+)/g, '<div class="s-big" data-count="$1">$1');
+const refPage = page('DW Solutions — Referência visual aprovada', cssD2 + ANIM, `<div class="anim">${refBody}</div>${COUNT_JS}`)
+  .replace('</title>', '</title>\n<link rel="icon" href="../../marca/favicon/favicon.svg" type="image/svg+xml">');
+fs.writeFileSync(path.join(OUT, 'referencia-aprovada.html'), refPage);
+console.log('referência ok');
