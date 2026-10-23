@@ -63,6 +63,8 @@ export const deviceHolders = pgTable(
   },
   (t) => [
     index('device_holders_tenant_name_idx').on(t.tenantId, t.fullName),
+    // Alvo das FKs compostas (aparelho → responsável da mesma empresa).
+    uniqueIndex('device_holders_tenant_id_key').on(t.tenantId, t.id),
     uniqueIndex('device_holders_tenant_code_key')
       .on(t.tenantId, t.employeeCode)
       .where(sql`${t.employeeCode} is not null`),

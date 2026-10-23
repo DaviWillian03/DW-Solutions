@@ -15,7 +15,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "generate": "drizzle-kit generate",
     "migrate": "node --env-file-if-exists=../../.env.local dist/scripts/migrate.js",
-    "seed": "node --env-file-if-exists=../../.env.local dist/scripts/seed.js",
     "test": "vitest run"
   },
   "dependencies": {

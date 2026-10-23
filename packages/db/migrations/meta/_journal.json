@@ -29,6 +29,20 @@
       "when": 1792765157200,
       "tag": "0003_identidade_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792766787206,
+      "tag": "0004_aparelhos",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792766788241,
+      "tag": "0005_aparelhos_rls",
+      "breakpoints": true
     }
   ]
 }
