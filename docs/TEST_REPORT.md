@@ -259,3 +259,9 @@ aparelho → “Ver na auditoria”, perfil Leitura vê o aviso de acesso restri
 
 **NÃO EXECUTADO:** adulteração real de registro no banco para ver a verificação acusar o problema pela tela (a
 detecção é coberta pelos testes do banco da Fase A2).
+
+**CI das Fases D e E:** ✅ todos os jobs, incluindo testes de navegador —
+D1 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40004190985 ·
+D2 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40005070130 ·
+D3 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40007188379 ·
+E https://github.com/DaviWillian03/DW-Solutions/actions/runs/40010260968
