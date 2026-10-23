@@ -29,6 +29,11 @@ export const envSchema = z.object({
   WEB_ORIGIN: httpOrigin,
   BETTER_AUTH_URL: httpOrigin,
   BETTER_AUTH_SECRET: z.string().regex(/^[0-9a-f]{64}$/, 'deve ter 32 bytes em hexadecimal'),
+  /** Prefixo da fila no Redis (opcional; padrão por NODE_ENV). */
+  QUEUE_PREFIX: z
+    .string()
+    .regex(/^[a-z0-9-]{2,20}$/)
+    .optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

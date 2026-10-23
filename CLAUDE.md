@@ -43,7 +43,8 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 ## Comandos
 - `pnpm setup` — prepara PostgreSQL/Redis/.env.local (o hook SessionStart já roda isso na nuvem)
 - `pnpm test` · `pnpm lint` · `pnpm format` · `pnpm typecheck` · `pnpm build`
-- `pnpm db:migrate` · `pnpm db:seed` · `pnpm db:generate` (após mudar `packages/db/src/schema.ts`)
+- `pnpm db:migrate` · `pnpm db:seed` (empresa fictícia + 250 aparelhos simulados) · `pnpm db:generate`
+- `pnpm dev:worker` — worker do simulador (cadastro por QR e ciclo de check-ins a cada minuto)
 - `pnpm platform criar-empresa|convidar-admin …` — ferramenta da plataforma (imprime o link de convite)
 - `pnpm --filter @dw/api start` — API em http://127.0.0.1:3001 (`/health`, `/api/*`, `/api/auth/*`)
 - `pnpm --filter @dw/web dev` — site em http://localhost:3000 (encaminha `/api` para a API)
@@ -56,6 +57,9 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 - Sem `console.log`: usar o logger pino; nunca logar segredos.
 - Rotas da API negam por padrão: use `@Public()`, `@Roles('admin')`, `@AllowPendingMfa()` conscientemente.
 - Operadores do Drizzle vêm de `@dw/db` (não importar `drizzle-orm` nos apps).
+- Dados sincronizados sempre com origem e horário; “desconhecido” ≠ “sem sinal” ≠ perdido. Provedor
+  real só via `DeviceManagementProvider` (`@dw/contracts`); hoje apenas `SimulatorProvider` (`@dw/simulator`).
+- FKs entre tabelas de empresa são compostas `(tenant_id, id)` — a checagem de FK ignora o RLS.
 - Site: textos em pt-BR, componentes de `apps/web/components/ui.tsx`, tokens do design system em
   `apps/web/app/globals.css`; nenhum botão finge funcionar (itens futuros ficam desabilitados com aviso).
 - Dados de empresa **só** via `withTenant()` de `@dw/db`; RLS, permissões e gatilhos ficam em migrações SQL

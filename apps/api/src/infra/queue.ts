@@ -18,9 +18,9 @@ export function redisConnection(url: string) {
 
 export type SimQueue = Queue<SimulatorEnrollJob>;
 
-export function createSimQueue(redisUrl: string, nodeEnv: string): SimQueue {
+export function createSimQueue(redisUrl: string, nodeEnv: string, prefix?: string): SimQueue {
   return new Queue<SimulatorEnrollJob>(SIMULATOR_QUEUE, {
-    prefix: queuePrefix(nodeEnv),
+    prefix: prefix ?? queuePrefix(nodeEnv),
     connection: redisConnection(redisUrl),
     defaultJobOptions: {
       attempts: 3,

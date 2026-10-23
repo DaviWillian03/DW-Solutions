@@ -8,8 +8,8 @@
 | CP3 | Arquitetura e implantação (ADRs) | CP0 | ✅ concluído (ADRs 0002–0006) |
 | CP4 | Escopo do MVP (MoSCoW) | CP3 | ✅ concluído (MVP enxuto) |
 | Fase A | Fundamentos: monorepo, setup do container, banco + RLS, login + MFA, perfis | CP4 | ✅ concluída |
-| Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | 🟡 próxima |
-| CP5 | Revisão das primeiras telas reais | Fase B | ⚪ |
+| Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | ✅ concluída |
+| CP5 | Revisão das primeiras telas reais | Fase B | 🟡 aguardando usuário |
 | Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ⚪ |
 | Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | ⚪ |
 | Fase E | Dashboard, alertas, incidentes, relatórios | Fase D | ⚪ |

@@ -16,6 +16,10 @@ const env = z
     REDIS_URL: z.string().url(),
     SIM_TICK_SECONDS: z.coerce.number().int().min(5).max(3600).default(60),
     SIM_ENROLL_DELAY_MS: z.coerce.number().int().min(0).max(60_000).default(3000),
+    QUEUE_PREFIX: z
+      .string()
+      .regex(/^[a-z0-9-]{2,20}$/)
+      .optional(),
   })
   .parse(process.env);
 
@@ -24,7 +28,7 @@ const appDb = createDb(env.DATABASE_URL, 5);
 const platformDb = createDb(env.PLATFORM_DATABASE_URL, 1);
 const u = new URL(env.REDIS_URL);
 const connection = { host: u.hostname, port: Number(u.port || 6379), maxRetriesPerRequest: null };
-const prefix = queuePrefix(env.NODE_ENV);
+const prefix = env.QUEUE_PREFIX ?? queuePrefix(env.NODE_ENV);
 
 const queue = new Queue(SIMULATOR_QUEUE, { connection, prefix });
 await queue.upsertJobScheduler('ciclo-simulador', { every: env.SIM_TICK_SECONDS * 1000 }, { name: 'tick' });

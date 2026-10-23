@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { createDb, resetDatabase, runMigrations } from '@dw/db';
 import { createTenantWithAdmin } from '@dw/api/platform';
+import { createRandom, seedFleetForTenant } from '@dw/simulator';
 
 export const STATE_FILE = new URL('./.state.json', import.meta.url);
 
@@ -17,6 +18,18 @@ export default async function setup() {
       adminName: 'Ana Admin',
       adminEmail: email,
     });
+    // Frota simulada da empresa de teste (120 aparelhos, 90 responsáveis fictícios).
+    const app = createDb(process.env.TEST_DATABASE_URL!, 1);
+    try {
+      await seedFleetForTenant(app, r.tenantId, {
+        devices: 120,
+        holders: 90,
+        rnd: createRandom(7),
+        now: new Date(),
+      });
+    } finally {
+      await app.close();
+    }
     writeFileSync(
       STATE_FILE,
       JSON.stringify({ email, invitePath: new URL(r.inviteUrl).pathname + new URL(r.inviteUrl).hash }),

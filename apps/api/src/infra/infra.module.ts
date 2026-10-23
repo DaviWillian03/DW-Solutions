@@ -30,7 +30,7 @@ export const REDIS = Symbol('REDIS');
     {
       provide: SIM_QUEUE,
       inject: [ENV],
-      useFactory: (env: Env) => createSimQueue(env.REDIS_URL, env.NODE_ENV),
+      useFactory: (env: Env) => createSimQueue(env.REDIS_URL, env.NODE_ENV, env.QUEUE_PREFIX),
     },
   ],
   exports: [APP_DB, AUTH_DB, REDIS, SIM_QUEUE],

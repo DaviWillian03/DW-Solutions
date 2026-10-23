@@ -2,8 +2,8 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **Fase A concluída** (fundação + login) → próximo: **Fase B** (simulador e aparelhos), depois **CHECKPOINT 5**
-**Código:** Fase A completa — fundação, banco com RLS, login com MFA/passkey/perfis/convites e telas de acesso. 62 testes + 9 E2E.
+**Fase atual:** **Fase B concluída** → **CHECKPOINT 5 — revisão das primeiras telas reais** (aguardando o usuário)
+**Código:** Fases A e B completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker. 100 testes + 17 E2E.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -31,10 +31,10 @@
 | 6 | ✅ A2 — Banco | Drizzle + RLS forçado, empresas, responsáveis, auditoria com cadeia de hash, seed | — |
 | 7 | ✅ A3a — Login no backend | Better Auth + TOTP + recuperação, perfis Admin/Leitura, convites, CLI da plataforma | — |
 | 7b | ✅ A3b — Telas de login | Next.js: entrar, convite, MFA, chave de acesso, visão geral inicial; 9 E2E | — |
-| 8 | B1 — Simulador + aparelhos | `SimulatorProvider`, cadastro com QR demo, lista e página do aparelho | Fatia 7 |
+| 8 | ✅ Fase B — Simulador + aparelhos | Simulador, worker, cadastro QR demo, aparelhos, responsáveis, usuários, visão geral | — |
 | 9 | CHECKPOINT 5 | Revisão das primeiras telas reais | Fatias 2 e 8 |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fase A: 62 testes + 9 E2E passando).
+Ver `docs/TEST_REPORT.md` (Fases A e B: 100 testes + 17 E2E passando).

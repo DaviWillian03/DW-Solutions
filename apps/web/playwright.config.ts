@@ -20,6 +20,18 @@ const apiEnv = {
   WEB_ORIGIN: 'http://localhost:3000',
   BETTER_AUTH_URL: 'http://localhost:3000',
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET!,
+  QUEUE_PREFIX: 'dw-e2e',
+};
+
+const workerEnv = {
+  NODE_ENV: 'production',
+  LOG_LEVEL: 'info',
+  DATABASE_URL: process.env.TEST_DATABASE_URL!,
+  PLATFORM_DATABASE_URL: process.env.TEST_PLATFORM_DATABASE_URL!,
+  REDIS_URL: process.env.REDIS_URL!,
+  QUEUE_PREFIX: 'dw-e2e',
+  SIM_ENROLL_DELAY_MS: '800',
+  SIM_TICK_SECONDS: '3600',
 };
 
 export default defineConfig({
@@ -42,6 +54,14 @@ export default defineConfig({
       url: 'http://127.0.0.1:3001/health',
       env: apiEnv,
       reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command: 'node ../worker/dist/main.js',
+      env: workerEnv,
+      reuseExistingServer: false,
+      // O worker não tem HTTP; o Playwright só garante que ele foi iniciado.
+      wait: { stdout: /worker do simulador iniciado/ },
       timeout: 60_000,
     },
     {

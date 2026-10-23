@@ -119,3 +119,39 @@ falharam com `Failed to resolve entry for package "@dw/db"` — o `globalSetup` 
 **Reproduzido localmente** apagando `dist`; **corrigido** com alias do Vitest para `packages/db/src/index.ts`.
 Validação a partir do zero (sem `dist`/`.next`): lint, format, typecheck, 62 testes, build e 9 E2E ✅.
 ✅ A2 + ajuste do Dependabot: [run 5](https://github.com/DaviWillian03/DW-Solutions/actions/runs/39968189850) verde.
+
+## 2026-10-23 · Fase B (simulador e aparelhos) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` | ✅ **100 testes**: banco 38 · simulador 10 · API 48 · worker 4 |
+| `pnpm e2e` (API + site + **worker** reais, banco de teste, 120 aparelhos simulados) | ✅ **17 testes de navegador** |
+| `pnpm lint` · `pnpm typecheck` (7 pacotes) · `pnpm format:check` · `pnpm audit` | ✅ |
+| `pnpm db:seed` (dev) | ✅ 220 responsáveis e 250 aparelhos: 226 com sinal · 17 sem sinal +24 h · 7 desconhecidos |
+| Worker real por 14 s (`SIM_TICK_SECONDS=5`) | ✅ 59 check-ins no 1º ciclo; encerramento limpo ao receber SIGTERM |
+
+**Cobertura nova:**
+- Banco: FK composta impede ligar aparelho a responsável/evento de outra empresa mesmo com ID conhecido;
+  aparelhos sem DELETE; linha do tempo somente inserção; plataforma não lê aparelhos.
+- Simulador: frota reproduzível, distribuição realista, nunca observado sem telemetria inventada, toda leitura
+  com horário, só Samsung/Motorola Android 12–15, QR de demonstração fora do formato Android, check-ins
+  respeitam silenciosos, cadastro simulado usa o token uma vez.
+- API: paginação no servidor, isolamento e IDOR (404), filtros validados, busca sem curingas do usuário,
+  resumo consistente, capacidades com classificação honesta, troca de responsável com motivo/linha do tempo,
+  perfil Leitura bloqueado, QR com token só na resposta (hash no banco, nunca em listagens), leitura simulada
+  vira tarefa na fila, token de outra empresa recusado.
+- Worker: cadastro idempotente (mensagem repetida não duplica), ignora token expirado/sem leitura/de outra
+  empresa, “sem sinal” registrado uma única vez, silenciosos nunca inventam comunicação.
+- E2E: visão geral com números reais e origem; filtro e busca; página do aparelho; capacidades; troca de
+  responsável auditada; **cadastro por QR de DEMONSTRAÇÃO concluído de forma assíncrona pelo worker**;
+  cadastro de responsável; convite de Leitura; perfil Leitura sem ações de admin; tema escuro.
+
+**Capturas para o CHECKPOINT 5:** `docs/design/telas-b/` (`CAPTURAS=1 pnpm e2e`).
+
+**Problemas encontrados e corrigidos:** FKs compostas geradas antes dos índices únicos (migração reordenada);
+página de 1 item no teste abaixo do mínimo validado (teste corrigido); erro de lint chegou a um commit e foi
+corrigido no seguinte (sequência de comandos passou a parar no lint); worker em `warn` não anunciava o início
+esperado pelo Playwright.
+
+**NÃO EXECUTADO:** responsividade em celular por captura; leitor de tela real; carga com 500 aparelhos no
+navegador (a API foi testada com até 120 por empresa nos E2E e 400 na geração de frota).
