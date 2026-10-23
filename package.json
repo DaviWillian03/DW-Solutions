@@ -19,7 +19,8 @@
     "db:migrate": "pnpm --filter @dw/db build && pnpm --filter @dw/db migrate",
     "db:seed": "pnpm -r --filter @dw/db --filter @dw/contracts --filter @dw/simulator build >/dev/null && pnpm --filter @dw/simulator seed",
     "platform": "pnpm -r --filter @dw/db --filter @dw/api build >/dev/null && node --env-file=.env.local apps/api/dist/scripts/platform.js",
-    "e2e": "pnpm build && pnpm --filter @dw/web e2e"
+    "e2e": "pnpm build && pnpm --filter @dw/web e2e",
+    "dev:worker": "pnpm -r --filter @dw/db --filter @dw/contracts --filter @dw/simulator --filter @dw/worker build >/dev/null && pnpm --filter @dw/worker start"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

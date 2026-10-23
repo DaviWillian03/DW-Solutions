@@ -1,6 +1,7 @@
 import {
   and,
   deviceEvents,
+  sql,
   deviceHolders,
   devices,
   enrollmentTokens,
@@ -161,4 +162,50 @@ export async function completeEnrollment(
     });
   }
   return d;
+}
+
+/**
+ * Registra “ficou sem sinal” para aparelhos que passaram de 24 h sem comunicar e ainda não têm esse
+ * evento desde a última comunicação. Sem sinal NÃO significa desligado, perdido ou roubado.
+ */
+export async function recordSilent(tx: Tx, tenantId: string, now: Date) {
+  const cut = new Date(now.getTime() - SILENT_AFTER_MS);
+  const rows = await tx.execute<{ id: string; last_seen_at: string }>(sql`
+    select d.id, d.last_seen_at from devices d
+    where d.tenant_id = ${tenantId} and d.enrollment_state = 'enrolled' and d.last_seen_at < ${cut}
+      and not exists (
+        select 1 from device_events e
+        where e.tenant_id = d.tenant_id and e.device_id = d.id and e.type = 'went_silent'
+          and e.occurred_at >= d.last_seen_at
+      )
+    limit 500`);
+  for (const r of rows.rows) {
+    const lastSeen = new Date(r.last_seen_at);
+    await tx.insert(deviceEvents).values({
+      tenantId,
+      deviceId: r.id,
+      occurredAt: new Date(lastSeen.getTime() + SILENT_AFTER_MS),
+      type: 'went_silent',
+      details: { lastSeenAt: lastSeen.toISOString() },
+    });
+  }
+  return rows.rows.length;
+}
+
+/** De vez em quando, um aparelho silencioso volta (ex.: estava sem bateria ou fora de área). */
+export async function maybeRevive(tx: Tx, tenantId: string, now: Date, rnd: Random, chance = 0.005) {
+  const silent = await tx
+    .select({ deviceId: simDevices.deviceId })
+    .from(simDevices)
+    .where(and(eq(simDevices.tenantId, tenantId), eq(simDevices.profile, 'silent')));
+  let revived = 0;
+  for (const s of silent) {
+    if (!rnd.chance(chance)) continue;
+    revived++;
+    await tx
+      .update(simDevices)
+      .set({ profile: 'reliable', nextCheckInAt: now })
+      .where(eq(simDevices.deviceId, s.deviceId));
+  }
+  return revived;
 }

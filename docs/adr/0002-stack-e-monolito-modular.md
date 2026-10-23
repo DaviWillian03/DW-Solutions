@@ -28,3 +28,10 @@ npm em 2026-10-23 (ver `docs/architecture/CHECKPOINT_3_PROPOSTA.md`).
 - Um único deploy de API + um worker; separação futura é possível pelas fronteiras de módulo.
 - Versões exatas fixadas no `package.json` na Fase A; atualizações via Dependabot com revisão.
 - Sem Kafka, Kubernetes, microsserviços ou IA na v1.
+
+## Notas de implementação (Fase B, 2026-10-23)
+- `apps/worker` ficou como processo Node + BullMQ **sem NestJS**: só consome filas, não expõe HTTP, e assim
+  fica menor e mais simples. Processadores são funções puras testadas (`apps/worker/src/processors.ts`).
+- Fila `dw-simulador` com prefixo `dw` (desenvolvimento) ou `dw-test` (testes), tarefas `enroll` e `tick`
+  (agendador a cada `SIM_TICK_SECONDS`). Processamento idempotente: mensagens repetidas não duplicam efeitos.
+- O worker lista IDs de empresas com o papel `dw_platform` e acessa os dados de cada uma com `dw_app` + RLS.
