@@ -6,6 +6,7 @@ import { tenants } from '../src/schema.js';
 export const app = () => createDb(process.env.TEST_DATABASE_URL!, 4);
 export const platform = () => createDb(process.env.TEST_PLATFORM_DATABASE_URL!, 2);
 export const migrator = () => createDb(process.env.TEST_MIGRATOR_DATABASE_URL!, 2);
+export const auth = () => createDb(process.env.TEST_AUTH_DATABASE_URL!, 2);
 
 /** Cria uma empresa como a plataforma faria (papel dw_platform). */
 export async function createTenant(plat: DbHandle, name = 'Empresa Teste'): Promise<string> {

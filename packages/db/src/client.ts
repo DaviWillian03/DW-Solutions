@@ -1,7 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
-import * as schema from './schema.js';
+import * as authSchema from './auth-schema.js';
+import * as baseSchema from './schema.js';
+
+const schema = { ...baseSchema, ...authSchema };
 
 export type Database = NodePgDatabase<typeof schema>;
 export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];

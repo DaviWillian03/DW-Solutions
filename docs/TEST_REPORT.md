@@ -50,3 +50,36 @@ Node 22 e Node 24 + “Segurança da cadeia de suprimentos” (pnpm audit + gitl
 **Problema encontrado e corrigido durante a fatia:** a função de verificação rodava como dona da tabela e,
 com RLS forçado, não enxergava eventos (falso alarme de “ponta divergente”). Corrigido para rodar com as
 permissões de quem chama + função mínima que só expõe a ponta da cadeia da empresa atual.
+
+## 2026-10-23 · Fase A3a (login, MFA, perfis, convites) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` | ✅ **62 testes**: banco 31 (+10 de identidade) · API 31 (+22 de login/perfis) |
+| `pnpm lint` · `pnpm typecheck` · `pnpm format:check` · `pnpm build` | ✅ |
+| `pnpm audit --audit-level low` | ✅ nenhuma vulnerabilidade (após forçar `esbuild` ≥ 0.25 no `drizzle-kit`) |
+| API real + `curl` | ✅ `/health` ok; login sem origem → 403 `BAD_ORIGIN`; `/api/me` sem sessão → 401; CSP, HSTS, nosniff, X-Frame-Options presentes |
+| `pnpm platform convidar-admin --slug comercial-exemplo …` | ✅ convite impresso uma única vez |
+
+**Cobertura dos testes de login (`apps/api/test/auth.e2e.spec.ts`), contra PostgreSQL e Redis reais:**
+cadastro aberto desativado; convite recusa senha fraca/token falso e vale uma vez; senha errada 401; admin sem
+MFA vê só `/me` (403 `MFA_ENROLLMENT_REQUIRED` no resto); cadastro TOTP com código errado/certo (códigos gerados
+por implementação RFC 6238 independente); novo login só libera após o 2º fator; código de recuperação de uso
+único; sair invalida a sessão; perfil Leitura consulta mas não convida; isolamento entre empresas; desativar
+usuário de outra empresa → 404; e-mail repetido com mensagem genérica; validação de entrada; não desativa a si
+mesmo; desativação revoga a sessão na hora; auditoria com login aceito/negado, convite, desativação, sem senha
+nos metadados e cadeia íntegra; CSRF (outra origem e sem origem) em rotas da API e de autenticação; limite de
+5 logins/min por IP (429); bloqueio da conta após 10 falhas de IPs diferentes; limite de códigos de MFA;
+erros sem detalhes internos.
+**Banco (`packages/db/test/identity.spec.ts`):** `dw_auth` não cria usuário nem muda perfil/empresa/situação;
+`dw_app` não altera flag de MFA nem lê sessões/senhas/segredos; plataforma cria só admin e não lê usuários;
+e-mail único sem diferenciar maiúsculas; perfil inválido recusado.
+
+**Problemas encontrados e corrigidos:**
+1. `generateId: 'uuid'` esperava o banco gerar o ID → sessões falhavam (500). Corrigido com `randomUUID()`.
+2. **Segurança:** o Better Auth **desliga a checagem de origem em ambiente de teste** e, mesmo em produção, não
+   confere origem em login sem cookie. Forçamos `disableOriginCheck: false` e adicionamos checagem própria de
+   origem em todo POST de `/api/auth/*`. Teste de CSRF agora prova o comportamento real.
+
+**NÃO EXECUTADO:** cadastro/login por chave de acesso (passkey) — exige cerimônia WebAuthn no navegador; será
+testado na A3b com o autenticador virtual do Chromium.

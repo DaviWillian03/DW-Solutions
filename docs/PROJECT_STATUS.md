@@ -3,7 +3,7 @@
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
 **Fase atual:** CHECKPOINT 4 concluído → **Fase A em andamento** (fundação)
-**Código:** Fases A1 e A2 concluídas (fundação + banco com RLS, auditoria encadeada, seed). 29 testes.
+**Código:** A1, A2 e A3a concluídas (fundação, banco com RLS, login com MFA/perfis/convites no backend). 62 testes.
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -29,11 +29,12 @@
 | 4 | ✅ CHECKPOINT 4 — MVP | Escopo enxuto aprovado | — |
 | 5 | ✅ A1 — Esqueleto | Monorepo pnpm, setup do container + hook, API `/health`, CI, Dependabot | — |
 | 6 | ✅ A2 — Banco | Drizzle + RLS forçado, empresas, responsáveis, auditoria com cadeia de hash, seed | — |
-| 7 | A3 — Auth + perfis | Better Auth + TOTP/passkey, sessões, perfis Admin/Leitura no backend, testes | Fatia 6 |
+| 7 | ✅ A3a — Login no backend | Better Auth + TOTP + recuperação, perfis Admin/Leitura, convites, CLI da plataforma | — |
+| 7b | A3b — Telas de login | Next.js: entrar, convite, MFA, chave de acesso; E2E | A3a |
 | 8 | B1 — Simulador + aparelhos | `SimulatorProvider`, cadastro com QR demo, lista e página do aparelho | Fatia 7 |
 | 9 | CHECKPOINT 5 | Revisão das primeiras telas reais | Fatias 2 e 8 |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (A1 + A2: 29 testes passando; CI da A1 verde no GitHub).
+Ver `docs/TEST_REPORT.md` (A1 + A2 + A3a: 62 testes passando).

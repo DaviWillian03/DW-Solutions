@@ -1,20 +1,19 @@
 import { Global, Inject, Module, type OnApplicationShutdown } from '@nestjs/common';
+import { createDb, type DbHandle } from '@dw/db';
 import { Redis } from 'ioredis';
-import pg from 'pg';
 import { ENV, type Env } from '../config/env.js';
 
-export const PG_POOL = Symbol('PG_POOL');
+/** Banco com o papel dw_app (dados de empresa via withTenant + RLS). */
+export const APP_DB = Symbol('APP_DB');
+/** Banco com o papel dw_auth (somente identidade/sessões). */
+export const AUTH_DB = Symbol('AUTH_DB');
 export const REDIS = Symbol('REDIS');
 
 @Global()
 @Module({
   providers: [
-    {
-      provide: PG_POOL,
-      inject: [ENV],
-      useFactory: (env: Env) =>
-        new pg.Pool({ connectionString: env.DATABASE_URL, max: 10, connectionTimeoutMillis: 2_000 }),
-    },
+    { provide: APP_DB, inject: [ENV], useFactory: (env: Env) => createDb(env.DATABASE_URL, 10) },
+    { provide: AUTH_DB, inject: [ENV], useFactory: (env: Env) => createDb(env.AUTH_DATABASE_URL, 5) },
     {
       provide: REDIS,
       inject: [ENV],
@@ -28,16 +27,17 @@ export const REDIS = Symbol('REDIS');
         }),
     },
   ],
-  exports: [PG_POOL, REDIS],
+  exports: [APP_DB, AUTH_DB, REDIS],
 })
 export class InfraModule implements OnApplicationShutdown {
   constructor(
-    @Inject(PG_POOL) private readonly pool: pg.Pool,
+    @Inject(APP_DB) private readonly appDb: DbHandle,
+    @Inject(AUTH_DB) private readonly authDb: DbHandle,
     @Inject(REDIS) private readonly redis: Redis,
   ) {}
 
   async onApplicationShutdown() {
-    await this.pool.end();
+    await Promise.all([this.appDb.close(), this.authDb.close()]);
     this.redis.disconnect();
   }
 }

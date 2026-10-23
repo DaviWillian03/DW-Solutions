@@ -17,7 +17,8 @@
     "test": "pnpm -r --workspace-concurrency=1 test",
     "db:generate": "pnpm --filter @dw/db generate",
     "db:migrate": "pnpm --filter @dw/db build && pnpm --filter @dw/db migrate",
-    "db:seed": "pnpm --filter @dw/db build && pnpm --filter @dw/db seed"
+    "db:seed": "pnpm --filter @dw/db build && pnpm --filter @dw/db seed",
+    "platform": "pnpm -r --filter @dw/db --filter @dw/api build >/dev/null && node --env-file=.env.local apps/api/dist/scripts/platform.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

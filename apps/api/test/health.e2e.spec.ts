@@ -1,16 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
-import { loadEnv } from '../src/config/env.js';
 import { createApp } from '../src/main.js';
-
-const baseEnv = () =>
-  loadEnv({
-    NODE_ENV: 'test',
-    LOG_LEVEL: 'silent',
-    DATABASE_URL: process.env.TEST_DATABASE_URL,
-    REDIS_URL: process.env.REDIS_URL,
-  });
+import { testEnv as baseEnv } from './support.js';
 
 let app: INestApplication | undefined;
 afterEach(async () => {

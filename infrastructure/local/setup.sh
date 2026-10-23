@@ -26,9 +26,13 @@ random_pw() { openssl rand -hex 24; }
 APP_PW="$(pw_from_url "$(get_env DATABASE_URL)")"
 MIG_PW="$(pw_from_url "$(get_env MIGRATOR_DATABASE_URL)")"
 PLAT_PW="$(pw_from_url "$(get_env PLATFORM_DATABASE_URL)")"
+AUTH_PW="$(pw_from_url "$(get_env AUTH_DATABASE_URL)")"
+AUTH_SECRET="$(get_env BETTER_AUTH_SECRET)"
 [[ "$APP_PW" =~ ^[0-9a-f]{48}$ ]] || APP_PW="$(random_pw)"
 [[ "$MIG_PW" =~ ^[0-9a-f]{48}$ ]] || MIG_PW="$(random_pw)"
 [[ "$PLAT_PW" =~ ^[0-9a-f]{48}$ ]] || PLAT_PW="$(random_pw)"
+[[ "$AUTH_PW" =~ ^[0-9a-f]{48}$ ]] || AUTH_PW="$(random_pw)"
+[[ "$AUTH_SECRET" =~ ^[0-9a-f]{64}$ ]] || AUTH_SECRET="$(openssl rand -hex 32)"
 
 # ---------- PostgreSQL ----------
 if [ ! -f "$PG_DATA/PG_VERSION" ]; then
@@ -58,11 +62,13 @@ BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'dw_migrator') THEN CREATE ROLE dw_migrator LOGIN; END IF;
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'dw_app') THEN CREATE ROLE dw_app LOGIN; END IF;
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'dw_platform') THEN CREATE ROLE dw_platform LOGIN; END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'dw_auth') THEN CREATE ROLE dw_auth LOGIN; END IF;
 END \$\$;
 -- Nenhum papel da aplicação ignora RLS nem é superusuário (ADR-0004).
 ALTER ROLE dw_migrator NOSUPERUSER NOBYPASSRLS NOCREATEROLE NOCREATEDB PASSWORD '$MIG_PW';
 ALTER ROLE dw_app      NOSUPERUSER NOBYPASSRLS NOCREATEROLE NOCREATEDB PASSWORD '$APP_PW';
 ALTER ROLE dw_platform NOSUPERUSER NOBYPASSRLS NOCREATEROLE NOCREATEDB PASSWORD '$PLAT_PW';
+ALTER ROLE dw_auth     NOSUPERUSER NOBYPASSRLS NOCREATEROLE NOCREATEDB PASSWORD '$AUTH_PW';
 SQL
 
 for DB in dw_dev dw_test; do
@@ -71,10 +77,10 @@ for DB in dw_dev dw_test; do
   fi
   psql_su "$DB" <<SQL
 REVOKE ALL ON DATABASE $DB FROM PUBLIC;
-GRANT CONNECT ON DATABASE $DB TO dw_migrator, dw_app, dw_platform;
+GRANT CONNECT ON DATABASE $DB TO dw_migrator, dw_app, dw_platform, dw_auth;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 ALTER SCHEMA public OWNER TO dw_migrator;
-GRANT USAGE ON SCHEMA public TO dw_app, dw_platform;
+GRANT USAGE ON SCHEMA public TO dw_app, dw_platform, dw_auth;
 SQL
 done
 
@@ -97,10 +103,15 @@ LOG_LEVEL=info
 DATABASE_URL=$(url dw_app "$APP_PW" dw_dev)
 MIGRATOR_DATABASE_URL=$(url dw_migrator "$MIG_PW" dw_dev)
 PLATFORM_DATABASE_URL=$(url dw_platform "$PLAT_PW" dw_dev)
+AUTH_DATABASE_URL=$(url dw_auth "$AUTH_PW" dw_dev)
 TEST_DATABASE_URL=$(url dw_app "$APP_PW" dw_test)
 TEST_MIGRATOR_DATABASE_URL=$(url dw_migrator "$MIG_PW" dw_test)
 TEST_PLATFORM_DATABASE_URL=$(url dw_platform "$PLAT_PW" dw_test)
+TEST_AUTH_DATABASE_URL=$(url dw_auth "$AUTH_PW" dw_test)
 REDIS_URL=redis://127.0.0.1:$REDIS_PORT
+WEB_ORIGIN=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=$AUTH_SECRET
 ENV
 umask 022
 

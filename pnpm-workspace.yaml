@@ -9,3 +9,7 @@ minimumReleaseAge: 10080
 onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
+
+# esbuild antigo (GHSA-67mh-4wv8-2f99) vindo de drizzle-kit > @esbuild-kit: força versão corrigida.
+overrides:
+  '@esbuild-kit/core-utils>esbuild': ^0.25.0

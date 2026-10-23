@@ -6,7 +6,8 @@
     "useDefineForClassFields": false,
     "outDir": "dist",
     "rootDir": ".",
-    "types": ["node"]
+    "types": ["node"],
+    "customConditions": ["source"]
   },
   "include": ["src", "test", "vitest.config.ts"]
 }

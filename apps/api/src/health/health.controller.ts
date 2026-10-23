@@ -1,9 +1,10 @@
 import { Controller, Get, Inject, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import type { Redis } from 'ioredis';
-import type pg from 'pg';
+import type { DbHandle } from '@dw/db';
 import type { Logger } from 'pino';
-import { PG_POOL, REDIS } from '../infra/infra.module.js';
+import { APP_DB, REDIS } from '../infra/infra.module.js';
+import { Public } from '../auth/decorators.js';
 import { LOGGER } from '../logger.js';
 
 type CheckStatus = 'up' | 'down';
@@ -24,16 +25,17 @@ function withTimeout<T>(p: Promise<T>): Promise<T> {
 @Controller('health')
 export class HealthController {
   constructor(
-    @Inject(PG_POOL) private readonly pool: pg.Pool,
+    @Inject(APP_DB) private readonly appDb: DbHandle,
     @Inject(REDIS) private readonly redis: Redis,
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
   /** Verifica dependências reais. Nunca devolve detalhes de erro (só registra no log). */
+  @Public()
   @Get()
   async check(@Res({ passthrough: true }) res: Response) {
     const [database, redis] = await Promise.all([
-      this.probe('database', () => this.pool.query('SELECT 1')),
+      this.probe('database', () => this.appDb.pool.query('SELECT 1')),
       this.probe('redis', async () => {
         if (this.redis.status === 'wait' || this.redis.status === 'end') await this.redis.connect();
         return this.redis.ping();

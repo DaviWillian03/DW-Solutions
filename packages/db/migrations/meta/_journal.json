@@ -15,6 +15,20 @@
       "when": 1792764729550,
       "tag": "0001_seguranca_rls_auditoria",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792765156097,
+      "tag": "0002_identidade",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792765157200,
+      "tag": "0003_identidade_rls",
+      "breakpoints": true
     }
   ]
 }
