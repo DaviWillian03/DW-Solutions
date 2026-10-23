@@ -3,7 +3,7 @@
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
 **Fase atual:** CHECKPOINT 4 concluído → **Fase A em andamento** (fundação)
-**Código:** nenhum ainda.
+**Código:** Fase A1 concluída (fundação: monorepo, setup do container, API com `/health`, CI).
 
 ## Feito
 - Prompt-mestre salvo em `docs/PROMPT_MESTRE.md`.
@@ -27,7 +27,7 @@
 | 2 | ✅ CHECKPOINT 2 — visual | Design system v1 + arquivos da marca + protótipo de referência | — |
 | 3 | ✅ CHECKPOINT 3 — arquitetura | ADRs 0002–0006 | — |
 | 4 | ✅ CHECKPOINT 4 — MVP | Escopo enxuto aprovado | — |
-| 5 | A1 — Esqueleto | Monorepo pnpm, lint/typecheck/test, CI, script de setup do container | Fatia 3 |
+| 5 | ✅ A1 — Esqueleto | Monorepo pnpm, setup do container + hook, API `/health`, CI, Dependabot | — |
 | 6 | A2 — Banco | Drizzle + PostgreSQL com RLS, Tenant/User/Role, migrações, seed sintético | Fatia 5 |
 | 7 | A3 — Auth + perfis | Better Auth + TOTP/passkey, sessões, perfis Admin/Leitura no backend, testes | Fatia 6 |
 | 8 | B1 — Simulador + aparelhos | `SimulatorProvider`, cadastro com QR demo, lista e página do aparelho | Fatia 7 |
@@ -36,9 +36,4 @@
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ainda não há código do produto. Verificações dos protótipos de design (2026-10-23, Chromium headless):
-- Fontes carregadas em todas as páginas; sem rolagem horizontal em 1440 px; sem erros de JavaScript.
-- Contraste WCAG: todos os textos ≥ 4,5:1 nos temas claro e escuro (`docs/design/checkpoint-2/fonte/contraste-rodada-2.txt`).
-- “Reduzir movimento”: animações desligadas e números exibidos no valor final.
-- `favicon.ico` validado (3 imagens: 16, 32, 48 px).
-- **NÃO EXECUTADO:** testes de responsividade no celular e leitor de tela (ficam para a Fase A/CP5).
+Ver `docs/TEST_REPORT.md` (Fase A1: 8 testes passando, lint/tipos/build/auditoria OK).

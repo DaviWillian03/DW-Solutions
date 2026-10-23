@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Cadeia de suprimentos (ADR-0006): não instalar versões publicadas há menos de 7 dias.
+minimumReleaseAge: 10080
+
+# Só pacotes listados podem rodar scripts de instalação.
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild

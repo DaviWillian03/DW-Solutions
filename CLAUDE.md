@@ -41,7 +41,15 @@ aparelho ligado a um responsável; políticas Vendas e Merchandising; comandos b
 perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin). Não expandir sem pedido.
 
 ## Comandos
-Ainda não há código. Esta seção será preenchida na Fase A.
+- `pnpm setup` — prepara PostgreSQL/Redis/.env.local (o hook SessionStart já roda isso na nuvem)
+- `pnpm test` · `pnpm lint` · `pnpm format` · `pnpm typecheck` · `pnpm build`
+- `pnpm --filter @dw/api start` — API em http://127.0.0.1:3001 (`/health`)
+- Registrar resultados reais em `docs/TEST_REPORT.md`.
+
+## Convenções de código
+- API em **ESM** (NestJS 12): imports relativos com extensão `.js`; testes com Vitest + `unplugin-swc`.
+- Dependências: versão exata; `minimumReleaseAge` de 7 dias bloqueia versões novas — escolha a anterior.
+- Sem `console.log`: usar o logger pino; nunca logar segredos.
 
 ## Git
 - Branch de desenvolvimento: `claude/mdm-android-corporate-bgfuws`.
