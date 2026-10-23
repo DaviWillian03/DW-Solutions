@@ -13,7 +13,7 @@ Status possíveis: `ABERTA`, `DECIDIDA`, `SUBSTITUÍDA`.
 
 | ID | Assunto | Decisão | Data | Reversível? |
 |----|---------|---------|------|-------------|
-| D-000 | Nome de trabalho | “Projeto MDM” até o CHECKPOINT 1 | 2026-10-23 | Sim |
+| D-000 | Nome de trabalho | ~~“Projeto MDM” até o CHECKPOINT 1~~ — SUBSTITUÍDA por CP1-1 | 2026-10-23 | — |
 | D-001 | Plataforma-alvo | Somente Android; sem módulo iOS | 2026-10-23 | Não previsto |
 | D-002 | Documento de referência | `docs/PROMPT_MESTRE.md` é a especificação base | 2026-10-23 | Sim, por nova decisão |
 
@@ -73,3 +73,32 @@ Status possíveis: `ABERTA`, `DECIDIDA`, `SUBSTITUÍDA`.
 - **Decisão:** **nenhum**.
 - **Consequências:** modo simulador; nenhuma credencial real; `AndroidManagementProvider` apenas como
   contrato/esqueleto documentado até elegibilidade.
+
+## CHECKPOINT 1 — Identidade de produto (DECIDIDO em 2026-10-23)
+
+Pesquisa completa: `docs/naming/CHECKPOINT_1_NOMES.md`.
+
+### CP1-1 · Nome — DECIDIDA
+- **Opções apresentadas:** Frotalis (recomendado), Leme, Lemvia, Quilha, Orlava, Nodalis, Zelo, Prumo;
+  depois: empresa + produto em PT (recomendado: “DW Leme”), produto = DW Solutions, DW Soluções.
+- **Decisão do usuário (resposta livre):** **“DW Solutions”** é o nome geral de tudo — empresa, marca e
+  sistema. Não haverá nome de produto separado.
+- **Pesquisa:** nenhuma empresa “DW Solutions” encontrada no Brasil; nomes próximos: DWU IT Solutions
+  (Porto Alegre, parceira SAP), DW Practice (EUA). “Digital Watchdog” usa a sigla DW em câmeras de
+  vigilância (associação a evitar na comunicação visual). `dwsolutions.com.br` e `dwsolutions.com`
+  **registrados por terceiros**; nenhum domínio comprado. **INPI NÃO VERIFICADO.**
+- **Consequências:** substituir “Projeto MDM” por “DW Solutions” em código e docs; nomes técnicos de
+  pacotes usam o prefixo `dw`. Domínio definitivo fica para o CHECKPOINT 8.
+- **Reversível:** sim, até a publicação.
+
+### CP1-2 · Posicionamento — DECIDIDA
+- **Opções:** corporativo sóbrio (recomendado) · tecnológico premium · **acessível** · futurista.
+- **Decisão:** **acessível** — simples e amigável, para empresas sem equipe grande de TI.
+- **Consequências:** linguagem clara sem jargão na interface (termos técnicos com explicação), fluxos
+  guiados, densidade de informação moderada, onboarding forte. Segurança continua inegociável.
+
+### CP1-3 · Idioma da marca — DECIDIDA
+- **Opções:** nome neutro + slogan PT (recomendado) · **tudo em português** · tudo em inglês.
+- **Decisão:** **tudo em português** (slogan, interface, documentação, comunicação).
+- **Observação registrada:** o nome “DW Solutions” é em inglês por escolha explícita do usuário (CP1-1);
+  é a única exceção à regra do idioma.

@@ -1,7 +1,8 @@
 # Estado do Projeto
 
 **Última atualização:** 2026-10-23
-**Fase atual:** CHECKPOINT 0 concluído → próximo: **CHECKPOINT 1 — Identidade de produto**
+**Produto:** DW Solutions
+**Fase atual:** CHECKPOINT 1 concluído → próximo: **CHECKPOINT 2 — Design e identidade visual**
 **Código:** nenhum ainda.
 
 ## Feito
@@ -9,11 +10,13 @@
 - Regras oficiais da AMAPI verificadas (2026-10-23) → `docs/ANDROID_FEASIBILITY.md`.
 - CHECKPOINT 0 respondido → `docs/PRODUCT_DECISIONS.md`; rota técnica → `docs/adr/0001-...`.
 - Ambiente do container verificado (Node 22, pnpm 10, PostgreSQL 16, Redis 7).
+- CHECKPOINT 1 respondido: nome **DW Solutions**, posicionamento acessível, tudo em português
+  (pesquisa em `docs/naming/CHECKPOINT_1_NOMES.md`).
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
 |---|-------|---------------------|---------------|
-| 1 | CHECKPOINT 1 — nome | Nome e posicionamento decididos | Usuário |
+| 1 | ✅ CHECKPOINT 1 — nome | DW Solutions · acessível · português | — |
 | 2 | CHECKPOINT 2 — visual | 3 direções + protótipos em screenshot; design aprovado | Fatia 1 |
 | 3 | CHECKPOINT 3 — arquitetura | ADRs de stack, auth/IdP, multiempresa | Usuário |
 | 4 | CHECKPOINT 4 — MVP | Backlog MoSCoW e critérios de aceite | Fatia 3 |

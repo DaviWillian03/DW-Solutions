@@ -1,7 +1,8 @@
-# CLAUDE.md — Projeto MDM (nome provisório)
+# CLAUDE.md — DW Solutions
 
-MDM web para gestão de dispositivos **exclusivamente Android**, foco em empresas comerciais
-(vendedores, lojas, estoque, PDV). Idioma de trabalho: português brasileiro.
+**DW Solutions** — MDM web para gestão de dispositivos **exclusivamente Android**, foco em empresas comerciais
+(vendedores, lojas, estoque, PDV). Posicionamento: acessível. Idioma: tudo em português brasileiro
+(exceto o nome “DW Solutions”).
 
 ## Antes de qualquer trabalho, leia
 1. `docs/PROJECT_STATUS.md` — onde paramos e qual é o próximo passo.

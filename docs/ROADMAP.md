@@ -3,8 +3,8 @@
 | Etapa | Conteúdo | Depende de | Status |
 |-------|----------|------------|--------|
 | CP0 | Viabilidade, intenção e ambiente | Usuário | ✅ concluído |
-| CP1 | Nome e posicionamento | CP0 | 🟡 próximo |
-| CP2 | Direção visual, logo, protótipos | CP1 | ⚪ |
+| CP1 | Nome e posicionamento | CP0 | ✅ concluído (DW Solutions) |
+| CP2 | Direção visual, logo, protótipos | CP1 | 🟡 próximo |
 | CP3 | Arquitetura e implantação (ADRs) | CP0 | ⚪ |
 | CP4 | Escopo do MVP (MoSCoW) | CP3 | ⚪ |
 | Fase A | Fundamentos: monorepo, Docker, auth, schema, RBAC, tenant | CP3 | ⚪ |
