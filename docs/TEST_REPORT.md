@@ -83,3 +83,31 @@ e-mail único sem diferenciar maiúsculas; perfil inválido recusado.
 
 **NÃO EXECUTADO:** cadastro/login por chave de acesso (passkey) — exige cerimônia WebAuthn no navegador; será
 testado na A3b com o autenticador virtual do Chromium.
+
+## 2026-10-23 · Fase A3b (telas de login) · mesmo ambiente + Chromium 141 (Playwright 1.64.1)
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm build` (db, api, web — Next.js 16.4.2) | ✅ 6 rotas estáticas: `/`, `/entrar`, `/verificacao`, `/convite`, `/configurar-seguranca` |
+| `pnpm test` | ✅ 62 testes (banco 31 · API 31) |
+| `pnpm e2e` | ✅ **9 testes de navegador** contra API + site reais e banco de teste recriado |
+| `pnpm lint` · `pnpm typecheck` (3 pacotes) · `pnpm format:check` · `pnpm audit` | ✅ |
+
+**Fluxos E2E (`apps/web/e2e`):** sem sessão → Entrar; convite (token some da barra de endereço; senha curta
+recusada) → cadastro obrigatório de MFA (QR + chave manual; código errado recusado; código certo ativa) →
+10 códigos de recuperação (botão só libera após confirmar que guardou) → **cadastro de chave de acesso com
+autenticador virtual WebAuthn** → Visão geral com faixa “DADOS SIMULADOS”; convite reutilizado recusado;
+senha errada com mensagem em português; login com senha + código do app (código errado recusado); login
+com código de recuperação; **login só com chave de acesso**; cookie de sessão `HttpOnly`, `Secure`,
+`SameSite=Lax` e invisível ao JavaScript; tema escuro aplica a paleta própria; “reduzir movimento” desliga
+animações.
+
+**Capturas para revisão:** `docs/design/telas-a3/` (geradas com `CAPTURAS=1 pnpm --filter @dw/web e2e`;
+QR e códigos são de conta descartável do banco de teste).
+
+**Problemas encontrados e corrigidos:** build do Next checava arquivos de teste; servidor herdava
+`NODE_ENV=development`; o anunciador de rotas do Next também tem `role="alert"` (testes passaram a
+procurar alertas só dentro do conteúdo principal).
+
+**NÃO EXECUTADO:** E2E em Firefox/Safari; leitor de tela real; telas em celular (layout responsivo foi
+escrito, mas não testado por captura); CI do GitHub com o job novo de E2E (roda após o push).

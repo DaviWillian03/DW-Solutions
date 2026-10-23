@@ -1,0 +1,23 @@
+{
+  "name": "DW Solutions",
+  "short_name": "DW Solutions",
+  "lang": "pt-BR",
+  "theme_color": "#1A4FD6",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icone-app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icone-app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "start_url": "/"
+}

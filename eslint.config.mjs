@@ -3,7 +3,18 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', 'docs/**'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/.next/**',
+      '**/next-env.d.ts',
+      '**/test-results/**',
+      '**/playwright-report/**',
+      'docs/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -13,6 +24,10 @@ export default tseslint.config(
       // Proibido logar com console fora de scripts: usar o logger estruturado.
       'no-console': ['error', { allow: ['error'] }],
     },
+  },
+  {
+    files: ['apps/web/**/*.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.browser } },
   },
   {
     files: ['infrastructure/**', '**/scripts/**'],

@@ -1,7 +1,7 @@
 # DW Solutions
 
 MDM web para colocar **smartphones Android corporativos de vendas e merchandising** sob gerenciamento.
-Estado atual: **Fase A (fundação: A1 e A2 prontas)** — modo simulador, nenhum aparelho real é gerenciado.
+Estado atual: **Fase A concluída** — login com MFA e chave de acesso; próximos: aparelhos (Fase B) — modo simulador, nenhum aparelho real é gerenciado.
 
 ## Começando (container do Claude Code na nuvem)
 O gancho de início de sessão já executa o setup. Para rodar manualmente:
@@ -13,10 +13,14 @@ pnpm test           # testes (usam o banco dw_test, recriado do zero)
 pnpm lint && pnpm typecheck
 pnpm --filter @dw/api build && pnpm --filter @dw/api start   # API em http://127.0.0.1:3001
 curl http://127.0.0.1:3001/health
+pnpm --filter @dw/web dev        # site em http://localhost:3000
+pnpm platform convidar-admin --slug comercial-exemplo --admin-nome "Seu Nome" --admin-email voce@exemplo.test
+pnpm e2e                         # testes de navegador
 ```
 
 ## Estrutura
-- `apps/api` — API NestJS 12 (ESM). Hoje: `/health` (PostgreSQL + Redis), logs JSON, ID de correlação.
+- `apps/web` — site Next.js 16 (entrar, convite, verificação em duas etapas, chave de acesso, visão geral).
+- `apps/api` — API NestJS 12 (ESM): Better Auth, perfis, convites, auditoria, `/health`.
 - `packages/db` — esquema Drizzle, migrações com RLS forçado por empresa, auditoria encadeada, seed.
 - `infrastructure/local/setup.sh` — preparação idempotente do ambiente.
 - `docs/` — decisões (`PRODUCT_DECISIONS.md`), ADRs, design system, escopo do MVP, estado do projeto.

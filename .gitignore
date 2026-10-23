@@ -8,3 +8,6 @@ coverage/
 .env.*.local
 .DS_Store
 .dw-runtime/
+apps/web/e2e/.state.json
+apps/web/test-results/
+apps/web/playwright-report/

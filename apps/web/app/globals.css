@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/500.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+@import '@fontsource/plus-jakarta-sans/800.css';
+
+/* Design system v1 (docs/design/DESIGN_SYSTEM.md): branco + azuis, tema segue o sistema. */
+:root {
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --surface-2: #eef3fd;
+  --border: #dce4f2;
+  --text: #0a1730;
+  --text-2: #3e4e69;
+  --muted: #5c6b84;
+  --navy: #0a1f4d;
+  --royal: #1a4fd6;
+  --on-royal: #ffffff;
+  --azure: #2f6bff;
+  --sky: #8cb4ff;
+  --ice: #e9f0ff;
+  --ok: #0f7a43;
+  --ok-s: #e4f5eb;
+  --warn: #94560a;
+  --warn-s: #fdf2de;
+  --crit: #bf2a2a;
+  --crit-s: #fdebeb;
+  --unk: #566176;
+  --unk-s: #edf0f4;
+  --banner-bg: #fff6dc;
+  --banner-fg: #6e4600;
+  --banner-line: #f0dca4;
+  --shadow: 0 1px 2px rgba(10, 23, 48, 0.05), 0 8px 24px rgba(10, 31, 77, 0.06);
+  --mono-a: #0a1f4d;
+  --mono-b: #2f6bff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #060d1c;
+    --surface: #0c1730;
+    --surface-2: #122247;
+    --border: #1f3366;
+    --text: #eef3ff;
+    --text-2: #b9c6e2;
+    --muted: #8e9cbc;
+    --navy: #0e2152;
+    --royal: #6e9bff;
+    --on-royal: #06102a;
+    --azure: #8fb2ff;
+    --ice: #15295a;
+    --ok: #4ade80;
+    --ok-s: rgba(74, 222, 128, 0.12);
+    --warn: #fbbf24;
+    --warn-s: rgba(251, 191, 36, 0.12);
+    --crit: #f87171;
+    --crit-s: rgba(248, 113, 113, 0.13);
+    --unk: #a6b1c9;
+    --unk-s: rgba(166, 177, 201, 0.13);
+    --banner-bg: rgba(251, 191, 36, 0.1);
+    --banner-fg: #fcd679;
+    --banner-line: rgba(251, 191, 36, 0.28);
+    --shadow: none;
+    --mono-a: #8cb4ff;
+    --mono-b: #ffffff;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-muted: var(--muted);
+  --color-navy: var(--navy);
+  --color-royal: var(--royal);
+  --color-on-royal: var(--on-royal);
+  --color-ice: var(--ice);
+  --color-sky: var(--sky);
+  --color-ok: var(--ok);
+  --color-ok-s: var(--ok-s);
+  --color-warn: var(--warn);
+  --color-warn-s: var(--warn-s);
+  --color-crit: var(--crit);
+  --color-crit-s: var(--crit-s);
+  --color-unk: var(--unk);
+  --color-unk-s: var(--unk-s);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sky);
+  outline-offset: 2px;
+}
+
+/* Movimento expressivo (CP2-8), sempre desligado com “reduzir movimento”. */
+@keyframes dw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dw-rise {
+  animation: dw-rise 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

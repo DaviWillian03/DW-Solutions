@@ -46,6 +46,8 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 - `pnpm db:migrate` · `pnpm db:seed` · `pnpm db:generate` (após mudar `packages/db/src/schema.ts`)
 - `pnpm platform criar-empresa|convidar-admin …` — ferramenta da plataforma (imprime o link de convite)
 - `pnpm --filter @dw/api start` — API em http://127.0.0.1:3001 (`/health`, `/api/*`, `/api/auth/*`)
+- `pnpm --filter @dw/web dev` — site em http://localhost:3000 (encaminha `/api` para a API)
+- `pnpm e2e` — build + testes de navegador (usa dw_test e portas 3000/3001; `CAPTURAS=1` salva telas)
 - Registrar resultados reais em `docs/TEST_REPORT.md`.
 
 ## Convenções de código
@@ -54,6 +56,8 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
 - Sem `console.log`: usar o logger pino; nunca logar segredos.
 - Rotas da API negam por padrão: use `@Public()`, `@Roles('admin')`, `@AllowPendingMfa()` conscientemente.
 - Operadores do Drizzle vêm de `@dw/db` (não importar `drizzle-orm` nos apps).
+- Site: textos em pt-BR, componentes de `apps/web/components/ui.tsx`, tokens do design system em
+  `apps/web/app/globals.css`; nenhum botão finge funcionar (itens futuros ficam desabilitados com aviso).
 - Dados de empresa **só** via `withTenant()` de `@dw/db`; RLS, permissões e gatilhos ficam em migrações SQL
   próprias (`packages/db/migrations/*_*.sql`), nunca editar migração já aplicada fora do ambiente local.
 

@@ -35,5 +35,11 @@
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "zod": "4.6.7"
+  },
+  "exports": {
+    "./platform": {
+      "source": "./src/platform/create-tenant.ts",
+      "default": "./dist/platform/create-tenant.js"
+    }
   }
 }
