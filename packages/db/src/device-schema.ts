@@ -1,3 +1,4 @@
+import type { ComplianceReason, PolicyReport } from '@dw/contracts';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -5,6 +6,7 @@ import {
   date,
   foreignKey,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -14,6 +16,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { complianceState, policies } from './policy-schema.js';
 import { deviceHolders, tenants } from './schema.js';
 
 // Aparelhos gerenciados (Fase B). Todo dado sincronizado tem origem (`source`) e horário de observação:
@@ -59,6 +62,16 @@ export const devices = pgTable(
     lastSeenAt: timestamp({ withTimezone: true }),
     observedState: jsonb().$type<ObservedState>().notNull().default({}),
     desiredState: jsonb().$type<Record<string, unknown>>().notNull().default({}),
+    // Política: desejada (definida aqui) × aplicada (relatada pelo aparelho, com horário).
+    policyId: uuid(),
+    policyVersion: integer(),
+    policyAssignedAt: timestamp({ withTimezone: true }),
+    appliedPolicyVersion: integer(),
+    policyReportedAt: timestamp({ withTimezone: true }),
+    policyReport: jsonb().$type<PolicyReport>(),
+    compliance: complianceState().notNull().default('not_applicable'),
+    complianceReasons: jsonb().$type<ComplianceReason[]>().notNull().default([]),
+    complianceEvaluatedAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
@@ -70,6 +83,14 @@ export const devices = pgTable(
     index('devices_tenant_name_idx').on(t.tenantId, t.displayName),
     index('devices_tenant_seen_idx').on(t.tenantId, t.lastSeenAt),
     index('devices_tenant_holder_idx').on(t.tenantId, t.holderId),
+    index('devices_tenant_policy_idx').on(t.tenantId, t.policyId),
+    index('devices_tenant_compliance_idx').on(t.tenantId, t.compliance),
+    foreignKey({
+      name: 'devices_policy_same_tenant_fk',
+      columns: [t.tenantId, t.policyId],
+      foreignColumns: [policies.tenantId, policies.id],
+    }).onDelete('restrict'),
+    check('devices_policy_version_pair', sql`(${t.policyId} is null) = (${t.policyVersion} is null)`),
     // Responsável precisa ser da MESMA empresa (FK composta: a checagem de FK ignora o RLS).
     foreignKey({
       name: 'devices_holder_same_tenant_fk',
@@ -93,6 +114,7 @@ export const enrollmentTokens = pgTable(
     demo: boolean().notNull().default(true),
     managementMode: managementMode().notNull().default('fully_managed'),
     holderId: uuid(),
+    policyId: uuid(),
     displayNameHint: text(),
     providerRef: text(),
     createdBy: text().notNull(),
@@ -110,6 +132,11 @@ export const enrollmentTokens = pgTable(
       name: 'enrollment_tokens_holder_same_tenant_fk',
       columns: [t.tenantId, t.holderId],
       foreignColumns: [deviceHolders.tenantId, deviceHolders.id],
+    }).onDelete('restrict'),
+    foreignKey({
+      name: 'enrollment_tokens_policy_same_tenant_fk',
+      columns: [t.tenantId, t.policyId],
+      foreignColumns: [policies.tenantId, policies.id],
     }).onDelete('restrict'),
     foreignKey({
       name: 'enrollment_tokens_device_same_tenant_fk',
@@ -160,6 +187,9 @@ export const simDevices = pgTable(
     profile: simDeviceProfile().notNull(),
     batteryDrainPerHour: smallint().notNull().default(4),
     nextCheckInAt: timestamp({ withTimezone: true }),
+    /** Traços simulados que geram não conformidade realista (senha não criada, app não instalado). */
+    screenLockSet: boolean().notNull().default(true),
+    appInstallIssue: boolean().notNull().default(false),
   },
   (t) => [
     index('sim_devices_due_idx').on(t.nextCheckInAt),

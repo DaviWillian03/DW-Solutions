@@ -12,6 +12,7 @@ import {
 } from '@dw/db';
 import { FIRST_NAMES, LAST_NAMES } from './catalog.js';
 import { buildFleet, type FleetHolder } from './fleet.js';
+import { defaultPolicyRefs } from './policy.js';
 import { createRandom } from './random.js';
 
 export const DEMO_TENANT = { name: 'Comercial Exemplo Ltda (fictícia)', slug: 'comercial-exemplo' };
@@ -53,6 +54,7 @@ export async function seedFleetForTenant(
 ) {
   const { devices: count, holders: holderCount, rnd, now } = opts;
   return withTenant(appDb.db, tenantId, async (tx) => {
+    const policies = await defaultPolicyRefs(tx, tenantId);
     const [existing] = await tx.select({ id: devices.id }).from(devices).limit(1);
     if (existing) return { tenantId, created: false, devices: 0, holders: 0 };
 
@@ -72,7 +74,7 @@ export async function seedFleetForTenant(
       )
       .returning({ id: deviceHolders.id, fullName: deviceHolders.fullName, role: deviceHolders.role });
 
-    const fleet = buildFleet({ tenantId, count, holders: inserted as FleetHolder[], now, rnd });
+    const fleet = buildFleet({ tenantId, count, holders: inserted as FleetHolder[], now, rnd, policies });
     for (let i = 0; i < fleet.devices.length; i += 100)
       await tx.insert(devices).values(fleet.devices.slice(i, i + 100));
     for (let i = 0; i < fleet.sims.length; i += 200)

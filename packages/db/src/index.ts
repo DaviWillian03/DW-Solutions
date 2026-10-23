@@ -1,6 +1,8 @@
 export * from './schema.js';
 export * from './auth-schema.js';
 export * from './device-schema.js';
+export * from './policy-schema.js';
+export { ensureDefaultPolicies } from './policies.js';
 export { createDb, withTenant, type Database, type DbHandle, type Tx } from './client.js';
 export { recordAudit, verifyAuditChain, redact, type AuditInput, type ChainProblem } from './audit.js';
 export { runMigrations, resetDatabase, MIGRATIONS_DIR } from './migrate.js';

@@ -5,14 +5,18 @@ import {
   devices,
   enrollmentTokens,
   eq,
+  policies,
   simDevices,
   withTenant,
   type ObservedState,
 } from '@dw/db';
+import { POLICY_TEMPLATES } from '@dw/contracts';
+import { sql } from '@dw/db';
 import { afterAll, describe, expect, it } from 'vitest';
 import { completeEnrollment, runCheckIns } from '../src/engine.js';
 import { buildFleet } from '../src/fleet.js';
 import { DEMO_WARNING, SimulatorProvider } from '../src/provider.js';
+import { simulatedReport, type PolicyRef } from '../src/policy.js';
 import { createRandom } from '../src/random.js';
 import { seedDemoTenant } from '../src/seed.js';
 
@@ -86,6 +90,70 @@ describe('provedor de simulação', () => {
   });
 });
 
+describe('políticas na frota sintética', () => {
+  const ref = (id: string, t: 'sales' | 'merchandising'): PolicyRef => ({
+    id,
+    name: POLICY_TEMPLATES[t].name,
+    version: 1,
+    settings: POLICY_TEMPLATES[t].settings,
+  });
+  const holders = Array.from({ length: 300 }, (_, i) => ({
+    id: `h${i}`,
+    fullName: `Pessoa ${i}`,
+    role: i % 3 === 0 ? ('merchandising' as const) : ('sales' as const),
+  }));
+  const fleet = buildFleet({
+    tenantId: 't',
+    count: 300,
+    holders,
+    now: NOW,
+    rnd: createRandom(5),
+    policies: { sales: ref('pv', 'sales'), merchandising: ref('pm', 'merchandising') },
+  });
+
+  it('todo aparelho recebe uma política; promotores ficam com Merchandising', () => {
+    expect(fleet.devices.every((d) => d.policyId && d.policyVersion === 1)).toBe(true);
+    const merch = fleet.devices.filter(
+      (d) => holders.find((h) => h.id === d.holderId)?.role === 'merchandising',
+    );
+    expect(merch.length).toBeGreaterThan(0);
+    expect(merch.every((d) => d.policyId === 'pm')).toBe(true);
+  });
+
+  it('aparelho que nunca comunicou fica “desconhecido”, nunca “conforme” por suposição', () => {
+    const never = fleet.devices.filter((d) => !d.lastSeenAt);
+    expect(never.length).toBeGreaterThan(0);
+    for (const d of never) {
+      expect(d.compliance).toBe('unknown');
+      expect(d.appliedPolicyVersion ?? null).toBeNull();
+    }
+  });
+
+  it('a maioria está conforme; os não conformes sempre têm motivo e horário do relatório', () => {
+    const seen = fleet.devices.filter((d) => d.lastSeenAt);
+    const non = seen.filter((d) => d.compliance === 'noncompliant');
+    expect(seen.filter((d) => d.compliance === 'compliant').length / seen.length).toBeGreaterThan(0.6);
+    expect(non.length).toBeGreaterThan(0);
+    for (const d of non) {
+      expect(d.complianceReasons!.length).toBeGreaterThan(0);
+      expect(d.policyReportedAt).toEqual(d.lastSeenAt);
+    }
+  });
+
+  it('restrições impostas pelo gerenciador nunca aparecem como pendência do usuário', () => {
+    const r = simulatedReport(POLICY_TEMPLATES.sales.settings, {
+      screenLockSet: false,
+      appInstallIssue: true,
+    });
+    expect(r.nonCompliance.map((n) => n.setting).sort()).toEqual(['required_app', 'screen_lock']);
+    expect(
+      simulatedReport(POLICY_TEMPLATES.sales.settings, { screenLockSet: true, appInstallIssue: false }),
+    ).toEqual({
+      nonCompliance: [],
+    });
+  });
+});
+
 describe('motor do simulador (banco real)', () => {
   it('seed cria a demonstração uma única vez', async () => {
     const r1 = await seedDemoTenant(plat, app, { devices: 60, holders: 50, now: NOW });
@@ -141,5 +209,78 @@ describe('motor do simulador (banco real)', () => {
       tx.select().from(deviceEvents).where(eq(deviceEvents.deviceId, d.id)),
     );
     expect(evs.map((e) => e.type)).toContain('enrolled');
+  });
+
+  it('seed cria as políticas prontas e liga os aparelhos a elas', async () => {
+    const { tenantId } = await seedDemoTenant(plat, app, { devices: 60, holders: 50, now: NOW });
+    const ps = await withTenant(app.db, tenantId, (tx) => tx.select().from(policies));
+    expect(ps.map((x) => x.name).sort()).toEqual(['Merchandising', 'Vendas']);
+    const ds = await withTenant(app.db, tenantId, (tx) => tx.select().from(devices));
+    // Só o aparelho do teste de cadastro sem política (anterior) fica sem política.
+    expect(ds.filter((d) => d.policyId).length).toBeGreaterThanOrEqual(60);
+  });
+
+  it('no check-in o aparelho aplica a versão nova e relata a conformidade', async () => {
+    const { tenantId } = await seedDemoTenant(plat, app, { devices: 60, holders: 50, now: NOW });
+    const target = await withTenant(app.db, tenantId, async (tx) => {
+      const [row] = await tx
+        .select({ d: devices })
+        .from(devices)
+        .innerJoin(simDevices, eq(simDevices.deviceId, devices.id))
+        .where(eq(simDevices.profile, 'reliable'))
+        .limit(1);
+      const d = row!.d;
+      // Simula a API: versão 2 desejada, aparelho ainda na 1.
+      const [p] = await tx.select().from(policies).where(eq(policies.id, d.policyId!));
+      await tx.execute(
+        sql`insert into policy_versions (tenant_id, policy_id, version, settings, note, created_by, created_by_name)
+            select tenant_id, policy_id, ${p!.currentVersion + 1}, settings, 'teste do simulador', 'teste', 'Teste'
+            from policy_versions where policy_id = ${p!.id} and version = ${p!.currentVersion}`,
+      );
+      await tx
+        .update(policies)
+        .set({ currentVersion: p!.currentVersion + 1 })
+        .where(eq(policies.id, p!.id));
+      await tx
+        .update(devices)
+        .set({ policyVersion: p!.currentVersion + 1, compliance: 'unknown' })
+        .where(eq(devices.id, d.id));
+      await tx.update(simDevices).set({ nextCheckInAt: NOW }).where(eq(simDevices.deviceId, d.id));
+      return { id: d.id, version: p!.currentVersion + 1 };
+    });
+    const later = new Date(NOW.getTime() + 60_000);
+    await withTenant(app.db, tenantId, (tx) => runCheckIns(tx, tenantId, later, createRandom(9)));
+    const [d] = await withTenant(app.db, tenantId, (tx) =>
+      tx.select().from(devices).where(eq(devices.id, target.id)),
+    );
+    expect(d!.appliedPolicyVersion).toBe(target.version);
+    expect(d!.policyReportedAt).toEqual(later);
+    expect(['compliant', 'noncompliant']).toContain(d!.compliance);
+    const evs = await withTenant(app.db, tenantId, (tx) =>
+      tx.select().from(deviceEvents).where(eq(deviceEvents.deviceId, target.id)),
+    );
+    expect(evs.find((e) => e.type === 'policy_applied' && e.details.version === target.version)).toBeTruthy();
+    expect(evs.find((e) => e.type === 'compliance_changed')).toBeTruthy();
+  });
+
+  it('cadastro com política já sai com a versão aplicada e a senha pendente', async () => {
+    const { tenantId } = await seedDemoTenant(plat, app, { devices: 60, holders: 50, now: NOW });
+    const d = await withTenant(app.db, tenantId, async (tx) => {
+      const [p] = await tx.select().from(policies).where(eq(policies.template, 'sales'));
+      const [tok] = await tx
+        .insert(enrollmentTokens)
+        .values({
+          tenantId,
+          tokenHash: createHash('sha256').update('teste-politica').digest('hex'),
+          createdBy: 'teste',
+          expiresAt: new Date(NOW.getTime() + 3_600_000),
+          policyId: p!.id,
+        })
+        .returning();
+      return completeEnrollment(tx, tok!, NOW, createRandom(4));
+    });
+    expect(d.appliedPolicyVersion).toBe(d.policyVersion);
+    expect(d.compliance).toBe('noncompliant');
+    expect(d.complianceReasons.map((r) => r.code)).toContain('screen_lock');
   });
 });

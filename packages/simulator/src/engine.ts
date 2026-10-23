@@ -8,11 +8,13 @@ import {
   eq,
   isNotNull,
   lte,
+  policies,
   simDevices,
   type ObservedState,
   type Tx,
 } from '@dw/db';
 import { observed, pickModel } from './fleet.js';
+import { reportedColumns, versionLoader } from './policy.js';
 import { securityPatchFor, serialFor } from './catalog.js';
 import type { Random } from './random.js';
 
@@ -40,6 +42,7 @@ export async function runCheckIns(tx: Tx, tenantId: string, now: Date, rnd: Rand
     .limit(limit);
 
   let checkedIn = 0;
+  const loadVersion = versionLoader(tx);
   for (const { sim, device } of due) {
     const comes = sim.profile === 'reliable' || (sim.profile === 'flaky' && rnd.chance(0.75));
     const nextCheckInAt = new Date(now.getTime() + rnd.int(10, 30) * MINUTE);
@@ -65,8 +68,47 @@ export async function runCheckIns(tx: Tx, tenantId: string, now: Date, rnd: Rand
       storageFreePct: { value: prev.storageFreePct?.value ?? rnd.int(10, 60), observedAt: at },
       network: { value: prev.network?.value ?? 'mobile', observedAt: at },
     };
-    await tx.update(devices).set({ lastSeenAt: now, observedState: next }).where(eq(devices.id, device.id));
-    await tx.update(simDevices).set({ nextCheckInAt }).where(eq(simDevices.deviceId, sim.deviceId));
+    // Política: o aparelho aplica a versão desejada e relata o resultado (o usuário às vezes resolve
+    // a pendência entre um check-in e outro, como criar a senha).
+    const traits = {
+      screenLockSet: sim.screenLockSet || rnd.chance(0.15),
+      appInstallIssue: sim.appInstallIssue && !rnd.chance(0.1),
+    };
+    const ref =
+      device.policyId && device.policyVersion
+        ? await loadVersion(device.policyId, device.policyVersion)
+        : null;
+    const policyColumns = ref ? reportedColumns(device, ref, traits, now) : null;
+    await tx
+      .update(devices)
+      .set({ lastSeenAt: now, observedState: next, ...(policyColumns ?? {}) })
+      .where(eq(devices.id, device.id));
+    await tx
+      .update(simDevices)
+      .set({ nextCheckInAt, ...traits })
+      .where(eq(simDevices.deviceId, sim.deviceId));
+    if (ref && device.appliedPolicyVersion !== ref.version) {
+      await tx.insert(deviceEvents).values({
+        tenantId,
+        deviceId: device.id,
+        occurredAt: now,
+        type: 'policy_applied',
+        details: { version: ref.version, previousVersion: device.appliedPolicyVersion },
+      });
+    }
+    if (policyColumns && policyColumns.compliance !== device.compliance) {
+      await tx.insert(deviceEvents).values({
+        tenantId,
+        deviceId: device.id,
+        occurredAt: now,
+        type: 'compliance_changed',
+        details: {
+          from: device.compliance,
+          to: policyColumns.compliance,
+          reasons: policyColumns.complianceReasons.map((r) => r.code),
+        },
+      });
+    }
 
     if (device.lastSeenAt && now.getTime() - device.lastSeenAt.getTime() > SILENT_AFTER_MS) {
       await tx.insert(deviceEvents).values({
@@ -110,6 +152,13 @@ export async function completeEnrollment(
       .where(eq(deviceHolders.id, token.holderId));
     holderName = h?.name ?? null;
   }
+  // A política escolhida no QR é aplicada durante o provisionamento (o aparelho já relata a versão).
+  let policy: { id: string; name: string; version: number } | null = null;
+  if (token.policyId) {
+    const [p] = await tx.select().from(policies).where(eq(policies.id, token.policyId));
+    if (p) policy = { id: p.id, name: p.name, version: p.currentVersion };
+  }
+  const traits = { screenLockSet: false, appInstallIssue: false };
   const [device] = await tx
     .insert(devices)
     .values({
@@ -127,9 +176,20 @@ export async function completeEnrollment(
       enrolledAt: now,
       lastSeenAt: now,
       observedState: observed(rnd, now, dedicated ? 'dedicated' : 'sales'),
+      ...(policy ? { policyId: policy.id, policyVersion: policy.version, policyAssignedAt: now } : {}),
     })
     .returning();
-  const d = device!;
+  let d = device!;
+  if (policy) {
+    const ref = await versionLoader(tx)(policy.id, policy.version);
+    if (ref) {
+      [d] = (await tx
+        .update(devices)
+        .set(reportedColumns(d, ref, traits, now))
+        .where(eq(devices.id, d.id))
+        .returning()) as [typeof d];
+    }
+  }
   await tx
     .update(devices)
     .set({ providerRef: `simulador/aparelhos/${d.id.slice(0, 8)}` })
@@ -140,6 +200,8 @@ export async function completeEnrollment(
     profile: 'reliable',
     batteryDrainPerHour: rnd.int(2, 6),
     nextCheckInAt: new Date(now.getTime() + 15 * MINUTE),
+    // Aparelho recém-redefinido: a senha de tela ainda será criada pelo responsável.
+    ...traits,
   });
   await tx
     .update(enrollmentTokens)
@@ -160,6 +222,24 @@ export async function completeEnrollment(
       type: 'holder_assigned',
       details: { holderId: token.holderId, holderName },
     });
+  }
+  if (policy) {
+    await tx.insert(deviceEvents).values([
+      {
+        tenantId: token.tenantId,
+        deviceId: d.id,
+        occurredAt: now,
+        type: 'policy_assigned',
+        details: { policyId: policy.id, policyName: policy.name, version: policy.version },
+      },
+      {
+        tenantId: token.tenantId,
+        deviceId: d.id,
+        occurredAt: now,
+        type: 'policy_applied',
+        details: { version: policy.version, previousVersion: null },
+      },
+    ]);
   }
   return d;
 }

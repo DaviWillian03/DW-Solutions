@@ -99,3 +99,5 @@ export interface SimulatorEnrollJob {
 /** Leitura de dados sincronizados: sempre com origem e horário (prompt-mestre §11). */
 export type Connectivity = 'online' | 'silent' | 'unknown';
 export const SILENT_AFTER_HOURS = 24;
+
+export * from './policy.js';

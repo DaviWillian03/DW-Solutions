@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { evaluateCompliance } from '@dw/contracts';
 import type { NewDevice, ObservedState } from '@dw/db';
+import { reportedColumns, type PolicyRef } from './policy.js';
 import { MODELS, type Manufacturer, securityPatchFor, serialFor } from './catalog.js';
 import type { Random } from './random.js';
 
@@ -17,6 +19,8 @@ export interface SimRow {
   profile: SimProfile;
   batteryDrainPerHour: number;
   nextCheckInAt: Date | null;
+  screenLockSet: boolean;
+  appInstallIssue: boolean;
 }
 
 export interface EventRow {
@@ -77,8 +81,10 @@ export function buildFleet(opts: {
   holders: FleetHolder[];
   now: Date;
   rnd: Random;
+  /** Políticas prontas da empresa: Merchandising para promotores, Vendas para os demais. */
+  policies?: { sales: PolicyRef; merchandising: PolicyRef };
 }) {
-  const { tenantId, count, holders, now, rnd } = opts;
+  const { tenantId, count, holders, now, rnd, policies } = opts;
   const devices: (NewDevice & { id: string })[] = [];
   const sims: SimRow[] = [];
   const events: EventRow[] = [];
@@ -103,6 +109,7 @@ export function buildFleet(opts: {
       ['never_seen', 2],
     ]);
     const enrolledAt = new Date(now.getTime() - rnd.int(10, 400) * 24 * HOUR);
+    const patch = securityPatchFor(rnd, m.android, now);
     const lastSeenAt =
       profile === 'reliable'
         ? new Date(now.getTime() - rnd.int(1, 90) * MINUTE)
@@ -112,6 +119,26 @@ export function buildFleet(opts: {
             ? new Date(now.getTime() - rnd.int(26, 240) * HOUR)
             : null;
 
+    // Traços simulados: poucos aparelhos com senha ainda não criada ou app obrigatório pendente.
+    const traits = { screenLockSet: !rnd.chance(0.04), appInstallIssue: rnd.chance(0.04) };
+    const policy = policies ? (role === 'merchandising' ? policies.merchandising : policies.sales) : null;
+    const assignedAt = new Date(enrolledAt.getTime() + 6 * MINUTE);
+    const policyColumns = !policy
+      ? {}
+      : lastSeenAt
+        ? reportedColumns({ androidVersion: m.android, securityPatch: patch }, policy, traits, lastSeenAt)
+        : (() => {
+            const r = evaluateCompliance({
+              policy,
+              appliedVersion: null,
+              report: null,
+              androidVersion: m.android,
+              securityPatch: patch,
+              now: assignedAt,
+            });
+            return { compliance: r.status, complianceReasons: r.reasons, complianceEvaluatedAt: assignedAt };
+          })();
+
     devices.push({
       id,
       tenantId,
@@ -119,7 +146,7 @@ export function buildFleet(opts: {
       manufacturer: m.manufacturer,
       model: m.model,
       androidVersion: m.android,
-      securityPatch: securityPatchFor(rnd, m.android, now),
+      securityPatch: patch,
       serialNumber: serialFor(rnd, m.manufacturer),
       managementMode: dedicated ? 'dedicated' : 'fully_managed',
       enrollmentState: 'enrolled',
@@ -131,6 +158,8 @@ export function buildFleet(opts: {
       observedState: lastSeenAt
         ? observed(rnd, lastSeenAt, dedicated ? 'dedicated' : role === 'merchandising' ? 'merch' : 'sales')
         : {},
+      ...(policy ? { policyId: policy.id, policyVersion: policy.version, policyAssignedAt: assignedAt } : {}),
+      ...policyColumns,
     });
 
     sims.push({
@@ -142,6 +171,7 @@ export function buildFleet(opts: {
         profile === 'reliable' || profile === 'flaky'
           ? new Date(now.getTime() + rnd.int(1, 30) * MINUTE)
           : null,
+      ...traits,
     });
 
     events.push({
@@ -159,6 +189,24 @@ export function buildFleet(opts: {
         type: 'holder_assigned',
         details: { holderId: holder.id, holderName: holder.fullName },
       });
+    }
+    if (policy) {
+      events.push({
+        tenantId,
+        deviceId: id,
+        occurredAt: assignedAt,
+        type: 'policy_assigned',
+        details: { policyId: policy.id, policyName: policy.name, version: policy.version },
+      });
+      if (lastSeenAt) {
+        events.push({
+          tenantId,
+          deviceId: id,
+          occurredAt: new Date(assignedAt.getTime() + MINUTE),
+          type: 'policy_applied',
+          details: { policyName: policy.name, version: policy.version },
+        });
+      }
     }
     if (profile === 'silent' && lastSeenAt) {
       events.push({

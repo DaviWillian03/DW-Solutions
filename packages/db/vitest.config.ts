@@ -6,6 +6,9 @@ const envFile = fileURLToPath(new URL('../../.env.local', import.meta.url));
 if (existsSync(envFile)) process.loadEnvFile(envFile);
 
 export default defineConfig({
+  resolve: {
+    alias: { '@dw/contracts': fileURLToPath(new URL('../contracts/src/index.ts', import.meta.url)) },
+  },
   test: {
     include: ['test/**/*.spec.ts'],
     environment: 'node',
