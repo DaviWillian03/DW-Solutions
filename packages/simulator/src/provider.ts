@@ -1,9 +1,11 @@
 import { randomBytes } from 'node:crypto';
-import type {
-  CapabilityMatrix,
-  DeviceManagementProvider,
-  EnrollmentRequest,
-  EnrollmentToken,
+import {
+  TransientProviderError,
+  type CapabilityMatrix,
+  type DeviceManagementProvider,
+  type EnrollmentRequest,
+  type EnrollmentToken,
+  type IssueCommandRequest,
 } from '@dw/contracts';
 
 export const DEMO_WARNING = 'DEMONSTRAÇÃO — NÃO PROVISIONA DISPOSITIVO';
@@ -16,6 +18,9 @@ const CHECK = 'Classificação esperada no Android real; confirmar na documenta�
  */
 export class SimulatorProvider implements DeviceManagementProvider {
   readonly kind = 'simulator' as const;
+
+  /** `failureRate`: chance de erro temporário ao enviar comando (testa retentativas). */
+  constructor(private readonly opts: { failureRate?: number; random?: () => number } = {}) {}
 
   getCapabilities(): CapabilityMatrix {
     return {
@@ -66,5 +71,14 @@ export class SimulatorProvider implements DeviceManagementProvider {
       token,
     });
     return { token, qrPayload, providerRef: null, expiresAt, demo: true };
+  }
+
+  async issueCommand(req: IssueCommandRequest): Promise<{ providerRef: string }> {
+    const rate = this.opts.failureRate ?? 0.03;
+    if ((this.opts.random ?? Math.random)() < rate) {
+      throw new TransientProviderError('Provedor simulado indisponível no momento.');
+    }
+    // Aceite do PROVEDOR (simulado). A aplicação no aparelho só é confirmada pelo relatório dele.
+    return { providerRef: `simulador/operacoes/${req.commandId.slice(0, 8)}` };
   }
 }

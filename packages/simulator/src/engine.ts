@@ -10,10 +10,12 @@ import {
   lte,
   policies,
   simDevices,
+  type Device,
   type ObservedState,
   type Tx,
 } from '@dw/db';
 import { observed, pickModel } from './fleet.js';
+import { deliverCommands } from './commands.js';
 import { reportedColumns, versionLoader } from './policy.js';
 import { securityPatchFor, serialFor } from './catalog.js';
 import type { Random } from './random.js';
@@ -51,85 +53,101 @@ export async function runCheckIns(tx: Tx, tenantId: string, now: Date, rnd: Rand
       continue;
     }
     checkedIn++;
-    const prev = device.observedState as ObservedState;
-    const hours = device.lastSeenAt ? (now.getTime() - device.lastSeenAt.getTime()) / HOUR : 0;
-    const before = prev.batteryPct?.value ?? rnd.int(40, 100);
-    const charging = rnd.chance(0.2);
-    const battery = Math.max(
-      1,
-      Math.min(
-        100,
-        Math.round(charging ? before + 30 : before - sim.batteryDrainPerHour * Math.max(hours, 0.25)),
-      ),
-    );
-    const at = now.toISOString();
-    const next: ObservedState = {
-      batteryPct: { value: battery, observedAt: at },
-      storageFreePct: { value: prev.storageFreePct?.value ?? rnd.int(10, 60), observedAt: at },
-      network: { value: prev.network?.value ?? 'mobile', observedAt: at },
-    };
-    // Política: o aparelho aplica a versão desejada e relata o resultado (o usuário às vezes resolve
-    // a pendência entre um check-in e outro, como criar a senha).
-    const traits = {
-      screenLockSet: sim.screenLockSet || rnd.chance(0.15),
-      appInstallIssue: sim.appInstallIssue && !rnd.chance(0.1),
-    };
-    const ref =
-      device.policyId && device.policyVersion
-        ? await loadVersion(device.policyId, device.policyVersion)
-        : null;
-    const policyColumns = ref ? reportedColumns(device, ref, traits, now) : null;
-    await tx
-      .update(devices)
-      .set({ lastSeenAt: now, observedState: next, ...(policyColumns ?? {}) })
-      .where(eq(devices.id, device.id));
-    await tx
-      .update(simDevices)
-      .set({ nextCheckInAt, ...traits })
-      .where(eq(simDevices.deviceId, sim.deviceId));
-    if (ref && device.appliedPolicyVersion !== ref.version) {
-      await tx.insert(deviceEvents).values({
-        tenantId,
-        deviceId: device.id,
-        occurredAt: now,
-        type: 'policy_applied',
-        details: { version: ref.version, previousVersion: device.appliedPolicyVersion },
-      });
-    }
-    if (policyColumns && policyColumns.compliance !== device.compliance) {
-      await tx.insert(deviceEvents).values({
-        tenantId,
-        deviceId: device.id,
-        occurredAt: now,
-        type: 'compliance_changed',
-        details: {
-          from: device.compliance,
-          to: policyColumns.compliance,
-          reasons: policyColumns.complianceReasons.map((r) => r.code),
-        },
-      });
-    }
-
-    if (device.lastSeenAt && now.getTime() - device.lastSeenAt.getTime() > SILENT_AFTER_MS) {
-      await tx.insert(deviceEvents).values({
-        tenantId,
-        deviceId: device.id,
-        occurredAt: now,
-        type: 'reconnected',
-        details: { offlineHours: Math.round(hours) },
-      });
-    }
-    if (battery < 15 && before >= 15) {
-      await tx.insert(deviceEvents).values({
-        tenantId,
-        deviceId: device.id,
-        occurredAt: now,
-        type: 'battery_low',
-        details: { batteryPct: battery },
-      });
-    }
+    await checkInDevice(tx, tenantId, device, sim, now, rnd, loadVersion, nextCheckInAt);
   }
   return { due: due.length, checkedIn };
+}
+
+/**
+ * Um aparelho comunica: telemetria nova, relatório da política e entrega dos comandos pendentes.
+ * Usado pelo ciclo do simulador e pelo “simular comunicação agora”.
+ */
+export async function checkInDevice(
+  tx: Tx,
+  tenantId: string,
+  device: Device,
+  sim: typeof simDevices.$inferSelect,
+  now: Date,
+  rnd: Random,
+  loadVersion = versionLoader(tx),
+  nextCheckInAt = new Date(now.getTime() + rnd.int(10, 30) * MINUTE),
+) {
+  const prev = device.observedState as ObservedState;
+  const hours = device.lastSeenAt ? (now.getTime() - device.lastSeenAt.getTime()) / HOUR : 0;
+  const before = prev.batteryPct?.value ?? rnd.int(40, 100);
+  const charging = rnd.chance(0.2);
+  const battery = Math.max(
+    1,
+    Math.min(
+      100,
+      Math.round(charging ? before + 30 : before - sim.batteryDrainPerHour * Math.max(hours, 0.25)),
+    ),
+  );
+  const at = now.toISOString();
+  const next: ObservedState = {
+    batteryPct: { value: battery, observedAt: at },
+    storageFreePct: { value: prev.storageFreePct?.value ?? rnd.int(10, 60), observedAt: at },
+    network: { value: prev.network?.value ?? 'mobile', observedAt: at },
+  };
+  // Política: o aparelho aplica a versão desejada e relata o resultado (o usuário às vezes resolve
+  // a pendência entre um check-in e outro, como criar a senha).
+  const traits = {
+    screenLockSet: sim.screenLockSet || rnd.chance(0.15),
+    appInstallIssue: sim.appInstallIssue && !rnd.chance(0.1),
+  };
+  const ref =
+    device.policyId && device.policyVersion ? await loadVersion(device.policyId, device.policyVersion) : null;
+  const policyColumns = ref ? reportedColumns(device, ref, traits, now) : null;
+  await tx
+    .update(devices)
+    .set({ lastSeenAt: now, observedState: next, ...(policyColumns ?? {}) })
+    .where(eq(devices.id, device.id));
+  await tx
+    .update(simDevices)
+    .set({ nextCheckInAt, ...traits })
+    .where(eq(simDevices.deviceId, sim.deviceId));
+  if (ref && device.appliedPolicyVersion !== ref.version) {
+    await tx.insert(deviceEvents).values({
+      tenantId,
+      deviceId: device.id,
+      occurredAt: now,
+      type: 'policy_applied',
+      details: { version: ref.version, previousVersion: device.appliedPolicyVersion },
+    });
+  }
+  if (policyColumns && policyColumns.compliance !== device.compliance) {
+    await tx.insert(deviceEvents).values({
+      tenantId,
+      deviceId: device.id,
+      occurredAt: now,
+      type: 'compliance_changed',
+      details: {
+        from: device.compliance,
+        to: policyColumns.compliance,
+        reasons: policyColumns.complianceReasons.map((r) => r.code),
+      },
+    });
+  }
+
+  if (device.lastSeenAt && now.getTime() - device.lastSeenAt.getTime() > SILENT_AFTER_MS) {
+    await tx.insert(deviceEvents).values({
+      tenantId,
+      deviceId: device.id,
+      occurredAt: now,
+      type: 'reconnected',
+      details: { offlineHours: Math.round(hours) },
+    });
+  }
+  if (battery < 15 && before >= 15) {
+    await tx.insert(deviceEvents).values({
+      tenantId,
+      deviceId: device.id,
+      occurredAt: now,
+      type: 'battery_low',
+      details: { batteryPct: battery },
+    });
+  }
+  await deliverCommands(tx, tenantId, device.id, now);
 }
 
 /**
@@ -288,4 +306,22 @@ export async function maybeRevive(tx: Tx, tenantId: string, now: Date, rnd: Rand
       .where(eq(simDevices.deviceId, s.deviceId));
   }
   return revived;
+}
+
+/**
+ * SIMULADOR: o aparelho “liga” e comunica agora (botão “simular comunicação” e notificação do provedor).
+ * Um aparelho silencioso que comunica volta a ser confiável. Aparelho fora do gerenciamento não comunica.
+ */
+export async function forceCheckIn(tx: Tx, tenantId: string, deviceId: string, now: Date, rnd: Random) {
+  const [row] = await tx
+    .select({ sim: simDevices, device: devices })
+    .from(simDevices)
+    .innerJoin(devices, and(eq(devices.id, simDevices.deviceId), eq(devices.tenantId, simDevices.tenantId)))
+    .where(eq(simDevices.deviceId, deviceId));
+  if (!row || row.device.enrollmentState !== 'enrolled') return false;
+  if (row.sim.profile === 'silent' || row.sim.profile === 'never_seen') {
+    await tx.update(simDevices).set({ profile: 'reliable' }).where(eq(simDevices.deviceId, deviceId));
+  }
+  await checkInDevice(tx, tenantId, row.device, row.sim, now, rnd);
+  return true;
 }

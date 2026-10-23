@@ -1,3 +1,5 @@
+import type { CommandType } from './commands.js';
+
 // Contrato entre o produto e quem realmente gerencia os aparelhos (ADR-0001, prompt-mestre §11).
 // Hoje só existe o SimulatorProvider; o AndroidManagementProvider entra no CHECKPOINT 6, se elegível.
 
@@ -82,7 +84,37 @@ export interface DeviceManagementProvider {
   readonly kind: ProviderKind;
   getCapabilities(): CapabilityMatrix;
   createEnrollmentToken(req: EnrollmentRequest): Promise<EnrollmentToken>;
+  /**
+   * Envia um comando ao provedor. Sucesso = o PROVEDOR aceitou (`provider_accepted`); a aplicação no
+   * aparelho só é confirmada depois, pelo relatório do próprio aparelho.
+   */
+  issueCommand(req: IssueCommandRequest): Promise<{ providerRef: string }>;
 }
+
+export interface IssueCommandRequest {
+  tenantId: string;
+  commandId: string;
+  deviceProviderRef: string | null;
+  type: CommandType;
+  params: Record<string, unknown>;
+}
+
+/** Erro temporário do provedor: o envio pode ser tentado de novo. */
+export class TransientProviderError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TransientProviderError';
+  }
+}
+
+export const COMMAND_CAPABILITY: Record<CommandType, Capability> = {
+  lock: 'command.lock',
+  reboot: 'command.reboot',
+  start_lost_mode: 'command.lost_mode',
+  stop_lost_mode: 'command.lost_mode',
+  clear_app_data: 'command.clear_app_data',
+  wipe: 'command.wipe',
+};
 
 // ---------------------------------------------------------------------------
 // Filas (BullMQ). A API só publica; o worker processa (ADR-0002).
@@ -95,9 +127,22 @@ export interface SimulatorEnrollJob {
   tenantId: string;
   tokenId: string;
 }
+/** Envio de um comando ao provedor (job `command`). */
+export interface CommandJob {
+  tenantId: string;
+  commandId: string;
+}
+/** SIMULADOR: o aparelho “liga” e comunica agora (job `checkin`). */
+export interface SimulatorCheckInJob {
+  tenantId: string;
+  deviceId: string;
+}
+/** Tentativas de envio ao provedor antes de o comando ser dado como falho. */
+export const COMMAND_SEND_ATTEMPTS = 3;
 
 /** Leitura de dados sincronizados: sempre com origem e horário (prompt-mestre §11). */
 export type Connectivity = 'online' | 'silent' | 'unknown';
 export const SILENT_AFTER_HOURS = 24;
 
 export * from './policy.js';
+export * from './commands.js';

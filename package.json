@@ -15,7 +15,7 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r --workspace-concurrency=1 test",
-    "db:generate": "pnpm --filter @dw/db generate",
+    "db:generate": "pnpm --filter @dw/contracts build && pnpm --filter @dw/db generate",
     "db:migrate": "pnpm --filter @dw/db build && pnpm --filter @dw/db migrate",
     "db:seed": "pnpm -r --filter @dw/db --filter @dw/contracts --filter @dw/simulator build >/dev/null && pnpm --filter @dw/simulator seed",
     "platform": "pnpm -r --filter @dw/db --filter @dw/api build >/dev/null && node --env-file=.env.local apps/api/dist/scripts/platform.js",

@@ -72,6 +72,8 @@ export const devices = pgTable(
     compliance: complianceState().notNull().default('not_applicable'),
     complianceReasons: jsonb().$type<ComplianceReason[]>().notNull().default([]),
     complianceEvaluatedAt: timestamp({ withTimezone: true }),
+    /** Modo perdido ativo desde (relatado pelo aparelho; null = não está em modo perdido). */
+    lostModeSince: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
