@@ -74,8 +74,8 @@ export class Client {
   }
 
   private async send(method: 'post' | 'patch', path: string, body: object, origin: string | null) {
-    let r = request(this.server as never)
-      [method](path)
+    const agent = request(this.server as never);
+    let r = (method === 'post' ? agent.post(path) : agent.patch(path))
       .set('cookie', this.cookieHeader())
       .set('x-forwarded-for', this.ip);
     if (origin) r = r.set('origin', origin);
