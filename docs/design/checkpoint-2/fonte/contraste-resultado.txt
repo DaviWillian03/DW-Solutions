@@ -1,0 +1,40 @@
+Direção A
+  text             #16202E sobre #F6F8FB: 15.42  OK AA
+  text-2           #475467 sobre #FFFFFF:  7.69  OK AA
+  muted            #667085 sobre #FFFFFF:  4.97  OK AA
+  muted/bg         #667085 sobre #F6F8FB:  4.68  OK AA
+  primary link     #1D5FD1 sobre #FFFFFF:  5.82  OK AA
+  branco/primary   #FFFFFF sobre #1D5FD1:  5.82  OK AA
+  ok pill          #136F35 sobre #E7F6EC:  5.60  OK AA
+  warn pill        #A15C07 sobre #FDF3E1:  4.71  OK AA
+  crit pill        #C0262D sobre #FDECEC:  5.17  OK AA
+  unk pill         #5B6472 sobre #EEF0F3:  5.24  OK AA
+  info pill        #1D5FD1 sobre #E8F0FD:  5.07  OK AA
+  banner           #7A4B00 sobre #FFF7E0:  6.93  OK AA
+Direção B
+  text             #EAEEF8 sobre #121A2E: 14.91  OK AA
+  text-2           #B4BCD3 sobre #121A2E:  9.13  OK AA
+  muted            #8C95B0 sobre #121A2E:  5.80  OK AA
+  muted/bg         #8C95B0 sobre #0B1020:  6.35  OK AA
+  primary link     #8B7CFF sobre #121A2E:  5.30  OK AA
+  ok               #4ADE80 sobre #121A2E:  9.94  OK AA
+  warn             #FBBF24 sobre #121A2E: 10.37  OK AA
+  crit             #F87171 sobre #121A2E:  6.26  OK AA
+  unk              #A1A9BF sobre #121A2E:  7.37  OK AA
+  info             #93A8FF sobre #121A2E:  7.66  OK AA
+  banner           #FCD679 sobre #0B1020: 13.55  OK AA
+Direção C
+  text             #1E2421 sobre #F5F3EE: 14.24  OK AA
+  text-2           #4A524E sobre #FFFFFF:  8.05  OK AA
+  muted            #69716C sobre #FFFFFF:  5.02  OK AA
+  muted/bg         #69716C sobre #F5F3EE:  4.53  OK AA
+  primary link     #0E6E64 sobre #FFFFFF:  6.12  OK AA
+  sidebar texto    #D7E5E2 sobre #14332F: 10.49  OK AA
+  sidebar grupo    #8FB0AA sobre #14332F:  5.80  OK AA
+  ok pill          #177245 sobre #E3F3E9:  5.17  OK AA
+  warn pill        #9A5A00 sobre #FCEFD9:  4.82  OK AA
+  crit pill        #B42318 sobre #FCE9E7:  5.62  OK AA
+  unk pill         #5E6661 sobre #ECEDEA:  5.03  OK AA
+  info pill        #2457A6 sobre #E6EEFA:  6.01  OK AA
+  badge âmbar      #1E2421 sobre #E39B2D:  6.76  OK AA
+  banner           #6B4400 sobre #FFF4D6:  7.82  OK AA
