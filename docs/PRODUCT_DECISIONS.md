@@ -199,3 +199,14 @@ Documento: `docs/product/CHECKPOINT_4_MVP.md` (v2 simplificada, aprovada).
 **Consequências:** sem lojas/PDV/quiosque/departamentos no MVP; criação de empresa por script (ADR-0005
 mantido); a referência visual troca “cartões por loja” por “aparelhos que precisam de atenção”; políticas
 Vendas e Merchandising. Simplificação reversível: a estrutura multiempresa e RLS continuam (ADR-0004).
+
+## CHECKPOINT 5 — Revisão das primeiras telas reais (DECIDIDO em 2026-10-23)
+
+Capturas avaliadas: `docs/design/telas-b/` (dados simulados).
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| CP5-1 | Telas da Fase B | **aprovadas (rec.)** · ajustar visão geral · ajustar lista/aparelho · ajustar visual | **Aprovadas** — ajustes finos podem vir junto com a Fase C |
+| CP5-2 | Estados de comunicação | **manter (rec.)** · outros nomes · outro limite que 24 h | **Manter** “Com sinal” / “Sem sinal há +24 h” / “Desconhecido”, com horário da leitura |
+| CP5-3 | Amostra de ilustração colorida | **junto com a Fase C (rec.)** · agora · não usar | **Junto com a Fase C**: 2 amostras aplicadas às telas vazias de Políticas, para aprovação |
+| CP5-4 | “Outro formato” de logo (CP2-12) | **nenhum além dos atuais (rec.)** · PDF · redes sociais · timbrado | **Nenhum** — SVG, PNG, favicon e ícone de app bastam |

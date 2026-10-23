@@ -155,3 +155,7 @@ esperado pelo Playwright.
 
 **NÃO EXECUTADO:** responsividade em celular por captura; leitor de tela real; carga com 500 aparelhos no
 navegador (a API foi testada com até 120 por empresa nos E2E e 400 na geração de frota).
+
+**CI da Fase B4 (commit 63e726d):** ✅ todos os jobs passaram — lint/tipos/testes em Node 22 e 24,
+segurança da cadeia de suprimentos e testes de navegador (17 E2E com worker real):
+https://github.com/DaviWillian03/DW-Solutions/actions/runs/39975906990

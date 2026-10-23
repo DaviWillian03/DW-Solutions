@@ -9,8 +9,8 @@
 | CP4 | Escopo do MVP (MoSCoW) | CP3 | ✅ concluído (MVP enxuto) |
 | Fase A | Fundamentos: monorepo, setup do container, banco + RLS, login + MFA, perfis | CP4 | ✅ concluída |
 | Fase B | Simulador, cadastro QR demo, aparelhos | Fase A | ✅ concluída |
-| CP5 | Revisão das primeiras telas reais | Fase B | 🟡 aguardando usuário |
-| Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ⚪ |
+| CP5 | Revisão das primeiras telas reais | Fase B | ✅ concluído (telas aprovadas) |
+| Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | 🟡 próxima (aguardando “pode começar”) |
 | Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | ⚪ |
 | Fase E | Dashboard, alertas, incidentes, relatórios | Fase D | ⚪ |
 | CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | ⚪ |

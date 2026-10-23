@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **Fase B concluída** → **CHECKPOINT 5 — revisão das primeiras telas reais** (aguardando o usuário)
+**Fase atual:** **CHECKPOINT 5 concluído** (telas aprovadas) → **Fase C — políticas Vendas/Merchandising e conformidade** (aguardando “pode começar”)
 **Código:** Fases A e B completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker. 100 testes + 17 E2E.
 
 ## Feito
@@ -19,6 +19,8 @@
   a dados de clientes, empresas criadas pela plataforma, região no CP8. ADRs 0002–0006.
 - CHECKPOINT 4 respondido: MVP enxuto para smartphones de vendas e merchandising (≈ 52 pts), perfis Admin e
   Leitura, responsável por aparelho, 5 comandos simulados, QR de demonstração. `docs/product/CHECKPOINT_4_MVP.md`.
+- CHECKPOINT 5 respondido: telas da Fase B aprovadas, estados de comunicação mantidos, amostra de ilustração
+  colorida vem com a Fase C, nenhum formato extra de logo. CI da Fase B4 verde.
 
 ## Plano executável (fatias pequenas)
 | # | Fatia | Entrega verificável | Bloqueada por |
@@ -32,7 +34,8 @@
 | 7 | ✅ A3a — Login no backend | Better Auth + TOTP + recuperação, perfis Admin/Leitura, convites, CLI da plataforma | — |
 | 7b | ✅ A3b — Telas de login | Next.js: entrar, convite, MFA, chave de acesso, visão geral inicial; 9 E2E | — |
 | 8 | ✅ Fase B — Simulador + aparelhos | Simulador, worker, cadastro QR demo, aparelhos, responsáveis, usuários, visão geral | — |
-| 9 | CHECKPOINT 5 | Revisão das primeiras telas reais | Fatias 2 e 8 |
+| 9 | ✅ CHECKPOINT 5 | Telas aprovadas | — |
+| 10 | Fase C — Políticas | Políticas Vendas e Merchandising, conformidade por aparelho, 2 amostras de ilustração | Aprovação do usuário |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
