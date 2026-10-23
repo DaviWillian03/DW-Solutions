@@ -12,7 +12,11 @@ export default defineConfig({
   plugins: [swc.vite({ module: { type: 'es6' } })],
   // Usa o código-fonte de @dw/db, sem precisar compilar antes (inclusive no globalSetup).
   resolve: {
-    alias: { '@dw/db': fileURLToPath(new URL('../../packages/db/src/index.ts', import.meta.url)) },
+    alias: {
+      '@dw/db': fileURLToPath(new URL('../../packages/db/src/index.ts', import.meta.url)),
+      '@dw/contracts': fileURLToPath(new URL('../../packages/contracts/src/index.ts', import.meta.url)),
+      '@dw/simulator': fileURLToPath(new URL('../../packages/simulator/src/index.ts', import.meta.url)),
+    },
   },
   test: {
     include: ['test/**/*.spec.ts'],

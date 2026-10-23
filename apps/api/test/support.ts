@@ -65,9 +65,17 @@ export class Client {
     );
   }
 
+  async patch(path: string, body: object = {}, origin: string | null = ORIGIN) {
+    return this.send('patch', path, body, origin);
+  }
+
   async post(path: string, body: object = {}, origin: string | null = ORIGIN) {
+    return this.send('post', path, body, origin);
+  }
+
+  private async send(method: 'post' | 'patch', path: string, body: object, origin: string | null) {
     let r = request(this.server as never)
-      .post(path)
+      [method](path)
       .set('cookie', this.cookieHeader())
       .set('x-forwarded-for', this.ip);
     if (origin) r = r.set('origin', origin);
@@ -112,3 +120,28 @@ export async function platformCreateTenant(name: string) {
 }
 
 export const STRONG = 'Senha-Forte-de-Teste-2026!';
+
+export async function signIn(c: Client, email: string, password = STRONG) {
+  return c.post('/api/auth/sign-in/email', { email, password });
+}
+
+/** Admin pronto: convite aceito, login e verificação em duas etapas cadastrada. */
+export async function readyAdminFor(server: unknown, name: string) {
+  const t = await platformCreateTenant(name);
+  const c = new Client(server);
+  await c.post('/api/invitations/accept', { token: t.token, password: STRONG });
+  await signIn(c, t.email);
+  const en = await c.post('/api/auth/two-factor/enable', { password: STRONG });
+  const secret = secretFromUri(en.body.totpURI);
+  await c.post('/api/auth/two-factor/verify-totp', { code: totp(secret) });
+  return { ...t, c, secret, backupCodes: en.body.backupCodes as string[] };
+}
+
+/** Convida e loga um usuário de perfil Leitura na empresa do admin. */
+export async function viewerOf(server: unknown, admin: Client, email: string) {
+  const inv = await admin.post('/api/users/invite', { name: 'Pessoa Leitura', email, role: 'viewer' });
+  const c = new Client(server);
+  await c.post('/api/invitations/accept', { token: inv.body.inviteUrl.split('#')[1], password: STRONG });
+  await signIn(c, email);
+  return c;
+}

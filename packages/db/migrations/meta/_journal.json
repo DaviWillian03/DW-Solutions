@@ -43,6 +43,13 @@
       "when": 1792766788241,
       "tag": "0005_aparelhos_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792767101513,
+      "tag": "0006_cadastro_assincrono",
+      "breakpoints": true
     }
   ]
 }

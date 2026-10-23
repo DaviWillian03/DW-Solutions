@@ -97,6 +97,8 @@ export const enrollmentTokens = pgTable(
     providerRef: text(),
     createdBy: text().notNull(),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
+    /** Leitura do QR solicitada (simulador): o cadastro segue de forma assíncrona. */
+    scanRequestedAt: timestamp({ withTimezone: true }),
     usedAt: timestamp({ withTimezone: true }),
     deviceId: uuid(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

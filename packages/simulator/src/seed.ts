@@ -42,6 +42,16 @@ export async function seedDemoTenant(
   }
   const tenantId = tenant.id;
 
+  return seedFleetForTenant(appDb, tenantId, { devices: count, holders: holderCount, rnd, now });
+}
+
+/** Cria responsáveis e uma frota simulada para uma empresa (sem nada se ela já tiver aparelhos). */
+export async function seedFleetForTenant(
+  appDb: DbHandle,
+  tenantId: string,
+  opts: { devices: number; holders: number; rnd: ReturnType<typeof createRandom>; now: Date },
+) {
+  const { devices: count, holders: holderCount, rnd, now } = opts;
   return withTenant(appDb.db, tenantId, async (tx) => {
     const [existing] = await tx.select({ id: devices.id }).from(devices).limit(1);
     if (existing) return { tenantId, created: false, devices: 0, holders: 0 };

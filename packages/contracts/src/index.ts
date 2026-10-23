@@ -83,3 +83,19 @@ export interface DeviceManagementProvider {
   getCapabilities(): CapabilityMatrix;
   createEnrollmentToken(req: EnrollmentRequest): Promise<EnrollmentToken>;
 }
+
+// ---------------------------------------------------------------------------
+// Filas (BullMQ). A API só publica; o worker processa (ADR-0002).
+// ---------------------------------------------------------------------------
+export const SIMULATOR_QUEUE = 'dw-simulador';
+/** Prefixo no Redis: testes nunca compartilham fila com o ambiente de desenvolvimento. */
+export const queuePrefix = (nodeEnv: string) => (nodeEnv === 'test' ? 'dw-test' : 'dw');
+
+export interface SimulatorEnrollJob {
+  tenantId: string;
+  tokenId: string;
+}
+
+/** Leitura de dados sincronizados: sempre com origem e horário (prompt-mestre §11). */
+export type Connectivity = 'online' | 'silent' | 'unknown';
+export const SILENT_AFTER_HOURS = 24;

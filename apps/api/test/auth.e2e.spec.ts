@@ -7,13 +7,16 @@ import {
   STRONG,
   platformCreateTenant,
   randomIp,
+  readyAdminFor,
   secretFromUri,
+  signIn,
   startApp,
   totp,
 } from './support.js';
 
 let app: INestApplication;
 let server: unknown;
+const readyAdmin = (name: string) => readyAdminFor(server, name);
 
 beforeAll(async () => {
   app = await startApp();
@@ -22,22 +25,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await app.close();
 });
-
-async function signIn(c: Client, email: string, password = STRONG) {
-  return c.post('/api/auth/sign-in/email', { email, password });
-}
-
-/** Admin pronto: convite aceito, login e verificação em duas etapas cadastrada. */
-async function readyAdmin(name: string) {
-  const t = await platformCreateTenant(name);
-  const c = new Client(server);
-  await c.post('/api/invitations/accept', { token: t.token, password: STRONG });
-  await signIn(c, t.email);
-  const en = await c.post('/api/auth/two-factor/enable', { password: STRONG });
-  const secret = secretFromUri(en.body.totpURI);
-  await c.post('/api/auth/two-factor/verify-totp', { code: totp(secret) });
-  return { ...t, c, secret, backupCodes: en.body.backupCodes as string[] };
-}
 
 describe('fluxo do primeiro administrador', () => {
   let t: Awaited<ReturnType<typeof platformCreateTenant>>;
