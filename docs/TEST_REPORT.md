@@ -111,3 +111,11 @@ procurar alertas só dentro do conteúdo principal).
 
 **NÃO EXECUTADO:** E2E em Firefox/Safari; leitor de tela real; telas em celular (layout responsivo foi
 escrito, mas não testado por captura); CI do GitHub com o job novo de E2E (roda após o push).
+
+### CI no GitHub — falha da A3a (run 6) e correção
+❌ [Run 6](https://github.com/DaviWillian03/DW-Solutions/actions/runs/39970061640) (commit `afe2f1f`): testes da API
+falharam com `Failed to resolve entry for package "@dw/db"` — o `globalSetup` do Vitest não aplicava a condição
+`source` e, na CI, não existe `dist` compilado (localmente havia `dist` antigo, por isso passava).
+**Reproduzido localmente** apagando `dist`; **corrigido** com alias do Vitest para `packages/db/src/index.ts`.
+Validação a partir do zero (sem `dist`/`.next`): lint, format, typecheck, 62 testes, build e 9 E2E ✅.
+✅ A2 + ajuste do Dependabot: [run 5](https://github.com/DaviWillian03/DW-Solutions/actions/runs/39968189850) verde.

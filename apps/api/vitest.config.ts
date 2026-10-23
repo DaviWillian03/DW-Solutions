@@ -10,9 +10,10 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 export default defineConfig({
   // SWC preserva os metadados de decorators que a injeção de dependência do NestJS precisa.
   plugins: [swc.vite({ module: { type: 'es6' } })],
-  // Usa o código-fonte de @dw/db (condição "source"), sem precisar compilar antes.
-  resolve: { conditions: ['source'] },
-  ssr: { resolve: { conditions: ['source'], externalConditions: ['source'] } },
+  // Usa o código-fonte de @dw/db, sem precisar compilar antes (inclusive no globalSetup).
+  resolve: {
+    alias: { '@dw/db': fileURLToPath(new URL('../../packages/db/src/index.ts', import.meta.url)) },
+  },
   test: {
     include: ['test/**/*.spec.ts'],
     environment: 'node',
