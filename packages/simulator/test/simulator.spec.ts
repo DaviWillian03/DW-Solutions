@@ -4,7 +4,9 @@ import {
   deviceEvents,
   devices,
   enrollmentTokens,
+  and,
   eq,
+  isNotNull,
   policies,
   simDevices,
   withTenant,
@@ -227,7 +229,8 @@ describe('motor do simulador (banco real)', () => {
         .select({ d: devices })
         .from(devices)
         .innerJoin(simDevices, eq(simDevices.deviceId, devices.id))
-        .where(eq(simDevices.profile, 'reliable'))
+        .where(and(eq(simDevices.profile, 'reliable'), isNotNull(devices.policyId)))
+        .orderBy(devices.displayName)
         .limit(1);
       const d = row!.d;
       // Simula a API: versão 2 desejada, aparelho ainda na 1.
