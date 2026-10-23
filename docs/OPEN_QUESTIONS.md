@@ -8,16 +8,18 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 
 ## CHECKPOINT 2 — ✅ respondido em 2026-10-23 (branco + azuis, D2 Azul Gelo, M2, menu no topo)
 
-## CHECKPOINT 3 — Arquitetura e implantação (próximo)
-- Stack, arquitetura modular, provedor de identidade (login/MFA), estratégia multiempresa, ADRs.
-- Hospedagem já decidida: R$ 0, tudo local por enquanto (CP0-6).
+## CHECKPOINT 3 — ✅ respondido em 2026-10-23 (ADRs 0002–0006)
+
+## CHECKPOINT 4 — Escopo do primeiro MVP (próximo)
+- Backlog MoSCoW, fluxos, mapa de telas, esforço relativo, critérios de aceite, foco do primeiro produto.
 
 ## Checkpoints futuros
-- CHECKPOINT 4 — Escopo do MVP (MoSCoW).
 
 ## Pendências que não bloqueiam agora
 - CP2-12: qual “outro formato” de logo o usuário precisa (marcou a opção sem especificar).
 - Amostra do estilo de ilustração colorida — apresentar no CHECKPOINT 5.
+- Região de hospedagem dos dados (CP3-4) — CHECKPOINT 8.
+- Processo de verificação de identidade para recuperar acesso do admin de uma empresa (ADR-0005) — CHECKPOINT 8.
 - Aparelho Android resetável para laboratório — necessário só no CHECKPOINT 6.
 - Busca formal da marca “DW Solutions” no INPI (classes 9 e 42) — antes de uso comercial.
 - Domínio: `dwsolutions.com.br`/`.com` ocupados — decidir no CHECKPOINT 8.

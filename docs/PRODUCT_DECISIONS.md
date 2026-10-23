@@ -163,3 +163,21 @@ Material: `docs/design/CHECKPOINT_2_DIRECOES.md` e `docs/design/checkpoint-2/`.
 - O usuário marcou também “outro formato” sem especificar → pergunta aberta em `OPEN_QUESTIONS.md`.
 
 **Resultado:** design system v1 em `docs/design/DESIGN_SYSTEM.md`.
+
+## CHECKPOINT 3 — Arquitetura e implantação (DECIDIDO em 2026-10-23)
+
+Proposta: `docs/architecture/CHECKPOINT_3_PROPOSTA.md`. ADRs 0002–0006 em `docs/adr/`.
+
+| ID | Pergunta | Opções | Decisão | ADR |
+|----|----------|--------|---------|-----|
+| CP3-1 | Login/MFA | **Better Auth (rec.)** · Keycloak · gerenciado · do zero | **Better Auth embutido** | 0003 |
+| CP3-2 | Isolamento entre empresas | **Banco único + RLS (rec.)** · filtro só no código · schema por empresa · banco por empresa | **Banco único + RLS** | 0004 |
+| CP3-3 | ORM | **Drizzle (rec.)** · Prisma | **Drizzle** | 0004 |
+| CP3-4 | Região dos dados | Brasil/SP (rec.) · decidir no CP8 · sem preferência | **Decidir no CHECKPOINT 8** | 0006 |
+| CP3-5 | Formas de MFA | App + recuperação (rec.) · **app + chave de acesso** · e-mail | **App autenticador (TOTP) + passkey**, com códigos de recuperação | 0003 |
+| CP3-6 | Admin da plataforma vê dados de clientes? | Só com autorização (rec.) · sempre com auditoria · **nunca** | **Nunca** — só cria/suspende empresa, convida 1º admin e recupera acesso, tudo auditado | 0005 |
+| CP3-7 | Entrada de novas empresas | **Criadas pela plataforma (rec.)** · autocadastro · convite com aprovação | **Criadas pela plataforma** | 0005 |
+
+Decisões técnicas delegadas (ADR-0002/0006): TypeScript 6, Node 22, pnpm workspaces, Next.js 16, NestJS 12,
+Zod 4, BullMQ/Redis, pino, Vitest/Supertest/Playwright, ambiente sem Docker com PostgreSQL/Redis nativos,
+CI GitHub Actions gratuita, `minimumReleaseAge` de 7 dias.

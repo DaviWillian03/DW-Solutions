@@ -29,6 +29,12 @@
 Seguir `docs/design/DESIGN_SYSTEM.md`: branco + azuis, Plus Jakarta Sans, menu no topo, tema do sistema,
 monograma M2 (M1 no favicon), animações expressivas com `prefers-reduced-motion`, contraste AA verificado.
 
+## Arquitetura (CP3)
+Monólito modular TypeScript 6: `apps/web` (Next.js 16), `apps/api` (NestJS 12), `apps/worker` (BullMQ),
+`packages/contracts|db|config`. PostgreSQL com **RLS por `tenant_id`** (toda consulta via `withTenant`),
+Drizzle, Better Auth (TOTP + passkey, MFA obrigatório para admins), plataforma **sem acesso** a dados de
+clientes. Ver `docs/adr/0002`–`0006`.
+
 ## Comandos
 Ainda não há código. Esta seção será preenchida na Fase A (após o CHECKPOINT 3).
 
