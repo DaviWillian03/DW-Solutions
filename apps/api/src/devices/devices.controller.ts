@@ -14,6 +14,8 @@ const listQuery = z.object({
   manufacturer: z.enum(['samsung', 'motorola']).optional(),
   android: z.coerce.number().int().min(10).max(20).optional(),
   holder: z.enum(['assigned', 'unassigned']).optional(),
+  compliance: z.enum(['compliant', 'noncompliant', 'unknown', 'not_applicable']).optional(),
+  policy: z.string().uuid().optional(),
   sort: z.enum(['name', 'lastSeen']).default('name'),
   page: z.coerce.number().int().min(1).max(10_000).default(1),
   pageSize: z.coerce.number().int().min(5).max(100).default(25),
@@ -43,6 +45,7 @@ const holderUpdate = holderInput.partial().extend({ status: z.enum(['active', 'i
 const enrollBody = z.object({
   managementMode: z.enum(['fully_managed', 'dedicated']).default('fully_managed'),
   holderId: z.string().uuid().nullish(),
+  policyId: z.string().uuid().nullish(),
   displayNameHint: z.string().trim().min(2).max(80).nullish(),
   durationMinutes: z.coerce.number().int().min(15).max(1440).default(60),
 });

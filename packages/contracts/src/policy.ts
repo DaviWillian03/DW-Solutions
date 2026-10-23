@@ -285,25 +285,25 @@ export function inventoryReasons(
   return reasons;
 }
 
+/** Motivo enquanto o aparelho não relata a versão desejada (estado “desconhecido”, nunca “conforme”). */
+export function awaitingDevice(version: number, appliedVersion: number | null = null): ComplianceReason {
+  return {
+    code: 'awaiting_device',
+    message:
+      appliedVersion == null
+        ? `Aguardando o aparelho aplicar a política (versão ${version}).`
+        : `O aparelho relatou a versão ${appliedVersion}; aguardando aplicar a versão ${version}.`,
+    fix: 'Nada a fazer: a política é aplicada na próxima comunicação do aparelho.',
+  };
+}
+
 export function evaluateCompliance(i: ComplianceInput): {
   status: ComplianceStatus;
   reasons: ComplianceReason[];
 } {
   if (!i.policy) return { status: 'not_applicable', reasons: [] };
   if (i.appliedVersion == null || i.appliedVersion !== i.policy.version) {
-    return {
-      status: 'unknown',
-      reasons: [
-        {
-          code: 'awaiting_device',
-          message:
-            i.appliedVersion == null
-              ? `Aguardando o aparelho aplicar a política (versão ${i.policy.version}).`
-              : `O aparelho relatou a versão ${i.appliedVersion}; aguardando aplicar a versão ${i.policy.version}.`,
-          fix: 'Nada a fazer: a política é aplicada na próxima comunicação do aparelho.',
-        },
-      ],
-    };
+    return { status: 'unknown', reasons: [awaitingDevice(i.policy.version, i.appliedVersion)] };
   }
   const reasons: ComplianceReason[] = [];
   const apps = new Map(i.policy.settings.requiredApps.map((a) => [a.packageName, a.name]));

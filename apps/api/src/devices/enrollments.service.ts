@@ -10,6 +10,7 @@ import {
   eq,
   gt,
   isNull,
+  policies,
   recordAudit,
   withTenant,
   type DbHandle,
@@ -39,13 +40,14 @@ export class EnrollmentsService {
     @Inject(SIM_QUEUE) private readonly queue: SimQueue,
   ) {}
 
-  private view(t: TokenRow, holderName: string | null = null) {
+  private view(t: TokenRow, holderName: string | null = null, policyName: string | null = null) {
     return {
       id: t.id,
       status: enrollmentStatus(t),
       demo: t.demo,
       managementMode: t.managementMode,
       holder: t.holderId ? { id: t.holderId, name: holderName } : null,
+      policy: t.policyId ? { id: t.policyId, name: policyName } : null,
       displayNameHint: t.displayNameHint,
       expiresAt: t.expiresAt,
       createdAt: t.createdAt,
@@ -58,6 +60,7 @@ export class EnrollmentsService {
     input: {
       managementMode: 'fully_managed' | 'dedicated';
       holderId?: string | null;
+      policyId?: string | null;
       displayNameHint?: string | null;
       durationMinutes: number;
     },
@@ -72,6 +75,16 @@ export class EnrollmentsService {
         if (!h)
           throw new NotFoundException({ code: 'HOLDER_NOT_FOUND', message: 'Responsável não encontrado.' });
       }
+      let policyName: string | null = null;
+      if (input.policyId) {
+        const [p] = await tx
+          .select({ name: policies.name })
+          .from(policies)
+          .where(eq(policies.id, input.policyId));
+        if (!p)
+          throw new NotFoundException({ code: 'POLICY_NOT_FOUND', message: 'Política não encontrada.' });
+        policyName = p.name;
+      }
       const [t] = await tx
         .insert(enrollmentTokens)
         .values({
@@ -80,6 +93,7 @@ export class EnrollmentsService {
           demo: tok.demo,
           managementMode: input.managementMode,
           holderId: input.holderId ?? null,
+          policyId: input.policyId ?? null,
           displayNameHint: input.displayNameHint ?? null,
           providerRef: tok.providerRef,
           createdBy: a.userId,
@@ -93,14 +107,19 @@ export class EnrollmentsService {
         action: 'enrollment.create',
         targetType: 'enrollment',
         targetId: t!.id,
-        metadata: { demo: tok.demo, modo: input.managementMode, minutos: input.durationMinutes },
+        metadata: {
+          demo: tok.demo,
+          modo: input.managementMode,
+          minutos: input.durationMinutes,
+          policyId: input.policyId ?? null,
+        },
         requestId: a.requestId,
       });
-      return t!;
+      return { t: t!, policyName };
     });
     // O token aparece SÓ nesta resposta (dentro do QR); o banco guarda apenas o hash.
     return {
-      ...this.view(row),
+      ...this.view(row.t, null, row.policyName),
       qrPayload: tok.qrPayload,
       token: tok.token,
       warning: tok.demo ? DEMO_WARNING : null,
@@ -110,25 +129,32 @@ export class EnrollmentsService {
   list(a: AuthContext) {
     return withTenant(this.appDb.db, a.tenantId, async (tx) => {
       const rows = await tx
-        .select({ t: enrollmentTokens, holderName: deviceHolders.fullName })
+        .select({ t: enrollmentTokens, holderName: deviceHolders.fullName, policyName: policies.name })
         .from(enrollmentTokens)
         .leftJoin(deviceHolders, eq(deviceHolders.id, enrollmentTokens.holderId))
+        .leftJoin(policies, eq(policies.id, enrollmentTokens.policyId))
         .orderBy(desc(enrollmentTokens.createdAt))
         .limit(50);
-      return rows.map((r) => this.view(r.t, r.holderName));
+      return rows.map((r) => this.view(r.t, r.holderName, r.policyName));
     });
   }
 
   get(a: AuthContext, id: string) {
     return withTenant(this.appDb.db, a.tenantId, async (tx) => {
       const [r] = await tx
-        .select({ t: enrollmentTokens, holderName: deviceHolders.fullName, deviceName: devices.displayName })
+        .select({
+          t: enrollmentTokens,
+          holderName: deviceHolders.fullName,
+          deviceName: devices.displayName,
+          policyName: policies.name,
+        })
         .from(enrollmentTokens)
         .leftJoin(deviceHolders, eq(deviceHolders.id, enrollmentTokens.holderId))
+        .leftJoin(policies, eq(policies.id, enrollmentTokens.policyId))
         .leftJoin(devices, eq(devices.id, enrollmentTokens.deviceId))
         .where(eq(enrollmentTokens.id, id));
       if (!r) throw new NotFoundException({ code: 'NOT_FOUND', message: 'Cadastro não encontrado.' });
-      return { ...this.view(r.t, r.holderName), deviceName: r.deviceName };
+      return { ...this.view(r.t, r.holderName, r.policyName), deviceName: r.deviceName };
     });
   }
 

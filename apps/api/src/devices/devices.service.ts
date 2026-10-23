@@ -17,6 +17,7 @@ import {
   isNull,
   lt,
   or,
+  policies,
   recordAudit,
   sql,
   withTenant,
@@ -35,6 +36,8 @@ export interface DeviceListQuery {
   manufacturer?: 'samsung' | 'motorola';
   android?: number;
   holder?: 'assigned' | 'unassigned';
+  compliance?: 'compliant' | 'noncompliant' | 'unknown' | 'not_applicable';
+  policy?: string;
   sort: 'name' | 'lastSeen';
   page: number;
   pageSize: number;
@@ -54,7 +57,7 @@ export class DevicesService {
     @Inject(PROVIDER) private readonly provider: DeviceManagementProvider,
   ) {}
 
-  private view(d: Device, holderName: string | null, now: Date) {
+  private view(d: Device, holderName: string | null, now: Date, policyName: string | null = null) {
     const o = d.observedState as ObservedState;
     return {
       id: d.id,
@@ -72,6 +75,22 @@ export class DevicesService {
       storageFree: o.storageFreePct ?? null,
       network: o.network ?? null,
       source: d.source,
+      // Política desejada × aplicada (relatada pelo aparelho, com horário).
+      policy: d.policyId
+        ? {
+            id: d.policyId,
+            name: policyName,
+            version: d.policyVersion,
+            appliedVersion: d.appliedPolicyVersion,
+            assignedAt: d.policyAssignedAt,
+            reportedAt: d.policyReportedAt,
+          }
+        : null,
+      compliance: {
+        status: d.compliance,
+        reasons: d.complianceReasons,
+        evaluatedAt: d.complianceEvaluatedAt,
+      },
     };
   }
 
@@ -94,15 +113,18 @@ export class DevicesService {
       q.android ? eq(devices.androidVersion, q.android) : undefined,
       q.holder === 'assigned' ? isNotNull(devices.holderId) : undefined,
       q.holder === 'unassigned' ? isNull(devices.holderId) : undefined,
+      q.compliance ? eq(devices.compliance, q.compliance) : undefined,
+      q.policy ? eq(devices.policyId, q.policy) : undefined,
     ].filter(Boolean);
     const where = filters.length ? and(...filters) : undefined;
 
     return withTenant(this.appDb.db, a.tenantId, async (tx) => {
       const base = () =>
         tx
-          .select({ d: devices, holderName: deviceHolders.fullName })
+          .select({ d: devices, holderName: deviceHolders.fullName, policyName: policies.name })
           .from(devices)
           .leftJoin(deviceHolders, eq(deviceHolders.id, devices.holderId))
+          .leftJoin(policies, eq(policies.id, devices.policyId))
           .where(where);
       const [{ total }] = (await tx
         .select({ total: count() })
@@ -118,7 +140,7 @@ export class DevicesService {
         .limit(q.pageSize)
         .offset((q.page - 1) * q.pageSize);
       return {
-        items: rows.map((r) => this.view(r.d, r.holderName, now)),
+        items: rows.map((r) => this.view(r.d, r.holderName, now, r.policyName)),
         total,
         page: q.page,
         pageSize: q.pageSize,
@@ -139,6 +161,17 @@ export class DevicesService {
           silent: sql<number>`count(*) filter (where ${devices.lastSeenAt} < ${cut})`.mapWith(Number),
           unknown: sql<number>`count(*) filter (where ${devices.lastSeenAt} is null)`.mapWith(Number),
           unassigned: sql<number>`count(*) filter (where ${devices.holderId} is null)`.mapWith(Number),
+          noncompliant: sql<number>`count(*) filter (where ${devices.compliance} = 'noncompliant')`.mapWith(
+            Number,
+          ),
+          complianceUnknown: sql<number>`count(*) filter (where ${devices.compliance} = 'unknown')`.mapWith(
+            Number,
+          ),
+          noPolicy: sql<number>`count(*) filter (where ${devices.policyId} is null)`.mapWith(Number),
+          policyPending:
+            sql<number>`count(*) filter (where ${devices.policyId} is not null and ${devices.appliedPolicyVersion} is distinct from ${devices.policyVersion})`.mapWith(
+              Number,
+            ),
           lowBattery:
             sql<number>`count(*) filter (where (${devices.observedState}->'batteryPct'->>'value')::int < 15 and ${devices.lastSeenAt} >= ${cut})`.mapWith(
               Number,
@@ -168,8 +201,18 @@ export class DevicesService {
         .where(lt(devices.lastSeenAt, cut))
         .orderBy(asc(devices.lastSeenAt))
         .limit(5);
+      // Não conformes com relatório mais recente primeiro (motivo sempre junto).
+      const noncompliantRows = await tx
+        .select({ d: devices, holderName: deviceHolders.fullName, policyName: policies.name })
+        .from(devices)
+        .leftJoin(deviceHolders, eq(deviceHolders.id, devices.holderId))
+        .leftJoin(policies, eq(policies.id, devices.policyId))
+        .where(eq(devices.compliance, 'noncompliant'))
+        .orderBy(sql`${devices.complianceEvaluatedAt} desc nulls last`, asc(devices.displayName))
+        .limit(5);
       return {
         counts: { ...c!, pendingEnrollments: pending?.n ?? 0 },
+        noncompliant: noncompliantRows.map((r) => this.view(r.d, r.holderName, now, r.policyName)),
         byManufacturer,
         byAndroid,
         attention: silentRows.map((r) => this.view(r.d, r.holderName, now)),
@@ -182,9 +225,10 @@ export class DevicesService {
 
   private async findOr404(tx: Tx, id: string) {
     const [row] = await tx
-      .select({ d: devices, holderName: deviceHolders.fullName })
+      .select({ d: devices, holderName: deviceHolders.fullName, policyName: policies.name })
       .from(devices)
       .leftJoin(deviceHolders, eq(deviceHolders.id, devices.holderId))
+      .leftJoin(policies, eq(policies.id, devices.policyId))
       .where(eq(devices.id, id));
     if (!row) throw new NotFoundException({ code: 'NOT_FOUND', message: 'Aparelho não encontrado.' });
     return row;
@@ -195,7 +239,7 @@ export class DevicesService {
     return withTenant(this.appDb.db, a.tenantId, async (tx) => {
       const r = await this.findOr404(tx, id);
       return {
-        ...this.view(r.d, r.holderName, now),
+        ...this.view(r.d, r.holderName, now, r.policyName),
         serialNumber: r.d.serialNumber,
         providerRef: r.d.providerRef,
         enrolledAt: r.d.enrolledAt,
@@ -230,7 +274,7 @@ export class DevicesService {
         }
         holderName = h.fullName;
       }
-      if (r.d.holderId === holderId) return this.view(r.d, r.holderName, new Date());
+      if (r.d.holderId === holderId) return this.view(r.d, r.holderName, new Date(), r.policyName);
       const [d] = await tx.update(devices).set({ holderId }).where(eq(devices.id, id)).returning();
       await tx.insert(deviceEvents).values({
         tenantId: a.tenantId,
@@ -250,7 +294,7 @@ export class DevicesService {
         metadata: { holderId, previousHolderId: r.d.holderId },
         requestId: a.requestId,
       });
-      return this.view(d!, holderName, new Date());
+      return this.view(d!, holderName, new Date(), r.policyName);
     });
   }
 
@@ -268,7 +312,7 @@ export class DevicesService {
         metadata: { from: r.d.displayName, to: displayName },
         requestId: a.requestId,
       });
-      return this.view(d!, r.holderName, new Date());
+      return this.view(d!, r.holderName, new Date(), r.policyName);
     });
   }
 }
