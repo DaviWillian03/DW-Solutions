@@ -19,6 +19,10 @@ MDM web para gestão de dispositivos **exclusivamente Android**, foco em empresa
 - Nada de AccessibilityService/root/ADB/APIs privadas para obter privilégios. Sem vigilância oculta.
 - Se um comando/teste não foi executado, escrever **NÃO EXECUTADO** — nunca inventar resultado.
 - Atualizar `PROJECT_STATUS.md`, `PRODUCT_DECISIONS.md` e `OPEN_QUESTIONS.md` ao fim de cada etapa.
+- **Decisões do usuário sempre em múltipla escolha** (ferramenta de perguntas, recomendação marcada).
+- Usuário desenvolve só pelo Claude Code na nuvem: setup reproduzível por script, commit + push ao fim
+  de cada etapa, mostrar telas por screenshot. Sem Docker daemon; usar PostgreSQL/Redis nativos.
+- Orçamento R$ 0: não contratar serviço, domínio ou cloud sem aprovação.
 
 ## Comandos
 Ainda não há código. Esta seção será preenchida na Fase A (após o CHECKPOINT 3).

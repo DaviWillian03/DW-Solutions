@@ -27,4 +27,7 @@ Fontes oficiais consultadas em **2026-10-23**. Revalidar antes de qualquer integ
 | C. DPC de laboratório (DevicePolicyManager/Test DPC) | Aprendizado e provas de conceito em aparelhos próprios | Não vira EMM Google Play comercial |
 | Simulador | Sempre, enquanto nenhuma rota real estiver autorizada | Não gerencia aparelhos reais |
 
-Decisão de rota: **pendente (CP0-1, CP0-7)**.
+## Decisão (2026-10-23 — ADR-0001)
+**Simulador agora; AMAPI (rota A) como destino comercial futuro**, somente com enquadramento comercial,
+quota aprovada e aparelho de laboratório. Escopo inicial: aparelhos 100% corporativos (Fully Managed +
+Dedicated), Samsung e Motorola com GMS, Android 12+, frota de até 500.

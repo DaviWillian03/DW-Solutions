@@ -2,8 +2,8 @@
 
 | Etapa | Conteúdo | Depende de | Status |
 |-------|----------|------------|--------|
-| CP0 | Viabilidade, intenção e ambiente | Usuário | 🟡 em andamento |
-| CP1 | Nome e posicionamento | CP0 | ⚪ |
+| CP0 | Viabilidade, intenção e ambiente | Usuário | ✅ concluído |
+| CP1 | Nome e posicionamento | CP0 | 🟡 próximo |
 | CP2 | Direção visual, logo, protótipos | CP1 | ⚪ |
 | CP3 | Arquitetura e implantação (ADRs) | CP0 | ⚪ |
 | CP4 | Escopo do MVP (MoSCoW) | CP3 | ⚪ |
