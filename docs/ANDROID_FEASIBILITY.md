@@ -19,6 +19,11 @@ Fontes oficiais consultadas em **2026-10-23**. Revalidar antes de qualquer integ
 - A antiga Google Play EMM API **não aceita novos registros de DPC personalizado**; novos EMMs devem
   usar a AMAPI (DPC fornecido pelo Google — Android Device Policy).
 
+## Atualização 2026-10-25 (CHECKPOINT 6)
+- Relatos não oficiais (FAQ bayton.org, comunidade Android Enterprise) indicam que projetos novos começam com
+  **cota de 0 aparelhos** — sem a validação do Google, nem aparelho de teste é aceito. A página oficial não trata
+  de cota de teste. Detalhes em `docs/android/CHECKPOINT_6.md`.
+
 ## Rotas
 | Rota | Quando faz sentido | Limitação principal |
 |------|--------------------|---------------------|

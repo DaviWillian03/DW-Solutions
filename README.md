@@ -1,7 +1,7 @@
 # DW Solutions
 
 MDM web para colocar **smartphones Android corporativos de vendas e merchandising** sob gerenciamento.
-Estado atual: **Fases A–D concluídas** — login seguro, gestão de aparelhos **simulados**, políticas com conformidade e comandos com aprovação dupla e auditoria na tela; próximo: CHECKPOINT 6 (Android real) — modo simulador, nenhum aparelho real é gerenciado.
+Estado atual: **Fases A–D concluídas** — login seguro, gestão de aparelhos **simulados**, políticas com conformidade e comandos com aprovação dupla e auditoria na tela; conector da Android Management API pronto e desligado (falta elegibilidade) — modo simulador, nenhum aparelho real é gerenciado.
 
 ## Começando (container do Claude Code na nuvem)
 O gancho de início de sessão já executa o setup. Para rodar manualmente:

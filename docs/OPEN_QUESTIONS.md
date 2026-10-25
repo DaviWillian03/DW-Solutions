@@ -14,8 +14,14 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 
 ## CHECKPOINT 5 — ✅ respondido em 2026-10-23 (telas aprovadas; ilustrações junto com a Fase C)
 
+## CHECKPOINT 6 — ✅ decidido em 2026-10-25 (ver CP6-0…8); pendências que bloqueiam o Android real:
+- CP6-4: relação entre quem desenvolve e a empresa usuária (venda/licença × sistema interno). Uso exclusivamente
+  interno não se enquadra na AMAPI; nesse caso a rota seria um MDM de terceiros.
+- Cota da AMAPI (validação de parceiro do Google) — só depois de CP6-4.
+- Aparelho Samsung/Motorola 12+ resetável existe, guardado (CP6-6).
+
 ## Próximo passo — ABERTO
-- MVP completo no simulador: revisão geral e/ou CHECKPOINT 6 (Android real)? Auditoria para o perfil Leitura?
+- Revisão geral do MVP (celular, acessibilidade, textos) ou estudo da rota com MDM de terceiros?
 
 ## Checkpoints futuros
 

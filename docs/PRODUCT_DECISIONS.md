@@ -238,3 +238,23 @@ por decisão do usuário.
 
 Decisão técnica delegada (Fase E): auditoria visível **só para administradores** (contém IP e dados de acesso de
 outras pessoas — minimização LGPD). Reversível: pode ser liberada ao perfil Leitura por decisão do usuário.
+
+## CHECKPOINT 6 — Android real (DECIDIDO em 2026-10-25)
+
+Documento: `docs/android/CHECKPOINT_6.md`. Fontes oficiais e não oficiais separadas.
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| CP6-0 | Auditoria para o perfil Leitura | **só admins (rec.)** · Leitura completa · Leitura sem IP | **Só administradores** (confirma decisão delegada da Fase E) |
+| CP6-1 | Rota agora | **conector AMAPI pronto (rec.)** · laboratório Test DPC · pedir cota · só simulador | **Conector AMAPI “pronto para ligar”**, sem chamadas reais ao Google |
+| CP6-2 | Aparelho de laboratório | não tenho · **tenho Samsung/Motorola 12+** · outro · comprar | **Tem Samsung/Motorola 12+ resetável** |
+| CP6-3 | Enquadramento comercial | estudo/portfólio · CNPJ + piloto · **uso interno de uma empresa** | **Uso interno de uma empresa** — conflita com a AMAPI (proíbe uso exclusivamente interno) |
+| CP6-4 | Relação desenvolvedor × empresa | vende/licencia · sistema da própria empresa · **não definido** | **Ainda não definido** — elegibilidade AMAPI depende disso |
+| CP6-5 | Conector diante do conflito | **AMAPI + restrição documentada (rec.)** · MDM de terceiros · os dois | **AMAPI pronto + restrição documentada** |
+| CP6-6 | Quando usar o aparelho de laboratório | depois do conector · agora · **não usar por enquanto** | **Não usar por enquanto** |
+| CP6-7 | Senha de tela no Android real (Google bloqueia na hora e apaga em 10 dias por padrão) | exigir com prazos máximos · **só monitorar** · padrão do Google | **Só monitorar**: a regra de senha não é enviada; o DW Solutions mostra “não conforme” |
+| CP6-8 | Versão mínima do Android (mesma regra padrão do Google) | **só monitorar (rec.)** · enviar com prazos máximos | **Só monitorar** |
+
+**Consequências:** o conector nunca envia `passwordPolicies`, `minimumApiLevel` nem outra configuração com
+bloqueio/apagamento automático por padrão; uma trava no código recusa essas chaves. A senha passa a ser
+monitorada pelo relatório do aparelho. Nenhuma integração liga sem cota aprovada e decisão comercial (CP6-4).

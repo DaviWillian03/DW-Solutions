@@ -265,3 +265,19 @@ D1 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40004190985 ·
 D2 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40005070130 ·
 D3 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40007188379 ·
 E https://github.com/DaviWillian03/DW-Solutions/actions/runs/40010260968
+
+## 2026-10-25 · CHECKPOINT 6 — conector AMAPI desligado · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm --filter @dw/amapi test` | ✅ **13 testes**, todos sem rede (transporte falso) |
+| `pnpm test` (todos os pacotes) · lint · typecheck · format:check | ✅ **194 testes**: contratos 10 · amapi 13 · banco 51 · simulador 17 · API 88 · worker 15 |
+
+**Cobertura:** conversão de política com os nomes oficiais; **trava que recusa senha, versão mínima e regras de
+bloqueio/apagamento automático**; comandos com tipos oficiais e validade do DW Solutions; modo perdido em pt-BR;
+leitura do `Device` (inventário com horário, pendências mapeadas, não mapeadas visíveis) alimentando a mesma
+avaliação de conformidade do simulador; URLs oficiais com token; 429/5xx temporário × 4xx definitivo; nomes de
+recurso inválidos recusados; provedor desligado recusa tudo sem tocar a rede.
+
+**NÃO EXECUTADO:** nenhuma chamada real à Android Management API (sem cota, sem credenciais — CP6); nenhum teste
+em aparelho real (CP6-6: não usar por enquanto).

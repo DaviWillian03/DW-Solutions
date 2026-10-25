@@ -13,7 +13,7 @@
 | Fase C | Políticas Vendas/Merchandising e conformidade | Fase B | ✅ concluída (ADR-0007) |
 | Fase D | 5 comandos com estados verificáveis e regra do wipe | Fase C | ✅ concluída (ADR-0008) |
 | Fase E | MVP: tela de Auditoria (M11). Alertas, incidentes e relatórios ficaram fora do MVP (CP4) | Fase D | ✅ concluída |
-| CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | ⚪ |
+| CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | 🟡 CP6 decidido; conector pronto e desligado (ADR-0009); ligar depende de CP6-4 + cota |
 | CP7 / Fase G | Automações e IA supervisionada | Fase E | ⚪ |
 | CP8 / Fase H | Hardening, piloto e publicação | Tudo acima | ⚪ |
 

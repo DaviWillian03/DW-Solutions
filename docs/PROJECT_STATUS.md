@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **MVP completo no simulador (Fases A–E)** → revisão geral do MVP com o usuário e preparação do CHECKPOINT 6
+**Fase atual:** **CHECKPOINT 6 decidido** — conector AMAPI pronto e desligado; Android real bloqueado por elegibilidade (CP6-4)
 **Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
@@ -42,7 +42,8 @@
 | 10 | ✅ Fase C — Políticas | C1 modelo + banco + simulador · C2 API · C3 telas, ilustrações e E2E | — |
 | 11 | ✅ Fase D — Comandos | D1 banco/simulador/worker · D2 API (aprovação dupla, refazer MFA) · D3 telas e E2E | — |
 | 12 | ✅ Fase E — Auditoria | Lista com filtros, tentativas negadas, verificação da cadeia | — |
-| 13 | Próximo | Revisão geral do MVP e CHECKPOINT 6 (Android real) | Decisão do usuário |
+| 13 | ✅ CHECKPOINT 6 / F0 | Conector `@dw/amapi` desligado, trava contra apagamento automático (ADR-0009) | — |
+| 14 | Fase F real | Ligar AMAPI em aparelho de laboratório | Enquadramento comercial (CP6-4) + cota do Google |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
