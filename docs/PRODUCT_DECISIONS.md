@@ -258,3 +258,5 @@ Documento: `docs/android/CHECKPOINT_6.md`. Fontes oficiais e não oficiais separ
 **Consequências:** o conector nunca envia `passwordPolicies`, `minimumApiLevel` nem outra configuração com
 bloqueio/apagamento automático por padrão; uma trava no código recusa essas chaves. A senha passa a ser
 monitorada pelo relatório do aparelho. Nenhuma integração liga sem cota aprovada e decisão comercial (CP6-4).
+
+| CP6-9 | Próximo passo enquanto o Android real espera CP6-4 | **revisão geral do MVP (rec.)** · rota MDM de terceiros · pausar | **Revisão geral do MVP** (celular, acessibilidade, textos) |

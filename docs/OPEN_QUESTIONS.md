@@ -20,12 +20,13 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 - Cota da AMAPI (validação de parceiro do Google) — só depois de CP6-4.
 - Aparelho Samsung/Motorola 12+ resetável existe, guardado (CP6-6).
 
-## Próximo passo — ABERTO
-- Revisão geral do MVP (celular, acessibilidade, textos) ou estudo da rota com MDM de terceiros?
+## Próximo passo
+- ✅ CP6-9: revisão geral do MVP em andamento.
 
 ## Checkpoints futuros
 
 ## Pendências que não bloqueiam agora
+- **2026-10-29:** atualizar body-parser ≥ 2.4.0 e multer ≥ 2.5.0 e remover a exceção de `auditConfig` (TEST_REPORT).
 - Região de hospedagem dos dados (CP3-4) — CHECKPOINT 8.
 - Processo de verificação de identidade para recuperar acesso do admin de uma empresa (ADR-0005) — CHECKPOINT 8.
 - Aparelho Android resetável para laboratório — necessário só no CHECKPOINT 6.

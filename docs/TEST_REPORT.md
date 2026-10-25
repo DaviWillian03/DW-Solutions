@@ -281,3 +281,8 @@ recurso inválidos recusados; provedor desligado recusa tudo sem tocar a rede.
 
 **NÃO EXECUTADO:** nenhuma chamada real à Android Management API (sem cota, sem credenciais — CP6); nenhum teste
 em aparelho real (CP6-6: não usar por enquanto).
+
+**Exceção temporária de auditoria (2026-10-25):** `pnpm audit` passou a acusar GHSA-27r3-jxmh-p828 (body-parser,
+via Express) e GHSA-q7qp-rjg7-q26m (multer, via NestJS) — negação de serviço. As versões corrigidas saíram em
+2026-10-22 e o prazo mínimo de 7 dias (ADR-0006) só as libera em **2026-10-29**. Ignoradas com prazo em
+`pnpm-workspace.yaml` (API não exposta; nenhuma rota de upload). Revisão agendada para 2026-10-29.
