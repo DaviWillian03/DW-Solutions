@@ -21,7 +21,10 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 - Aparelho Samsung/Motorola 12+ resetável existe, guardado (CP6-6).
 
 ## Próximo passo
-- ✅ CP6-9: revisão geral do MVP concluída (TEST_REPORT). Próximo passo — ABERTO.
+- ✅ CP6-9: revisão geral do MVP concluída (TEST_REPORT).
+- ⏸ Projeto pausado (B-3) até a empresa responder: (1) venda/licença × uso interno (CP6-4); (2) se a licença
+  Microsoft 365 inclui Intune e se a empresa aceita usá-lo; (3) com isso, escolher AMAPI (comercial) ou
+  Intune via Microsoft Graph (uso interno). Estudo em `docs/android/ROTA_MDM_TERCEIROS.md`.
 
 ## Checkpoints futuros
 

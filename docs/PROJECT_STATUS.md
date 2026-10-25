@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-23
 **Produto:** DW Solutions
-**Fase atual:** **CHECKPOINT 6 decidido** — conector AMAPI pronto e desligado; Android real bloqueado por elegibilidade (CP6-4)
+**Fase atual:** **PAUSADO** (B-3) — MVP completo no simulador, revisado; conector AMAPI pronto e desligado; rota de uso interno estudada (Intune). Aguardando a empresa (CP6-4, B-2)
 **Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
@@ -44,9 +44,16 @@
 | 12 | ✅ Fase E — Auditoria | Lista com filtros, tentativas negadas, verificação da cadeia | — |
 | 13 | ✅ CHECKPOINT 6 / F0 | Conector `@dw/amapi` desligado, trava contra apagamento automático (ADR-0009) | — |
 | 13b | ✅ Revisão geral | Acessibilidade AA automática (0 falhas) e celular 390 px em 11 telas | — |
+| 13c | ✅ Estudo rota B | MDMs de terceiros comparados; empresa usa Microsoft 365 → Intune candidato | — |
 | 14 | Fase F real | Ligar AMAPI em aparelho de laboratório | Enquadramento comercial (CP6-4) + cota do Google |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
 Ver `docs/TEST_REPORT.md` (Fases A–E: 181 testes + 28 E2E passando).
+
+## Como retomar
+1. Ler `docs/OPEN_QUESTIONS.md` (pendências da empresa) e `docs/android/` (CP6 e rota B).
+2. Se uso interno + Intune: conector `ExternalMdmProvider` para Microsoft Graph, no mesmo padrão do `@dw/amapi`
+   (desligado, testado sem rede). Se venda/licença: pedir cota da AMAPI e ligar `@dw/amapi` em laboratório.
+3. Pendência com data: **2026-10-29** atualizar body-parser/multer e remover a exceção de auditoria.
