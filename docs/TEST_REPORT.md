@@ -308,3 +308,9 @@ via Express) e GHSA-q7qp-rjg7-q26m (multer, via NestJS) — negação de serviç
 
 **NÃO EXECUTADO:** leitor de tela real (NVDA/TalkBack); navegação só por teclado em todos os diálogos; navegadores
 além do Chromium; celular físico.
+
+**CI do CHECKPOINT 6 e da revisão:** commit 3b21ff4 ❌ só no passo “Auditoria de dependências” (alertas novos de
+body-parser/multer — https://github.com/DaviWillian03/DW-Solutions/actions/runs/40178582648); lint, tipos, testes,
+build e 30 testes de navegador passaram nele. Resolvido pela exceção temporária no commit seguinte: ✅
+https://github.com/DaviWillian03/DW-Solutions/actions/runs/40178793945 · revisão geral ✅
+https://github.com/DaviWillian03/DW-Solutions/actions/runs/40180518160
