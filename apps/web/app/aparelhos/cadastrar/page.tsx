@@ -120,7 +120,7 @@ function Cadastrar() {
         subtitle="Gere um QR code para colocar um smartphone da empresa sob gerenciamento."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr]">
         <Card title="1. Dados do aparelho" i={1}>
           {error && (
             <div className="mb-3">

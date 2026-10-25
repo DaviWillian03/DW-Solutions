@@ -258,7 +258,7 @@ function Auditoria() {
           )}
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <table className="w-full min-w-[900px] border-collapse text-[13.5px]">
             <caption className="sr-only">Registros de auditoria</caption>
             <thead>

@@ -69,7 +69,7 @@ function Responsaveis() {
         title="Responsáveis"
         subtitle="Vendedores e promotores que ficam com os aparelhos. Eles não acessam o sistema."
       />
-      <div className={`grid gap-6 ${admin ? 'lg:grid-cols-[2fr_1fr]' : ''}`}>
+      <div className={`grid grid-cols-1 gap-6 ${admin ? 'lg:grid-cols-[2fr_1fr]' : ''}`}>
         <Card i={1}>
           <label className="sr-only" htmlFor="busca-resp">
             Buscar responsável
@@ -82,7 +82,7 @@ function Responsaveis() {
             placeholder="Buscar por nome ou matrícula…"
             className="mb-4 w-full rounded-xl border border-border bg-surface px-3 py-2 text-[14px]"
           />
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[560px] text-[13.5px]">
               <caption className="sr-only">Responsáveis</caption>
               <thead>

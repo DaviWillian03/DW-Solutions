@@ -43,6 +43,7 @@
 | 11 | ✅ Fase D — Comandos | D1 banco/simulador/worker · D2 API (aprovação dupla, refazer MFA) · D3 telas e E2E | — |
 | 12 | ✅ Fase E — Auditoria | Lista com filtros, tentativas negadas, verificação da cadeia | — |
 | 13 | ✅ CHECKPOINT 6 / F0 | Conector `@dw/amapi` desligado, trava contra apagamento automático (ADR-0009) | — |
+| 13b | ✅ Revisão geral | Acessibilidade AA automática (0 falhas) e celular 390 px em 11 telas | — |
 | 14 | Fase F real | Ligar AMAPI em aparelho de laboratório | Enquadramento comercial (CP6-4) + cota do Google |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.

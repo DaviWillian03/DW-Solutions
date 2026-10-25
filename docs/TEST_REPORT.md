@@ -286,3 +286,25 @@ em aparelho real (CP6-6: não usar por enquanto).
 via Express) e GHSA-q7qp-rjg7-q26m (multer, via NestJS) — negação de serviço. As versões corrigidas saíram em
 2026-10-22 e o prazo mínimo de 7 dias (ADR-0006) só as libera em **2026-10-29**. Ignoradas com prazo em
 `pnpm-workspace.yaml` (API não exposta; nenhuma rota de upload). Revisão agendada para 2026-10-29.
+
+## 2026-10-25 · Revisão geral do MVP (CP6-9) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm e2e` | ✅ **30 testes de navegador** (4 execuções até corrigir tudo o que a revisão encontrou) |
+| Acessibilidade automática (axe-core 4.14.0, regras WCAG 2.0/2.1 A e AA) em 11 telas, tema claro e escuro | ✅ **0 falhas** graves, críticas, moderadas ou leves (inclui contraste de cores) |
+| Celular 390 × 844 em 11 telas | ✅ nenhuma tela mais larga que o celular (tabelas rolam dentro do próprio quadro) |
+| `pnpm test` · lint · typecheck · format:check | ✅ |
+
+**Problemas encontrados e corrigidos:**
+- 6 telas ficavam mais largas que o celular: grades sem coluna explícita esticadas por tabelas (Responsáveis,
+  Usuários, Cadastrar aparelho), linhas rótulo/valor rígidas e referência longa na página do aparelho, seletor com
+  opção de texto longo (Comandos) e a legenda invisível da tabela escapando do quadro com rolagem (Auditoria).
+- O primeiro teste de largura não detectava nada: em modo celular o navegador alarga a área de layout; passou a
+  comparar com os 390 px reais e a apontar os elementos responsáveis.
+- Visão geral no celular: indicadores em 2 colunas (antes, 8 cartões empilhados).
+
+**Capturas:** `docs/design/telas-celular/` (`CAPTURAS=1 pnpm e2e`).
+
+**NÃO EXECUTADO:** leitor de tela real (NVDA/TalkBack); navegação só por teclado em todos os diálogos; navegadores
+além do Chromium; celular físico.

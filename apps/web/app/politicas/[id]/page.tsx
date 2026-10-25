@@ -108,7 +108,7 @@ function SettingsView({ s }: { s: PolicySettings }) {
 function ChangesTable({ changes }: { changes: PolicyChange[] }) {
   if (changes.length === 0) return <p className="text-text-2">Nenhuma diferença entre as versões.</p>;
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[560px] border-collapse text-[13.5px]">
         <caption className="sr-only">Diferenças entre versões</caption>
         <thead>

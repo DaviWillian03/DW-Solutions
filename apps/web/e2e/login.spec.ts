@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import AxeBuilder from '@axe-core/playwright';
 import { type BrowserContext, type Page, expect, test } from '@playwright/test';
 import { totp } from './totp';
 
@@ -588,4 +589,123 @@ test('auditoria: quem fez o quê, tentativas negadas, filtros e integridade do r
   await page.getByRole('link', { name: 'Ver na auditoria' }).click();
   await expect(page).toHaveURL(/targetId=/);
   await expect(page.getByRole('link', { name }).first()).toBeVisible();
+});
+
+// ---------------------------------------------------------------------------
+// Revisão geral (CP6-9): acessibilidade automática (axe, WCAG 2.1 AA) e telas no celular
+// ---------------------------------------------------------------------------
+const SHOTS_M = process.env.CAPTURAS ? new URL('../../../docs/design/telas-celular/', import.meta.url) : null;
+const REVIEW_PAGES = [
+  '/',
+  '/aparelhos',
+  '/politicas',
+  '/comandos',
+  '/responsaveis',
+  '/usuarios',
+  '/auditoria',
+  '/configuracoes',
+  '/aparelhos/cadastrar',
+];
+
+test('revisão: nenhuma falha grave de acessibilidade (claro e escuro)', async ({ browser }) => {
+  test.setTimeout(240_000);
+  const problems: string[] = [];
+  const minor: string[] = [];
+  for (const colorScheme of ['light', 'dark'] as const) {
+    const ctx = await browser.newContext({ colorScheme, storageState: await context.storageState() });
+    const p = await ctx.newPage();
+    const urls = [...REVIEW_PAGES];
+    await p.goto('/aparelhos?sort=name');
+    urls.push(new URL((await p.locator('tbody tr td a').first().getAttribute('href'))!, 'http://x').pathname);
+    await p.goto('/politicas');
+    urls.push(
+      new URL(
+        (await p.getByRole('link', { name: 'Abrir política Vendas' }).getAttribute('href'))!,
+        'http://x',
+      ).pathname,
+    );
+    for (const url of urls) {
+      await p.goto(url);
+      await p.locator('main h1').first().waitFor();
+      await p.waitForTimeout(700); // animações de entrada terminam antes da medição de contraste
+      const r = await new AxeBuilder({ page: p })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      for (const v of r.violations.filter((x) => x.impact !== 'serious' && x.impact !== 'critical')) {
+        minor.push(`[${colorScheme}] ${url} · ${v.id} (${v.impact}): ${v.help}`);
+      }
+      for (const v of r.violations.filter((x) => x.impact === 'serious' || x.impact === 'critical')) {
+        problems.push(
+          `[${colorScheme}] ${url} · ${v.id} (${v.impact}): ${v.nodes
+            .slice(0, 3)
+            .map((n) => n.target.join(' '))
+            .join(' | ')}`,
+        );
+      }
+    }
+    await ctx.close();
+  }
+  mkdirSync(new URL('../test-results/', import.meta.url), { recursive: true });
+  // Falhas moderadas/leves ficam registradas para revisão (não reprovam o teste).
+  writeFileSync(new URL('../test-results/axe-moderadas.txt', import.meta.url), minor.join('\n'));
+  if (problems.length)
+    writeFileSync(new URL('../test-results/axe.txt', import.meta.url), problems.join('\n'));
+  expect(problems, problems.join('\n')).toEqual([]);
+});
+
+test('revisão: telas no celular (390 × 844)', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const ctx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+    storageState: await context.storageState(),
+  });
+  const p = await ctx.newPage();
+  const names: Record<string, string> = {
+    '/': 'm01-visao-geral',
+    '/aparelhos': 'm02-aparelhos',
+    '/politicas': 'm04-politicas',
+    '/comandos': 'm05-comandos',
+    '/auditoria': 'm06-auditoria',
+  };
+  const urls = [...REVIEW_PAGES];
+  await p.goto('/aparelhos?sort=name');
+  const device = (await p.locator('tbody tr td a').first().getAttribute('href'))!;
+  urls.push(device);
+  await p.goto('/politicas');
+  urls.push((await p.getByRole('link', { name: 'Abrir política Vendas' }).getAttribute('href'))!);
+  names[device] = 'm03-aparelho';
+  const wide: string[] = [];
+  for (const url of urls) {
+    await p.goto(url);
+    await p.locator('main h1').first().waitFor();
+    await p.waitForTimeout(400);
+    // Sem rolagem horizontal da página (tabelas rolam dentro do próprio quadro).
+    const overflow = await p.evaluate(() => document.documentElement.scrollWidth - 390);
+    if (overflow > 1) {
+      // Aponta os elementos mais externos que passam da borda (para corrigir na origem).
+      const culprits = await p.evaluate(() => {
+        const out: string[] = [];
+        for (const el of Array.from(document.querySelectorAll('main *'))) {
+          const r = el.getBoundingClientRect();
+          const parent = el.parentElement?.getBoundingClientRect();
+          if (r.right > 392 && parent && parent.right <= 392) {
+            out.push(
+              `${el.tagName.toLowerCase()}.${String(el.className).split(' ').slice(0, 4).join('.')} (${Math.round(r.width)}px)`,
+            );
+          }
+        }
+        return out.slice(0, 4);
+      });
+      wide.push(`${url}: +${overflow}px → ${culprits.join(' ; ')}`);
+    }
+    if (SHOTS_M && names[url]) {
+      await p.waitForTimeout(500);
+      await p.screenshot({ path: new URL(`${names[url]}.png`, SHOTS_M).pathname, fullPage: true });
+    }
+  }
+  expect(wide, wide.join('\n')).toEqual([]);
+  await ctx.close();
 });

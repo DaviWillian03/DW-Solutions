@@ -11,7 +11,7 @@ import { dateTime, relative } from '@/lib/format';
 import type { CommandItem } from '@/lib/types';
 
 export const INPUT =
-  'rounded-xl border border-border bg-surface px-3 py-2.5 text-[14px] font-normal text-text focus:border-royal focus:outline-none';
+  'max-w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-[14px] font-normal text-text focus:border-royal focus:outline-none';
 
 const TONE: Record<CommandState, 'ok' | 'crit' | 'unk' | 'warn' | 'info'> = {
   requested: 'info',

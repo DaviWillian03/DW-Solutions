@@ -60,7 +60,7 @@ function Kpi({
   return (
     <Link
       href={href}
-      className="dw-rise rounded-[18px] border border-border bg-surface p-5 shadow-[var(--shadow)] transition-transform hover:-translate-y-0.5 hover:border-sky"
+      className="dw-rise rounded-[18px] border border-border bg-surface p-4 md:p-5 shadow-[var(--shadow)] transition-transform hover:-translate-y-0.5 hover:border-sky"
       style={{ ['--i' as string]: i }}
     >
       <div className={`text-[30px] font-extrabold tracking-tight ${tone}`}>{value}</div>
@@ -95,10 +95,10 @@ function Overview() {
           </>
         }
       />
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+      <section className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <Link
           href="/aparelhos"
-          className="dw-rise relative flex flex-col justify-center overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] md:col-span-2 lg:col-span-4 xl:col-span-1 xl:row-span-2"
+          className="dw-rise relative flex flex-col justify-center overflow-hidden rounded-[18px] p-6 text-white shadow-[0_12px_30px_rgba(26,79,214,.28)] col-span-2 lg:col-span-4 xl:col-span-1 xl:row-span-2"
           style={{ background: 'linear-gradient(135deg,#0A1F4D 0%,#1A4FD6 100%)' }}
         >
           <div className="text-[13px] font-semibold text-[#C9DAFF]">Aparelhos gerenciados</div>

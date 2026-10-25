@@ -23,7 +23,7 @@ export default function AparelhosPage() {
 }
 
 const SELECT =
-  'rounded-xl border border-border bg-surface px-3 py-2 text-[14px] text-text focus:border-royal focus:outline-none';
+  'max-w-full rounded-xl border border-border bg-surface px-3 py-2 text-[14px] text-text focus:border-royal focus:outline-none';
 
 function Aparelhos() {
   const me = useMe();
@@ -204,7 +204,7 @@ function Aparelhos() {
           />
         )}
 
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <table className="w-full min-w-[980px] border-collapse text-[13.5px]">
             <caption className="sr-only">Lista de aparelhos</caption>
             <thead>

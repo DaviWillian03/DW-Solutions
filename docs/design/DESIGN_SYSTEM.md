@@ -95,3 +95,9 @@ Faixa de simulação: `#6E4600` sobre `#FFF6DC` (claro) · `#FCD679` sobre âmba
 `docs/design/checkpoint-2/fonte/`: `build2.mjs` (protótipos), `logo-assets.mjs` (marca),
 `contrast2.py` (contraste). Dependências: `@fontsource/plus-jakarta-sans`, `lucide-static` (ISC),
 `opentype.js`, `playwright-core`.
+
+## 10. Verificação contínua
+- Teste E2E roda axe-core (WCAG 2.0/2.1 A e AA, inclui contraste) em 11 telas, claro e escuro: nenhuma falha é
+  aceita. Também confere que nenhuma tela passa da largura de um celular de 390 px.
+- Grades com tabela dentro: use `grid-cols-1` (colunas `minmax(0,1fr)`); quadros com rolagem horizontal levam
+  `relative` (para conteúdo posicionado não escapar); campos de formulário com `max-w-full`.

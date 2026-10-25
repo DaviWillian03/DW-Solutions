@@ -39,9 +39,9 @@ const TABS: { id: Tab; label: string; future?: string }[] = [
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[180px_1fr] gap-3 border-b border-border py-2.5 text-[14px] last:border-0">
+    <div className="grid grid-cols-1 gap-x-3 gap-y-0.5 border-b border-border py-2.5 text-[14px] last:border-0 sm:grid-cols-[180px_1fr]">
       <dt className="text-text-2">{label}</dt>
-      <dd className="font-semibold">{children}</dd>
+      <dd className="min-w-0 break-words font-semibold">{children}</dd>
     </div>
   );
 }
@@ -146,7 +146,7 @@ function Aparelho() {
               <Row label="Modo de gerenciamento">{MODE[d.managementMode]}</Row>
               <Row label="Cadastrado em">{dateTime(d.enrolledAt)}</Row>
               <Row label="Referência no provedor">
-                <code className="text-[12.5px]">{d.providerRef ?? '—'}</code>
+                <code className="break-all text-[12.5px]">{d.providerRef ?? '—'}</code>
               </Row>
             </dl>
           </Card>

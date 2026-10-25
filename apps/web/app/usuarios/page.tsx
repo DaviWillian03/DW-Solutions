@@ -65,9 +65,9 @@ function Usuarios() {
         subtitle="Pessoas que acessam o painel. Administradores usam verificação em duas etapas obrigatória."
       />
       {error && <Alert>{error}</Alert>}
-      <div className={`grid gap-6 ${admin ? 'lg:grid-cols-[2fr_1fr]' : ''}`}>
+      <div className={`grid grid-cols-1 gap-6 ${admin ? 'lg:grid-cols-[2fr_1fr]' : ''}`}>
         <Card i={1}>
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[620px] text-[13.5px]">
               <caption className="sr-only">Usuários</caption>
               <thead>

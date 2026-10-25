@@ -21,7 +21,7 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 - Aparelho Samsung/Motorola 12+ resetável existe, guardado (CP6-6).
 
 ## Próximo passo
-- ✅ CP6-9: revisão geral do MVP em andamento.
+- ✅ CP6-9: revisão geral do MVP concluída (TEST_REPORT). Próximo passo — ABERTO.
 
 ## Checkpoints futuros
 
