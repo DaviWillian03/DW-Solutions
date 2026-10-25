@@ -288,6 +288,11 @@ Pesquisa oficial: `docs/android/INTUNE.md`. Arquitetura: `docs/adr/0010-conector
 | I-8 | Bloquear redefinição de fábrica (em Samsung, impede o APAGAR remoto de terminar) | **não enviar** · só Motorola · enviar mesmo assim | **Não enviar no Intune**; a opção aparece como “não enviada no Intune” |
 | I-9 | Senha da tela no Intune (usa o app do Google por baixo; bloqueio automático não documentado) | **manter só monitorar** · exigir pelo Intune | **Mantém CP6-7**: nenhuma regra de senha vai ao Intune até prova em laboratório |
 
+**Fatia I2 (2026-10-25):** “Ativar/Desativar modo perdido” não são mais oferecidos (o pedido é recusado com
+explicação; o histórico continua). Entram **Localizar aparelho** (motivo + MFA, só totalmente gerenciado; a
+localização aparece só para quem pediu, lida na hora no provedor, nunca gravada) e **Tocar som** (sem motivo nem
+MFA, como bloquear). Na visão geral, o indicador “Em modo perdido” deu lugar a “Sem política”.
+
 **Consequências:** o conector nunca envia regras de senha, nem “apagar após N tentativas”, nem o bloqueio de
 redefinição; também recusa e denuncia políticas de conformidade do Intune com ação automática (`block`, `retire`,
 `wipe`, `remoteLock`). Nada é ligado sem licença confirmada, aplicativo no Entra criado pela TI e teste em

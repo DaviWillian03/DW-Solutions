@@ -9,7 +9,7 @@ export {
   type Transport,
   type HttpRequest,
 } from './client.js';
-export { toGraphAction, actionProgress, type DeviceActionResult } from './commands.js';
+export { toGraphAction, actionProgress, locateResult, type DeviceActionResult } from './commands.js';
 export {
   fromManagedDevice,
   INTUNE_COMPLIANCE_LABEL,

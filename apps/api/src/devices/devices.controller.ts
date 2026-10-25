@@ -15,7 +15,7 @@ const listQuery = z.object({
   android: z.coerce.number().int().min(10).max(20).optional(),
   holder: z.enum(['assigned', 'unassigned']).optional(),
   compliance: z.enum(['compliant', 'noncompliant', 'unknown', 'not_applicable']).optional(),
-  policy: z.string().uuid().optional(),
+  policy: z.union([z.string().uuid(), z.literal('none')]).optional(),
   sort: z.enum(['name', 'lastSeen']).default('name'),
   page: z.coerce.number().int().min(1).max(10_000).default(1),
   pageSize: z.coerce.number().int().min(5).max(100).default(25),

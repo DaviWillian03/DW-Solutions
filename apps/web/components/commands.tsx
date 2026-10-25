@@ -3,12 +3,13 @@
 import { COMMAND_LABEL, COMMAND_STATE_LABEL, type CommandState } from '@dw/contracts';
 import Link from 'next/link';
 import { type FormEvent, useId, useState } from 'react';
+import { useMe } from '@/components/app-shell';
 import { Dialog } from '@/components/dialog';
 import { Pill } from '@/components/status';
 import { Alert, Button } from '@/components/ui';
 import { api, ApiError } from '@/lib/api';
 import { dateTime, relative } from '@/lib/format';
-import type { CommandItem } from '@/lib/types';
+import type { CommandItem, CommandLocation } from '@/lib/types';
 
 export const INPUT =
   'max-w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-[14px] font-normal text-text focus:border-royal focus:outline-none';
@@ -86,6 +87,7 @@ export function CommandSteps({ cmd }: { cmd: CommandItem }) {
 
 function paramsText(cmd: CommandItem) {
   if (cmd.type === 'start_lost_mode') {
+    // Pedidos antigos, de antes da troca por Localizar + Tocar som (I-1).
     const p = cmd.params as { message?: string; phone?: string };
     return `Mensagem: “${p.message ?? ''}”${p.phone ? ` · contato ${p.phone}` : ''}`;
   }
@@ -125,6 +127,9 @@ export function CommandCard({
   }
 
   const extra = paramsText(cmd);
+  const me = useMe();
+  const showLocation =
+    cmd.type === 'locate_device' && cmd.state === 'applied_verified' && cmd.requestedBy === me.user.id;
   return (
     <li className="rounded-xl border border-border p-3.5" data-testid="command">
       <div className="flex flex-wrap items-center gap-2">
@@ -147,6 +152,7 @@ export function CommandCard({
         <CommandSteps cmd={cmd} />
       </div>
       {cmd.stateDetail && <p className="mt-2 text-[13px] text-text-2">{cmd.stateDetail}</p>}
+      {showLocation && <LocationReveal commandId={cmd.id} />}
       {canEdit && cmd.cancellable && (
         <div className="mt-2">
           <Button variant="ghost" className="!px-2 !py-1" onClick={() => setOpen(true)}>
@@ -197,6 +203,71 @@ export function MfaField({ name = 'mfaCode' }: { name?: string }) {
         className={`${INPUT} w-40 tracking-[0.3em]`}
       />
       <p className="text-[12px] text-muted">Por segurança, confirme de novo com o app autenticador.</p>
+    </div>
+  );
+}
+
+/**
+ * Mostra a localização só quando quem pediu clica — lida na hora no provedor, mantida apenas na memória da
+ * página e descartada ao ocultar (I-5).
+ */
+function LocationReveal({ commandId }: { commandId: string }) {
+  const [loc, setLoc] = useState<CommandLocation | null>(null);
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+
+  async function reveal() {
+    setBusy(true);
+    setError(undefined);
+    try {
+      setLoc(await api<CommandLocation>(`/commands/${commandId}/location`));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Não foi possível obter a localização.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!loc) {
+    return (
+      <div className="mt-2 flex flex-col gap-2">
+        <div>
+          <Button variant="secondary" onClick={reveal} disabled={busy}>
+            Ver localização
+          </Button>
+        </div>
+        {error && <Alert>{error}</Alert>}
+      </div>
+    );
+  }
+  const coords = `${loc.latitude.toFixed(5)}, ${loc.longitude.toFixed(5)}`;
+  return (
+    <div className="mt-2 rounded-xl bg-ice p-3 text-[13.5px] text-royal" data-testid="location">
+      <p className="font-bold">
+        {loc.source === 'simulator' ? 'Localização simulada' : 'Localização relatada pelo aparelho'}:{' '}
+        <span className="break-all">{coords}</span>
+      </p>
+      <p>
+        {loc.accuracyMeters != null ? `Precisão de cerca de ${loc.accuracyMeters} m · ` : ''}
+        relatada {dateTime(loc.observedAt)}
+        {loc.availableUntil ? ` · disponível no provedor até ${dateTime(loc.availableUntil)}` : ''}
+      </p>
+      <p className="mt-1 text-[12.5px] text-text-2">
+        Só você vê. O DW Solutions não guarda as coordenadas; a auditoria registra apenas que foram vistas.
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <a
+          className="font-bold text-royal underline"
+          href={`https://www.openstreetmap.org/?mlat=${loc.latitude}&mlon=${loc.longitude}#map=17/${loc.latitude}/${loc.longitude}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir no mapa (site OpenStreetMap)
+        </a>
+        <Button variant="ghost" className="!px-2 !py-1" onClick={() => setLoc(null)}>
+          Ocultar
+        </Button>
+      </div>
     </div>
   );
 }

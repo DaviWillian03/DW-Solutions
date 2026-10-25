@@ -97,6 +97,19 @@ export async function deliverCommands(tx: Tx, tenantId: string, deviceId: string
         await deviceEvent(tx, c, now, 'lost_mode_stopped', {});
         await ok('O aparelho relatou que saiu do modo perdido.');
         break;
+      case 'locate_device':
+        // Defesa em profundidade: a API já recusa dedicados (I-6).
+        if (d.managementMode === 'dedicated') {
+          await fail('Localizar está desligado para aparelhos dedicados (I-6).');
+          break;
+        }
+        await deviceEvent(tx, c, now, 'located', {});
+        await ok('O aparelho enviou a localização ao provedor (disponível por 24 h, só para quem pediu).');
+        break;
+      case 'play_lost_sound':
+        await deviceEvent(tx, c, now, 'lost_sound_played', {});
+        await ok('O aparelho tocou o som.');
+        break;
       case 'clear_app_data': {
         const apps = await installedApps(tx, d.policyId, d.appliedPolicyVersion);
         const wanted = (c.params.packageNames as string[] | undefined) ?? [];

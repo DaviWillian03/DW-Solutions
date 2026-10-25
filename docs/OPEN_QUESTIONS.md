@@ -27,7 +27,9 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 - Laboratório (CP6-6): aparelho Samsung/Motorola 12+ guardado; só depois de I-3 e I-4.
 
 ## Próximo passo
-- Fatia **I2**: Localizar + Tocar som no lugar do modo perdido (I-1, I-5), no simulador e na tela.
+- ✅ Fatia I2 (Localizar + Tocar som).
+- Fatia **I3**: sincronização com o Intune no worker (inventário, estado das ações, perfil por versão, grupos) e o
+  modo real na tela, tudo desligado e testado sem rede.
 
 ## Checkpoints futuros
 

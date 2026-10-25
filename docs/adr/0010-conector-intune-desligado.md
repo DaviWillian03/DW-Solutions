@@ -25,7 +25,7 @@ está em `docs/android/INTUNE.md`. Pontos que pesam:
 2. **Comandos:**
    - `lock` → `remoteLock`, `reboot` → `rebootNow`, `wipe` → `wipe` com `persistEsimDataPlan: true`;
    - `start/stop_lost_mode` e `clear_app_data` → `UnsupportedCapabilityError` (I-1);
-   - Localizar e Tocar som entram como comandos novos na fatia I2.
+   - `locate_device` → `locateDevice` (v1.0) e `play_lost_sound` → `playLostModeSound` (**só /beta**) — fatia I2.
 3. **Estado do comando:**
    - o `204` vira `provider_accepted`;
    - o `deviceActionResults` mais recente da mesma ação, iniciado depois do envio, define o resto: `done` → recebido
@@ -53,11 +53,17 @@ está em `docs/android/INTUNE.md`. Pontos que pesam:
 9. `IntuneProvider` implementa o contrato do simulador e fica **desligado** (`enabled: false`): recusa toda operação
    antes de qualquer acesso à rede. Não está ligado na API.
 
+10. **Localizar** (I-5, fatia I2): só admin, motivo + MFA de novo, nunca em aparelho dedicado (I-6). A localização
+    é lida **na hora** no provedor por `getLocateResult` (Intune: `deviceActionResults[].deviceLocation`, /beta),
+    só para quem pediu, com `Cache-Control: no-store`. O DW não grava coordenadas: nem no comando, nem nos eventos,
+    nem na auditoria, que registra só o fato de a localização ter sido vista. O provedor guarda por 24 h.
+
 ## Permissões mínimas do aplicativo no Entra (para o passo a passo da TI)
 | Para quê | Permissão (aplicativo) |
 |----------|------------------------|
 | Ler aparelhos | `DeviceManagementManagedDevices.Read.All` |
-| Bloquear, reiniciar, apagar, localizar | `DeviceManagementManagedDevices.PrivilegedOperations.All` |
+| Bloquear, reiniciar, apagar, tocar som | `DeviceManagementManagedDevices.PrivilegedOperations.All` |
+| Localizar (`locateDevice`) | `DeviceManagementManagedDevices.ReadWrite.All` |
 | Perfis de configuração, cadastro e atribuição de apps | `DeviceManagementConfiguration.ReadWrite.All`, `DeviceManagementApps.ReadWrite.All` |
 | Achar o aparelho no Entra e mexer nos membros dos 2 grupos | `Device.Read.All`, `GroupMember.ReadWrite.All` (**a confirmar**) |
 

@@ -85,6 +85,8 @@ mais frequência” e recomenda o v1.0 quando houver. Pontos principais:
   as notificações estiverem ligadas.
 - **Dedicado:** vem **ligado por padrão**. O Intune coleta a última posição **a cada 8 h** e a guarda por **7 dias**.
   **Decisão I-6:** desligado pelo perfil.
+- Ação: `POST .../locateDevice` (v1.0, permissão `DeviceManagementManagedDevices.ReadWrite.All`). O som é
+  `POST .../playLostModeSound` (**só /beta**, `durationInMinutes` opcional como texto).
 - Regras do DW (I-5):
   - só admin;
   - motivo escrito e MFA de novo;

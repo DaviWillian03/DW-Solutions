@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-25
 **Produto:** DW Solutions
-**Fase atual:** **Rota Intune** (B-4) — MVP completo no simulador; conector `@dw/intune` pronto e desligado (I1, ADR-0010). Próximo: I2 (Localizar + Tocar som). Aparelho real aguarda licença (I-3) e app no Entra (I-4)
+**Fase atual:** **Rota Intune** (B-4) — MVP completo no simulador; conector `@dw/intune` pronto e desligado (I1, ADR-0010); Localizar + Tocar som no lugar do modo perdido (I2). Próximo: I3 (sincronização). Aparelho real aguarda licença (I-3) e app no Entra (I-4)
 **Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
@@ -47,7 +47,7 @@
 | 13c | ✅ Estudo rota B | MDMs de terceiros comparados; empresa usa Microsoft 365 → Intune candidato | — |
 | 14 | ✅ Decisão B-4 | Provedor real = Microsoft Intune (uso interno); pesquisa `docs/android/INTUNE.md` | — |
 | 15 | ✅ Intune I1 | `@dw/intune` desligado: comandos, inventário, estado das ações, perfil com travas, cadastro, grupos (18 testes sem rede) | — |
-| 16 | Intune I2 | Localizar + Tocar som (só admin, motivo + MFA, coordenadas não guardadas); modo perdido/limpar dados indisponíveis no Intune | — |
+| 16 | ✅ Intune I2 | Localizar (só admin, motivo + MFA, só quem pediu vê, coordenadas não guardadas) + Tocar som; modo perdido não é mais oferecido; “Sem política” na visão geral | — |
 | 17 | Intune I3 | Sincronização com o Intune (worker) e modo real na tela | I2 |
 | 18 | Intune I4 | Laboratório no aparelho Samsung/Motorola | Licença (I-3) + app no Entra (I-4) |
 
@@ -58,6 +58,6 @@ Ver `docs/TEST_REPORT.md` (212 testes + 30 E2E passando).
 
 ## Como retomar
 1. Ler `docs/OPEN_QUESTIONS.md` (pendências da empresa) e `docs/android/` (CP6 e rota B).
-2. Rota decidida: **Intune** (ADR-0010). Seguir a fatia I2 e depois I3; o laboratório (I4) só com licença e app
+2. Rota decidida: **Intune** (ADR-0010). Seguir a fatia I3 (sincronização); o laboratório (I4) só com licença e app
    no Entra confirmados.
 3. Pendência com data: **2026-10-29** atualizar body-parser/multer e remover a exceção de auditoria.

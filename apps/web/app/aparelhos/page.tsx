@@ -157,6 +157,7 @@ function Aparelhos() {
             onChange={(e) => set('policy', e.target.value || null)}
           >
             <option value="">Todas as políticas</option>
+            <option value="none">Sem política</option>
             {policies.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

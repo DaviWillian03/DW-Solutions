@@ -72,7 +72,6 @@ export interface Summary {
     policyPending: number;
     commandsPending: number;
     approvalsPending: number;
-    lostMode: number;
   };
   noncompliant: DeviceItem[];
   byManufacturer: { key: string; n: number }[];
@@ -133,7 +132,9 @@ export const CAPABILITY_LABEL: Record<string, string> = {
   'policy.apply': 'Aplicar política',
   'command.lock': 'Bloquear tela',
   'command.reboot': 'Reiniciar',
-  'command.lost_mode': 'Modo perdido',
+  'command.lost_mode': 'Modo perdido (substituído por Localizar e Tocar som)',
+  'command.locate': 'Localizar aparelho (sob demanda)',
+  'command.play_sound': 'Tocar som',
   'command.clear_app_data': 'Limpar dados de app',
   'command.wipe': 'Apagar aparelho',
   'location.continuous': 'Localização contínua',
@@ -205,6 +206,7 @@ export interface CommandItem {
   reason: string | null;
   state: CommandState;
   stateDetail: string | null;
+  requestedBy: string;
   requestedByName: string;
   providerRef: string | null;
   sendAttempts: number;
@@ -239,4 +241,15 @@ export interface BatchItem {
   expiresAt: string | null;
   createdAt: string;
   canDecide: boolean;
+}
+
+/** Localização lida na hora no provedor (I-5): nunca guardada no DW Solutions. */
+export interface CommandLocation {
+  commandId: string;
+  latitude: number;
+  longitude: number;
+  accuracyMeters: number | null;
+  observedAt: string;
+  availableUntil: string | null;
+  source: string;
 }

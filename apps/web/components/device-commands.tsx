@@ -1,6 +1,15 @@
 'use client';
 
-import { COMMAND_LABEL, FINAL_STATES, type CommandType, type PolicySettings } from '@dw/contracts';
+import {
+  COMMAND_LABEL,
+  FINAL_STATES,
+  FULLY_MANAGED_ONLY,
+  REQUIRES_CONFIRM_NAME,
+  REQUIRES_REASON,
+  REQUIRES_STEP_UP,
+  type CommandType,
+  type PolicySettings,
+} from '@dw/contracts';
 import Link from 'next/link';
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, useMe } from '@/components/app-shell';
@@ -17,46 +26,46 @@ interface Action {
   real: string;
 }
 
+// Modo perdido saiu da lista: o Intune não tem no Android e foi trocado por Localizar + Tocar som (I-1).
 const ACTIONS: Action[] = [
   {
     type: 'lock',
     what: 'Bloqueia a tela agora.',
     impact: 'O responsável desbloqueia com a própria senha. Nada é apagado.',
-    real: 'comando de bloqueio da Android Management API',
+    real: 'só protege se o aparelho já tiver senha de tela — sem senha, a tela apenas apaga',
   },
   {
     type: 'reboot',
     what: 'Reinicia o aparelho.',
     impact: 'Apps abertos são fechados; o que não foi salvo pode se perder.',
-    real: 'reinício remoto, só em aparelhos totalmente gerenciados',
+    real: 'começa em até cerca de 5 minutos, quando o aparelho estiver conectado',
   },
   {
-    type: 'start_lost_mode',
-    what: 'Trava o aparelho mostrando uma mensagem e um telefone de contato.',
-    impact: 'O responsável não consegue usar o aparelho até o modo perdido ser desativado.',
-    real: 'modo perdido em aparelhos da empresa com Android recente; localização não é coletada nesta versão',
+    type: 'locate_device',
+    what: 'Mostra onde o aparelho está agora, uma única vez.',
+    impact:
+      'O responsável recebe um aviso no aparelho. Só você vê a localização, por até 24 h; o DW Solutions não guarda as coordenadas.',
+    real: 'desligado em aparelhos dedicados, para não coletar a localização deles',
   },
   {
-    type: 'stop_lost_mode',
-    what: 'Libera o aparelho do modo perdido.',
-    impact: 'O aparelho volta ao uso normal.',
-    real: 'desativação do modo perdido',
+    type: 'play_lost_sound',
+    what: 'Toca um som no aparelho para achá-lo por perto.',
+    impact: 'Nada muda nem é apagado no aparelho.',
+    real: 'disponível na versão de testes (/beta) da API da Microsoft',
   },
   {
     type: 'clear_app_data',
     what: 'Apaga os dados de um app (login, cache e rascunhos).',
     impact: 'Pedidos, fotos e rascunhos que ainda não foram sincronizados podem ser perdidos.',
-    real: 'limpeza de dados de app',
+    real: 'NÃO existe no Intune para Android — funciona só no simulador',
   },
   {
     type: 'wipe',
     what: 'Volta o aparelho às configurações de fábrica e remove do gerenciamento.',
     impact: 'IRREVERSÍVEL: tudo no aparelho é apagado, inclusive o que não foi sincronizado.',
-    real: 'remoção do aparelho com apagamento',
+    real: 'redefinição de fábrica (até 500 por dia na empresa); o plano do eSIM é mantido',
   },
 ];
-
-const NEEDS_NAME: CommandType[] = ['start_lost_mode', 'clear_app_data', 'wipe'];
 
 export function DeviceCommands({
   device,
@@ -96,9 +105,7 @@ export function DeviceCommands({
   }, [waiting, load]);
 
   const managed = device.enrollmentState === 'enrolled';
-  const actions = ACTIONS.filter((a) =>
-    device.lostModeSince ? a.type !== 'start_lost_mode' : a.type !== 'stop_lost_mode',
-  );
+  const actions = ACTIONS;
 
   async function simulateCheckIn() {
     await api(`/devices/${device.id}/simulate-check-in`, { method: 'POST' });
@@ -127,11 +134,13 @@ export function DeviceCommands({
                 >
                   <strong className={a.type === 'wipe' ? 'text-crit' : ''}>{COMMAND_LABEL[a.type]}</strong>
                   <span className="text-[13px] text-text-2">{a.what}</span>
-                  <span className="text-[12px] text-muted">
-                    No Android real: {a.real} (a confirmar no CHECKPOINT 6).
-                  </span>
+                  <span className="text-[12px] text-muted">No Microsoft Intune: {a.real}.</span>
                   <div className="mt-auto pt-1">
-                    {isAdmin ? (
+                    {FULLY_MANAGED_ONLY.includes(a.type) && device.managementMode !== 'fully_managed' ? (
+                      <span className="text-[12.5px] text-muted">
+                        Indisponível: aparelho dedicado (a localização deles não é coletada).
+                      </span>
+                    ) : isAdmin ? (
                       <Button
                         variant={a.type === 'wipe' ? 'secondary' : 'secondary'}
                         className={a.type === 'wipe' ? '!border-crit/50 !text-crit' : ''}
@@ -182,7 +191,6 @@ export function DeviceCommands({
           device={device}
           action={ACTIONS.find((a) => a.type === open)!}
           wipeEnabled={wipeEnabled ?? false}
-          tenantName={me.tenant.name}
           onClose={() => setOpen(null)}
           onSent={(msg) => {
             setOpen(null);
@@ -199,14 +207,12 @@ function CommandDialog({
   device,
   action,
   wipeEnabled,
-  tenantName,
   onClose,
   onSent,
 }: {
   device: DeviceDetail;
   action: Action;
   wipeEnabled: boolean;
-  tenantName: string;
   onClose: () => void;
   onSent: (message: string) => void;
 }) {
@@ -230,11 +236,7 @@ function CommandDialog({
     const f = new FormData(e.currentTarget);
     const get = (k: string) => (f.get(k) ? String(f.get(k)).trim() : undefined);
     const params =
-      t === 'start_lost_mode'
-        ? { message: get('message'), ...(get('phone') ? { phone: get('phone') } : {}) }
-        : t === 'clear_app_data'
-          ? { packageNames: [get('other') || get('app')].filter(Boolean) }
-          : {};
+      t === 'clear_app_data' ? { packageNames: [get('other') || get('app')].filter(Boolean) } : {};
     setBusy(true);
     setError(undefined);
     try {
@@ -257,7 +259,9 @@ function CommandDialog({
     }
   }
 
-  const danger = t === 'wipe' || t === 'clear_app_data' || t === 'start_lost_mode';
+  const danger = t === 'wipe' || t === 'clear_app_data';
+  const needsName = REQUIRES_CONFIRM_NAME.includes(t);
+  const needsReason = REQUIRES_REASON.includes(t);
   return (
     <Dialog open onClose={onClose} title={`${COMMAND_LABEL[t]}: ${device.displayName}`} danger={t === 'wipe'}>
       {t === 'wipe' && !wipeEnabled ? (
@@ -287,26 +291,6 @@ function CommandDialog({
               Aparelho: {device.displayName} · responsável: {device.holder?.name ?? 'nenhum'}
             </p>
           </div>
-          {t === 'start_lost_mode' && (
-            <>
-              <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
-                Mensagem na tela do aparelho
-                <textarea
-                  name="message"
-                  required
-                  minLength={3}
-                  maxLength={200}
-                  rows={2}
-                  defaultValue={`Este aparelho pertence à ${tenantName}. Se encontrou, por favor ligue para o número abaixo.`}
-                  className={INPUT}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
-                Telefone de contato (opcional)
-                <input name="phone" maxLength={20} placeholder="(11) 4000-0000" className={INPUT} />
-              </label>
-            </>
-          )}
           {t === 'clear_app_data' && (
             <>
               <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
@@ -327,27 +311,30 @@ function CommandDialog({
             </>
           )}
           <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
-            Motivo{' '}
-            {NEEDS_NAME.includes(t) ? '(obrigatório, fica na auditoria)' : '(opcional, fica na auditoria)'}
+            Motivo {needsReason ? '(obrigatório, fica na auditoria)' : '(opcional, fica na auditoria)'}
             <input
               name="reason"
-              required={NEEDS_NAME.includes(t)}
+              required={needsReason}
               minLength={3}
               maxLength={300}
               placeholder={
-                t === 'wipe' ? 'Ex.: aparelho roubado, boletim 1234' : 'Ex.: pedido do responsável'
+                t === 'wipe'
+                  ? 'Ex.: aparelho roubado, boletim 1234'
+                  : t === 'locate_device'
+                    ? 'Ex.: vendedor não encontra o aparelho desde a visita de ontem'
+                    : 'Ex.: pedido do responsável'
               }
               className={INPUT}
             />
           </label>
-          {NEEDS_NAME.includes(t) && (
+          {needsName && (
             <label className="flex flex-col gap-1.5 text-[13.5px] font-semibold">
               Para confirmar, digite o nome do aparelho:{' '}
               <strong className="text-royal">{device.displayName}</strong>
               <input name="confirmName" required autoComplete="off" className={INPUT} />
             </label>
           )}
-          {t === 'wipe' && <MfaField />}
+          {REQUIRES_STEP_UP.includes(t) && <MfaField />}
           {error && <Alert>{error}</Alert>}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={onClose}>

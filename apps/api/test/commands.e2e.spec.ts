@@ -110,11 +110,23 @@ describe('comandos simples', () => {
     expect((await A.c.post(`/api/devices/${ids[3]}/commands`, body)).status).toBe(409);
   });
 
-  it('modo perdido exige mensagem, motivo e o nome do aparelho', async () => {
-    const base = {
+  it('modo perdido foi substituído por Localizar e Tocar som (I-1): pedido é recusado com explicação', async () => {
+    const r = await A.c.post(`/api/devices/${ids[4]}/commands`, {
       type: 'start_lost_mode',
       params: { message: 'Devolva na loja Centro' },
       reason: 'perdido na rota',
+      confirmName: name[ids[4]!],
+    });
+    expect(r.status).toBe(422);
+    expect(r.body.code).toBe('UNSUPPORTED');
+    expect(r.body.message).toContain('Localizar aparelho');
+  });
+
+  it('limpar dados de app exige pacote, motivo e o nome do aparelho', async () => {
+    const base = {
+      type: 'clear_app_data',
+      params: { packageNames: ['exemplo.vendas.pedidos'] },
+      reason: 'app travado na rota',
     };
     expect((await A.c.post(`/api/devices/${ids[4]}/commands`, { ...base, params: {} })).status).toBe(400);
     const wrong = await A.c.post(`/api/devices/${ids[4]}/commands`, { ...base, confirmName: 'outro' });
@@ -262,6 +274,102 @@ describe('apagar aparelho (wipe)', () => {
     const c = (await A.c.get(`/api/commands?deviceId=${ids[11]}`)).body.items[0];
     expect(c.state).toBe('cancelled');
     expect(c.stateDetail).toContain('aparelhos foram achados');
+  });
+});
+
+describe('localizar aparelho e tocar som (I-1, I-5, I-6)', () => {
+  let C: Awaited<ReturnType<typeof secondAdminOf>>;
+  let managed: string;
+  let dedicated: string;
+  beforeAll(async () => {
+    // Admin próprio: os códigos do app autenticador dele não se misturam com os dos testes de apagar.
+    C = await secondAdminOf(server, A.c, 'carla.localizar@exemplo.test');
+    const rows = await withTenant(appDb.db, A.tenantId, (tx) =>
+      tx
+        .select({ id: devices.id, mode: devices.managementMode, state: devices.enrollmentState })
+        .from(devices),
+    );
+    const usable = rows.filter((d) => d.state === 'enrolled' && ids.slice(19).includes(d.id));
+    managed = usable.find((d) => d.mode === 'fully_managed')!.id;
+    dedicated = rows.find((d) => d.state === 'enrolled' && d.mode === 'dedicated')!.id;
+  });
+
+  it('só admin, com motivo e MFA de novo; aparelho dedicado é recusado antes do MFA', async () => {
+    expect(
+      (await viewer.post(`/api/devices/${managed}/commands`, { type: 'locate_device', reason: 'sumiu' }))
+        .status,
+    ).toBe(403);
+    const noReason = await C.c.post(`/api/devices/${managed}/commands`, { type: 'locate_device' });
+    expect(noReason.body.code).toBe('REASON_REQUIRED');
+    const ded = await C.c.post(`/api/devices/${dedicated}/commands`, {
+      type: 'locate_device',
+      reason: 'sumiu do estoque',
+    });
+    expect(ded.status).toBe(422);
+    expect(ded.body.code).toBe('LOCATE_DEDICATED');
+    const noCode = await C.c.post(`/api/devices/${managed}/commands`, {
+      type: 'locate_device',
+      reason: 'vendedor não acha o aparelho',
+    });
+    expect(noCode.body.code).toBe('STEP_UP_REQUIRED');
+  });
+
+  it('localização só depois de o aparelho relatar, só para quem pediu, sem guardar coordenadas', async () => {
+    const r = await C.c.post(`/api/devices/${managed}/commands`, {
+      type: 'locate_device',
+      reason: 'vendedor não acha o aparelho',
+      mfaCode: code(C.secret, 0),
+    });
+    expect(r.status).toBe(202);
+    expect((await C.c.get(`/api/commands/${r.body.id}/location`)).body.code).toBe('LOCATION_NOT_READY');
+
+    const c = await getCmd(r.body.id);
+    await withTenant(appDb.db, A.tenantId, async (tx) => {
+      await transitionCommand(tx, c, 'sent_to_provider', 'system');
+      await transitionCommand(tx, c, 'provider_accepted', 'provider', {
+        providerRef: 'simulador/operacoes/l',
+      });
+      await deliverCommands(tx, A.tenantId, managed, new Date());
+    });
+    expect((await getCmd(r.body.id)).state).toBe('applied_verified');
+
+    const loc = await C.c.get(`/api/commands/${r.body.id}/location`);
+    expect(loc.status).toBe(200);
+    expect(loc.headers['cache-control']).toBe('no-store');
+    expect(loc.body.source).toBe('simulator');
+    expect(Math.abs(loc.body.latitude + 23.55)).toBeLessThan(0.2);
+    expect(Math.abs(loc.body.longitude + 46.63)).toBeLessThan(0.25);
+    expect(loc.body.availableUntil).toBeTruthy();
+
+    const other = await A.c.get(`/api/commands/${r.body.id}/location`);
+    expect(other.status).toBe(403);
+    expect(other.body.code).toBe('NOT_REQUESTER');
+    expect((await viewer.get(`/api/commands/${r.body.id}/location`)).status).toBe(403);
+
+    // Nada de coordenadas no banco: nem no comando, nem nos eventos, nem na auditoria.
+    const audit = await withTenant(appDb.db, A.tenantId, (tx) =>
+      tx.select().from(auditEvents).where(eq(auditEvents.action, 'command.location_view')),
+    );
+    expect(audit.map((e) => e.outcome).sort()).toEqual(['denied', 'success']);
+    const stored = JSON.stringify({ cmd: await getCmd(r.body.id), audit });
+    expect(stored).not.toContain(String(loc.body.latitude));
+    expect(stored).not.toContain(String(loc.body.longitude));
+  });
+
+  it('tocar som não exige motivo nem MFA e é verificado pelo aparelho', async () => {
+    const r = await C.c.post(`/api/devices/${managed}/commands`, { type: 'play_lost_sound' });
+    expect(r.status).toBe(202);
+    const c = await getCmd(r.body.id);
+    await withTenant(appDb.db, A.tenantId, async (tx) => {
+      await transitionCommand(tx, c, 'sent_to_provider', 'system');
+      await transitionCommand(tx, c, 'provider_accepted', 'provider', {
+        providerRef: 'simulador/operacoes/s',
+      });
+      await deliverCommands(tx, A.tenantId, managed, new Date());
+    });
+    const done = await getCmd(r.body.id);
+    expect(done.state).toBe('applied_verified');
+    expect(done.stateDetail).toContain('tocou o som');
   });
 });
 

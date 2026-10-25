@@ -324,3 +324,27 @@ https://github.com/DaviWillian03/DW-Solutions/actions/runs/40180518160
 
 **NÃO EXECUTADO:** nenhuma chamada real ao Microsoft Graph/Intune (sem licença confirmada nem aplicativo no Entra);
 `pnpm e2e` não foi refeito porque nenhuma tela mudou.
+
+## 2026-10-25 · Intune I2 (Localizar + Tocar som) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm test` · lint · typecheck · format:check | ✅ **219 testes**: contratos 10 · amapi 13 · banco 51 · intune 20 · simulador 18 · API 92 · worker 15 |
+| `CAPTURAS=1 pnpm e2e` | ✅ **31 testes de navegador** (2ª execução; a 1ª falhou em 1 teste que esperava só uma capacidade “Não suportada” — agora são 2: localização contínua e modo perdido) |
+
+**Coberto:**
+- Modo perdido recusado com explicação (422).
+- Localizar:
+  - pede motivo e MFA de novo;
+  - o perfil Leitura não pode pedir;
+  - aparelho dedicado é recusado antes do MFA;
+  - a localização só aparece depois do relato do aparelho, só para quem pediu (outro admin recebe 403, auditado), com `Cache-Control: no-store`;
+  - nenhuma coordenada no comando, nos eventos ou na auditoria;
+  - o provedor simulado apaga a localização depois de 24 h.
+- Tocar som verificado pelo aparelho.
+- Mapeamento para o Intune: `locateDevice` em v1.0 e `playLostModeSound` em /beta.
+
+**Capturas:** `docs/design/telas-d/08-dialogo-localizar.png`, `09-localizacao.png`, `02-aparelho-comandos.png`.
+
+**NÃO EXECUTADO:** Localizar e Tocar som em aparelho real ou no Intune real (conector desligado; sem licença nem app
+no Entra).

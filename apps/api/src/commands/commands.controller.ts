@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, Param, Post, Put, Query, Req } from '@nestjs/common';
 import { BATCH_TYPES, COMMAND_STATES, COMMAND_TYPES, commandParamsSchema, MAX_BATCH } from '@dw/contracts';
 import { z } from 'zod';
 import { CurrentAuth, Roles, type AuthContext, type AuthedRequest } from '../auth/decorators.js';
@@ -25,6 +25,8 @@ const commandBody = z.discriminatedUnion('type', [
   z.object({ type: z.literal('stop_lost_mode'), params: P.stop_lost_mode.default({}), ...common }),
   z.object({ type: z.literal('clear_app_data'), params: P.clear_app_data, ...common }),
   z.object({ type: z.literal('wipe'), params: P.wipe.default({}), ...common }),
+  z.object({ type: z.literal('locate_device'), params: P.locate_device.default({}), ...common }),
+  z.object({ type: z.literal('play_lost_sound'), params: P.play_lost_sound.default({}), ...common }),
 ]);
 type CommandBody = z.infer<typeof commandBody>;
 
@@ -115,6 +117,14 @@ export class CommandsController {
     @Body(new ZodPipe(rejectBody)) body: z.infer<typeof rejectBody>,
   ) {
     return this.commands.reject(a, batchId, body.note);
+  }
+
+  /** Localização (I-5): só quem pediu, lida na hora no provedor, nunca guardada nem em cache. */
+  @Roles('admin')
+  @Header('Cache-Control', 'no-store')
+  @Get('commands/:id/location')
+  location(@CurrentAuth() a: AuthContext, @Param('id', new ZodPipe(id)) commandId: string) {
+    return this.commands.location(a, commandId);
   }
 
   @Roles('admin')

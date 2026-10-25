@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import {
   actionProgress,
   assertSafeConfiguration,
+  locateResult,
   findAutomaticActions,
   fromManagedDevice,
   GraphClient,
@@ -133,6 +134,44 @@ describe('comandos → ações do Intune', () => {
       action: 'wipe',
       body: { keepEnrollmentData: false, keepUserData: false, persistEsimDataPlan: true },
     });
+  });
+
+  it('localizar (v1.0) e tocar som (/beta) usam as ações oficiais', async () => {
+    expect(toGraphAction('locate_device')).toEqual({ action: 'locateDevice' });
+    expect(toGraphAction('play_lost_sound')).toEqual({ action: 'playLostModeSound' });
+    const t = fakeTransport([]);
+    await client(t).deviceAction(DEV, 'locateDevice');
+    await client(t).deviceAction(DEV, 'playLostModeSound');
+    expect(t.sent.map((r) => r.url)).toEqual([
+      `https://graph.microsoft.com/v1.0/deviceManagement/managedDevices/${DEV}/locateDevice`,
+      `https://graph.microsoft.com/beta/deviceManagement/managedDevices/${DEV}/playLostModeSound`,
+    ]);
+  });
+
+  it('localização: só a de um “localizar” concluído depois do envio, com coordenadas válidas', () => {
+    const sentAt = new Date('2026-10-25T12:00:00Z');
+    const done = {
+      actionName: 'locateDevice',
+      actionState: 'done',
+      startDateTime: '2026-10-25T12:00:02Z',
+      deviceLocation: {
+        latitude: '-23.5613',
+        longitude: '-46.6565',
+        horizontalAccuracy: '24.6',
+        lastCollectedDateTime: '2026-10-25T12:01:00Z',
+      },
+    };
+    expect(locateResult(sentAt, [done])).toEqual({
+      latitude: -23.5613,
+      longitude: -46.6565,
+      accuracyMeters: 25,
+      observedAt: new Date('2026-10-25T12:01:00Z'),
+    });
+    expect(locateResult(sentAt, [{ ...done, startDateTime: '2026-10-24T09:00:00Z' }])).toBeNull();
+    expect(locateResult(sentAt, [{ ...done, actionState: 'pending' }])).toBeNull();
+    expect(
+      locateResult(sentAt, [{ ...done, deviceLocation: { latitude: '999', longitude: '0' } }]),
+    ).toBeNull();
   });
 
   it('modo perdido e limpar dados de app não existem no Intune para Android (I-1)', () => {
@@ -326,6 +365,17 @@ describe('provedor real', () => {
     expect(caps['command.clear_app_data'].status).toBe('unsupported');
     expect(caps['telemetry.battery'].status).toBe('unsupported');
     expect(caps['location.continuous'].status).toBe('unsupported');
+    await expect(
+      p.getLocateResult({
+        tenantId: 't',
+        commandId: 'c',
+        deviceId: 'd',
+        deviceProviderRef: DEV,
+        sentAt: new Date(),
+        appliedAt: new Date(),
+      }),
+    ).rejects.toBeInstanceOf(IntuneDisabledError);
+    expect(t.sent).toHaveLength(0);
   });
 
   it('ligado (só em teste): cadastro pelo perfil do modo e comando aceito ≠ aplicado', async () => {

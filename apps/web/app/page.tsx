@@ -153,10 +153,10 @@ function Overview() {
         />
         <Kpi
           i={6}
-          label="Em modo perdido"
-          value={c.lostMode}
-          hint="relatado pelo aparelho"
-          href="/aparelhos"
+          label="Sem política"
+          value={c.noPolicy}
+          hint="sem regras de Vendas ou Merchandising"
+          href="/aparelhos?policy=none"
           tone="text-warn"
         />
         <Kpi

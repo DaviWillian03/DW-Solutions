@@ -208,7 +208,9 @@ test('página do aparelho: resumo, capacidades honestas e troca de responsável 
 
   await page.getByRole('tab', { name: 'Capacidades' }).click();
   await expect(page.getByText('Localização contínua')).toBeVisible();
-  await expect(page.getByText('Não suportada')).toBeVisible();
+  // Rastreamento contínuo e o modo perdido (trocado por Localizar + Tocar som) não são suportados.
+  await expect(page.getByText('Não suportada')).toHaveCount(2);
+  await expect(page.getByText('Localizar aparelho (sob demanda)')).toBeVisible();
 
   await page.getByRole('tab', { name: 'Responsável' }).click();
   await page.getByLabel('Novo responsável').selectOption({ index: 1 });
@@ -456,25 +458,22 @@ const onlineDevice = async (index: number) => {
   return name;
 };
 
-test('modo perdido: do pedido até a aplicação verificada pelo aparelho', async () => {
-  const name = await onlineDevice(0);
+test('tocar som: do pedido até a aplicação verificada pelo aparelho', async () => {
+  await onlineDevice(0);
   await page.getByRole('tab', { name: 'Comandos' }).click();
-  await page.getByRole('button', { name: 'Ativar modo perdido…' }).click();
+  // Modo perdido saiu: o Intune não tem no Android (I-1).
+  await expect(page.getByRole('button', { name: 'Ativar modo perdido…' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Tocar som…' }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Telefone de contato (opcional)').fill('(11) 4000-0000');
-  await dialog.getByLabel(/Motivo/).fill('perdido na rota Norte');
-  await dialog.getByLabel(/Para confirmar, digite o nome do aparelho/).fill(name);
-  await shotD(page, '01-dialogo-modo-perdido', false);
-  await dialog.getByRole('button', { name: 'Ativar modo perdido', exact: true }).click();
-  await expect(page.getByText('“Ativar modo perdido” enviado.')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Tocar som', exact: true }).click();
+  await expect(page.getByText('“Tocar som” enviado.')).toBeVisible();
   // Aparelho intermitente pode não ser “acordado” pelo provedor: força a comunicação (simulador).
   await page.getByRole('button', { name: 'Simular comunicação do aparelho agora' }).click();
   const cmd = page.getByTestId('command').first();
   await expect(cmd.getByText('✓ Aplicação verificada')).toBeVisible({ timeout: 20_000 });
   await expect(cmd.getByText('✓ Confirmado pelo provedor')).toBeVisible();
   await expect(cmd.getByText('✓ Recebido pelo aparelho')).toBeVisible();
-  await expect(page.locator('main').getByText('Em modo perdido').first()).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByRole('button', { name: 'Desativar modo perdido…' })).toBeVisible();
+  await expect(cmd.getByText('O aparelho tocou o som.')).toBeVisible();
   await shotD(page, '02-aparelho-comandos');
 });
 
@@ -553,11 +552,45 @@ test('lote: bloquear vários; apagar vários só com aprovação de OUTRO admini
   await expect(page.getByText('Nenhum pedido aguardando aprovação.')).toBeVisible();
 });
 
-test('visão geral mostra comandos em andamento e modo perdido', async () => {
+test('visão geral mostra comandos em andamento e aparelhos sem política', async () => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: /Comandos em andamento/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: /Em modo perdido/ })).toContainText('1');
+  await expect(page.getByRole('link', { name: /Em modo perdido/ })).toHaveCount(0);
+  await page.getByRole('link', { name: /Sem política/ }).click();
+  await expect(page).toHaveURL(/policy=none/);
   await shotD(page, '06-visao-geral');
+});
+
+test('localizar: motivo + código do app; só quem pediu vê, na hora; dedicado indisponível', async () => {
+  test.setTimeout(120_000);
+  // Os testes anteriores usaram até a janela seguinte do app: espera a virada para um código novo.
+  await page.waitForTimeout(30_000 - (Date.now() % 30_000) + 500);
+  let name = '';
+  for (let i = 0; i < 8; i++) {
+    name = await onlineDevice(i);
+    await page.getByRole('tab', { name: 'Comandos' }).click();
+    if (await page.getByRole('button', { name: 'Localizar aparelho…' }).count()) break;
+  }
+  await page.getByRole('button', { name: 'Localizar aparelho…' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText(/Só você vê a localização, por até 24 h/)).toBeVisible();
+  await expect(dialog.getByLabel(/Para confirmar, digite o nome/)).toHaveCount(0);
+  await dialog.getByLabel(/Motivo/).fill('vendedor não encontra o aparelho desde ontem');
+  await dialog.getByLabel('Código do app autenticador').fill(totp(secret, Date.now() + 30_000));
+  await shotD(page, '08-dialogo-localizar', false);
+  await dialog.getByRole('button', { name: 'Localizar aparelho', exact: true }).click();
+  await expect(page.getByText('“Localizar aparelho” enviado.')).toBeVisible();
+  await page.getByRole('button', { name: 'Simular comunicação do aparelho agora' }).click();
+  const cmd = page.getByTestId('command').first();
+  await expect(cmd.getByText('✓ Aplicação verificada')).toBeVisible({ timeout: 20_000 });
+  await cmd.getByRole('button', { name: 'Ver localização' }).click();
+  const loc = cmd.getByTestId('location');
+  await expect(loc.getByText(/Localização simulada: -23\.\d+, -46\.\d+/)).toBeVisible();
+  await expect(loc.getByText(/não guarda as coordenadas/)).toBeVisible();
+  await shotD(page, '09-localizacao', false);
+  await loc.getByRole('button', { name: 'Ocultar' }).click();
+  await expect(cmd.getByTestId('location')).toHaveCount(0);
+  expect(name).not.toBe('');
 });
 
 // ---------------------------------------------------------------------------

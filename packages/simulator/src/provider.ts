@@ -1,11 +1,14 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import {
+  LOCATION_PROVIDER_RETENTION_HOURS,
   TransientProviderError,
   type CapabilityMatrix,
+  type DeviceLocation,
   type DeviceManagementProvider,
   type EnrollmentRequest,
   type EnrollmentToken,
   type IssueCommandRequest,
+  type LocateResultRequest,
 } from '@dw/contracts';
 
 export const DEMO_WARNING = 'DEMONSTRAÇÃO — NÃO PROVISIONA DISPOSITIVO';
@@ -20,7 +23,9 @@ export class SimulatorProvider implements DeviceManagementProvider {
   readonly kind = 'simulator' as const;
 
   /** `failureRate`: chance de erro temporário ao enviar comando (testa retentativas). */
-  constructor(private readonly opts: { failureRate?: number; random?: () => number } = {}) {}
+  constructor(
+    private readonly opts: { failureRate?: number; random?: () => number; now?: () => Date } = {},
+  ) {}
 
   getCapabilities(): CapabilityMatrix {
     return {
@@ -45,13 +50,21 @@ export class SimulatorProvider implements DeviceManagementProvider {
         note: `Aparelhos totalmente gerenciados. ${CHECK}`,
       },
       'command.lost_mode': {
-        status: 'oem_dependent',
-        note: `Aparelhos da empresa em versões recentes do Android. ${CHECK}`,
+        status: 'unsupported',
+        note: 'Substituído por “Localizar aparelho” e “Tocar som”: o Intune não tem modo perdido no Android (I-1).',
       },
       'command.clear_app_data': { status: 'requires_eligibility', note: CHECK },
       'command.wipe': {
         status: 'requires_eligibility',
         note: `Irreversível; desligado por padrão. ${CHECK}`,
+      },
+      'command.locate': {
+        status: 'requires_eligibility',
+        note: 'Sob demanda, só aparelhos totalmente gerenciados; o responsável é avisado no aparelho (Intune).',
+      },
+      'command.play_sound': {
+        status: 'requires_eligibility',
+        note: 'Toca um som no aparelho para achá-lo por perto (Intune, Graph /beta).',
       },
       'location.continuous': {
         status: 'unsupported',
@@ -80,5 +93,23 @@ export class SimulatorProvider implements DeviceManagementProvider {
     }
     // Aceite do PROVEDOR (simulado). A aplicação no aparelho só é confirmada pelo relatório dele.
     return { providerRef: `simulador/operacoes/${req.commandId.slice(0, 8)}` };
+  }
+
+  /**
+   * Localização SINTÉTICA (região de São Paulo), estável por aparelho. Como o Intune, o “provedor” só a
+   * entrega por 24 h depois que o aparelho relatou.
+   */
+  async getLocateResult(req: LocateResultRequest): Promise<DeviceLocation | null> {
+    if (!req.appliedAt) return null;
+    const age = (this.opts.now ?? (() => new Date()))().getTime() - req.appliedAt.getTime();
+    if (age > LOCATION_PROVIDER_RETENTION_HOURS * 3_600_000) return null;
+    const h = createHash('sha256').update(req.deviceId).digest();
+    const unit = (i: number) => h.readUInt16BE(i) / 0xffff;
+    return {
+      latitude: Number((-23.55 + (unit(0) - 0.5) * 0.3).toFixed(5)),
+      longitude: Number((-46.63 + (unit(2) - 0.5) * 0.4).toFixed(5)),
+      accuracyMeters: 15 + Math.round(unit(4) * 45),
+      observedAt: req.appliedAt,
+    };
   }
 }

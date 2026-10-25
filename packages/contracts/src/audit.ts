@@ -24,6 +24,7 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   'command.batch_approve': 'Lote aprovado',
   'command.batch_reject': 'Lote recusado',
   'command.cancel': 'Comando cancelado',
+  'command.location_view': 'Localização vista',
   'settings.update': 'Configuração alterada',
   'security.step_up': 'Verificação em duas etapas refeita',
   'simulator.seed': 'Dados de demonstração criados',

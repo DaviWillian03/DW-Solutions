@@ -4,6 +4,7 @@ import {
   COMMAND_CAPABILITY,
   type CommandState,
   type CommandType,
+  type DeviceLocation,
 } from '@dw/contracts';
 import type { DeviceAction } from './client.js';
 
@@ -23,6 +24,11 @@ export function toGraphAction(type: CommandType): { action: DeviceAction; body?:
       return { action: 'remoteLock' };
     case 'reboot':
       return { action: 'rebootNow' };
+    case 'locate_device':
+      return { action: 'locateDevice' };
+    case 'play_lost_sound':
+      // `durationInMinutes` (texto) é opcional na referência; sem ele vale o padrão do Intune — conferir no laboratório.
+      return { action: 'playLostModeSound' };
     case 'wipe':
       // Redefinição de fábrica completa; o plano de dados do eSIM é preservado (padrão do portal do Intune).
       return {
@@ -78,4 +84,39 @@ export function actionProgress(
       // pending/active/none: continua aguardando.
       return null;
   }
+}
+
+interface LocateActionResult extends DeviceActionResult {
+  deviceLocation?: {
+    latitude?: number | string;
+    longitude?: number | string;
+    horizontalAccuracy?: number | string;
+    lastCollectedDateTime?: string;
+  };
+}
+
+/** Localização do “Localizar aparelho” enviado em `sentAt` (só a mesma ação, concluída depois do envio). */
+export function locateResult(sentAt: Date, results: LocateActionResult[] | undefined): DeviceLocation | null {
+  const r = (results ?? [])
+    .filter(
+      (x) =>
+        x.actionName?.toLowerCase() === 'locatedevice' &&
+        x.actionState === 'done' &&
+        x.startDateTime != null &&
+        new Date(x.startDateTime).getTime() >= sentAt.getTime() - 60_000,
+    )
+    .sort((a, b) => b.startDateTime!.localeCompare(a.startDateTime!))[0];
+  const loc = r?.deviceLocation;
+  const lat = Number(loc?.latitude);
+  const lng = Number(loc?.longitude);
+  if (!loc || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    return null;
+  }
+  const acc = Number(loc.horizontalAccuracy);
+  return {
+    latitude: lat,
+    longitude: lng,
+    accuracyMeters: Number.isFinite(acc) && acc >= 0 ? Math.round(acc) : null,
+    observedAt: new Date(loc.lastCollectedDateTime ?? r!.lastUpdatedDateTime ?? r!.startDateTime!),
+  };
 }

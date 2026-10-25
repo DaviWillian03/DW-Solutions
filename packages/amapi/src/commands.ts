@@ -4,7 +4,8 @@ import { COMMAND_TTL_HOURS, type CommandType } from '@dw/contracts';
 export type AmapiCommandType =
   'LOCK' | 'REBOOT' | 'START_LOST_MODE' | 'STOP_LOST_MODE' | 'CLEAR_APP_DATA' | 'WIPE';
 
-export const AMAPI_COMMAND: Record<CommandType, AmapiCommandType> = {
+/** `locate_device` e `play_lost_sound` não existem na AMAPI (capacidade “não suportada”). */
+export const AMAPI_COMMAND: Partial<Record<CommandType, AmapiCommandType>> = {
   lock: 'LOCK',
   reboot: 'REBOOT',
   start_lost_mode: 'START_LOST_MODE',
@@ -20,7 +21,9 @@ const msg = (text: string) => ({ defaultMessage: text, localizedMessages: { 'pt-
  * 10 minutos — curto demais para aparelho de vendedor que passa horas sem sinal).
  */
 export function toAmapiCommand(type: CommandType, params: Record<string, unknown>) {
-  const base = { type: AMAPI_COMMAND[type], duration: `${COMMAND_TTL_HOURS[type] * 3600}s` };
+  const amapiType = AMAPI_COMMAND[type];
+  if (!amapiType) throw new Error(`Comando sem equivalente na Android Management API: ${type}`);
+  const base = { type: amapiType, duration: `${COMMAND_TTL_HOURS[type] * 3600}s` };
   switch (type) {
     case 'clear_app_data':
       return { ...base, clearAppsDataParams: { packageNames: params.packageNames as string[] } };

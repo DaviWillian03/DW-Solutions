@@ -40,6 +40,15 @@ export const DEVICE_ACTIONS = [
   'syncDevice',
 ] as const;
 export type DeviceAction = (typeof DEVICE_ACTIONS)[number];
+/** `playLostModeSound` só existe no /beta (conferido em 2026-10-25); as demais estão no v1.0. */
+const ACTION_VERSION: Record<DeviceAction, GraphVersion> = {
+  remoteLock: 'v1.0',
+  rebootNow: 'v1.0',
+  wipe: 'v1.0',
+  locateDevice: 'v1.0',
+  playLostModeSound: 'beta',
+  syncDevice: 'v1.0',
+};
 
 export interface ManagedDevicePage {
   value: Record<string, unknown>[];
@@ -104,7 +113,22 @@ export class GraphClient {
   /** Sucesso = 204: o Intune ACEITOU. O resultado aparece depois em `deviceActionResults`. */
   async deviceAction(deviceId: string, action: DeviceAction, body?: Record<string, unknown>) {
     if (!DEVICE_ACTIONS.includes(action)) throw new GraphError(400, `Ação não permitida: ${action}`);
-    await this.call('POST', 'v1.0', `deviceManagement/managedDevices/${id(deviceId)}/${action}`, body);
+    await this.call(
+      'POST',
+      ACTION_VERSION[action],
+      `deviceManagement/managedDevices/${id(deviceId)}/${action}`,
+      body,
+    );
+  }
+
+  /** Resultados das ações com a localização (`deviceLocation` só aparece no /beta). */
+  async getActionResults(deviceId: string) {
+    const r = await this.call<{ deviceActionResults?: Record<string, unknown>[] }>(
+      'GET',
+      'beta',
+      `deviceManagement/managedDevices/${id(deviceId)}?$select=id,deviceActionResults`,
+    );
+    return r.deviceActionResults ?? [];
   }
 
   /** Cadastro por QR (/beta). `createToken` responde 204; o QR vem na leitura do perfil. */

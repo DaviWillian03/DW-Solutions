@@ -5,6 +5,7 @@ import {
   type CapabilityMatrix,
   type DeviceManagementProvider,
   type EnrollmentRequest,
+  type DeviceLocation,
   type EnrollmentToken,
   type IssueCommandRequest,
 } from '@dw/contracts';
@@ -74,6 +75,14 @@ export class AndroidManagementProvider implements DeviceManagementProvider {
         status: 'requires_eligibility',
         note: `Comando WIPE (redefinição de fábrica). ${REAL}`,
       },
+      'command.locate': {
+        status: 'unsupported',
+        note: 'A Android Management API não tem “localizar aparelho”.',
+      },
+      'command.play_sound': {
+        status: 'unsupported',
+        note: 'A Android Management API não tem “tocar som”.',
+      },
       'location.continuous': {
         status: 'unsupported',
         note: 'Rastreamento contínuo de funcionários não é oferecido.',
@@ -112,5 +121,9 @@ export class AndroidManagementProvider implements DeviceManagementProvider {
     );
     // Operação ACEITA pelo Google ≠ aplicada: a confirmação vem do relatório do aparelho.
     return { providerRef: op.name };
+  }
+
+  async getLocateResult(): Promise<DeviceLocation | null> {
+    return null; // sem “localizar” na AMAPI
   }
 }

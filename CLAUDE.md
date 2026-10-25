@@ -37,8 +37,9 @@ clientes. Ver `docs/adr/0002`–`0009`.
 
 ## Escopo (CP4)
 MVP enxuto: colocar smartphones de **vendas e merchandising** sob gerenciamento. Perfis Admin e Leitura;
-aparelho ligado a um responsável; políticas Vendas e Merchandising; comandos bloquear, reiniciar, modo
-perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin). Não expandir sem pedido.
+aparelho ligado a um responsável; políticas Vendas e Merchandising; comandos bloquear, reiniciar, localizar
+(só admin, motivo + MFA, coordenadas nunca gravadas), tocar som, limpar dados de app (só simulador) e wipe
+(1 aparelho: nome + MFA; vários: 2º admin). Modo perdido foi substituído (I-1). Não expandir sem pedido.
 
 ## Comandos
 - `pnpm setup` — prepara PostgreSQL/Redis/.env.local (o hook SessionStart já roda isso na nuvem)

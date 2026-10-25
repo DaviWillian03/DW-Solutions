@@ -87,8 +87,26 @@ describe('provedor de simulação', () => {
     expect(t.qrPayload).not.toContain('android.app.extra.PROVISIONING');
   });
 
-  it('declara rastreamento contínuo como não suportado', () => {
-    expect(new SimulatorProvider().getCapabilities()['location.continuous'].status).toBe('unsupported');
+  it('declara rastreamento contínuo como não suportado e o modo perdido como substituído (I-1)', () => {
+    const caps = new SimulatorProvider().getCapabilities();
+    expect(caps['location.continuous'].status).toBe('unsupported');
+    expect(caps['command.lost_mode'].status).toBe('unsupported');
+    expect(caps['command.locate'].status).not.toBe('unsupported');
+  });
+
+  it('localização sintética: só depois do relato, estável por aparelho e só por 24 h', async () => {
+    const appliedAt = new Date('2026-10-25T12:00:00Z');
+    const at = (iso: string) => new SimulatorProvider({ now: () => new Date(iso) });
+    const req = { tenantId: 't', commandId: 'c', deviceId: 'd1', deviceProviderRef: null, sentAt: appliedAt };
+    expect(await at('2026-10-25T12:05:00Z').getLocateResult({ ...req, appliedAt: null })).toBeNull();
+    const a = await at('2026-10-25T12:05:00Z').getLocateResult({ ...req, appliedAt });
+    const b = await at('2026-10-26T11:00:00Z').getLocateResult({ ...req, appliedAt });
+    expect(a).toEqual(b);
+    expect(a!.observedAt).toEqual(appliedAt);
+    expect(Math.abs(a!.latitude + 23.55)).toBeLessThanOrEqual(0.15);
+    expect(await at('2026-10-26T12:00:01Z').getLocateResult({ ...req, appliedAt })).toBeNull();
+    const other = await at('2026-10-25T12:05:00Z').getLocateResult({ ...req, deviceId: 'd2', appliedAt });
+    expect(other!.latitude).not.toBe(a!.latitude);
   });
 });
 

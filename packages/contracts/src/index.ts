@@ -1,4 +1,4 @@
-import type { CommandType } from './commands.js';
+import type { CommandType, DeviceLocation } from './commands.js';
 
 // Contrato entre o produto e quem realmente gerencia os aparelhos (ADR-0001, prompt-mestre §11).
 // Hoje só o SimulatorProvider está ligado; @dw/amapi e @dw/intune existem desligados (ADR-0009, ADR-0010).
@@ -37,6 +37,8 @@ export type Capability =
   | 'command.lost_mode'
   | 'command.clear_app_data'
   | 'command.wipe'
+  | 'command.locate'
+  | 'command.play_sound'
   | 'location.continuous';
 
 export interface CapabilityInfo {
@@ -89,6 +91,22 @@ export interface DeviceManagementProvider {
    * aparelho só é confirmada depois, pelo relatório do próprio aparelho.
    */
   issueCommand(req: IssueCommandRequest): Promise<{ providerRef: string }>;
+  /**
+   * Resultado de um “Localizar aparelho” já aplicado, lido NA HORA no provedor (o DW Solutions não grava
+   * coordenadas — I-5). `null` = o provedor não tem (ainda não relatou, ou já apagou depois do prazo).
+   */
+  getLocateResult(req: LocateResultRequest): Promise<DeviceLocation | null>;
+}
+
+export interface LocateResultRequest {
+  tenantId: string;
+  commandId: string;
+  deviceId: string;
+  deviceProviderRef: string | null;
+  /** Quando o comando foi enviado: resultados anteriores não contam. */
+  sentAt: Date;
+  /** Quando o DW Solutions registrou a aplicação verificada (null = ainda não). */
+  appliedAt: Date | null;
 }
 
 export interface IssueCommandRequest {
@@ -114,6 +132,8 @@ export const COMMAND_CAPABILITY: Record<CommandType, Capability> = {
   stop_lost_mode: 'command.lost_mode',
   clear_app_data: 'command.clear_app_data',
   wipe: 'command.wipe',
+  locate_device: 'command.locate',
+  play_lost_sound: 'command.play_sound',
 };
 
 // ---------------------------------------------------------------------------

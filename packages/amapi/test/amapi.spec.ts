@@ -215,6 +215,8 @@ describe('provedor real', () => {
     ).rejects.toBeInstanceOf(ProviderDisabledError);
     expect(sent).toHaveLength(0);
     expect(p.getCapabilities()['location.continuous'].status).toBe('unsupported');
+    expect(p.getCapabilities()['command.locate'].status).toBe('unsupported');
+    expect(() => toAmapiCommand('locate_device', {})).toThrow();
   });
 
   it('ligado (só em teste): token de cadastro e comando usam os formatos oficiais', async () => {

@@ -13,8 +13,12 @@ import {
   COMMAND_CAPABILITY,
   COMMAND_LABEL,
   COMMAND_TTL_HOURS,
+  FULLY_MANAGED_ONLY,
+  LOCATION_PROVIDER_RETENTION_HOURS,
   PENDING_STATES,
+  REQUIRES_CONFIRM_NAME,
   REQUIRES_REASON,
+  REQUIRES_STEP_UP,
   type BatchType,
   type CommandState,
   type CommandType,
@@ -90,6 +94,7 @@ export class CommandsService {
       reason: c.reason,
       state: c.state,
       stateDetail: c.stateDetail,
+      requestedBy: c.requestedBy,
       requestedByName: c.requestedByName,
       providerRef: c.providerRef,
       sendAttempts: c.sendAttempts,
@@ -231,7 +236,13 @@ export class CommandsService {
         message: 'Este aparelho não está mais gerenciado.',
       });
     }
-    if (REQUIRES_REASON.includes(input.type) && !same(input.confirmName ?? '', device.displayName)) {
+    if (FULLY_MANAGED_ONLY.includes(input.type) && device.managementMode !== 'fully_managed') {
+      throw new UnprocessableEntityException({
+        code: 'LOCATE_DEDICATED',
+        message: 'Localizar está desligado para aparelhos dedicados (decisão I-6).',
+      });
+    }
+    if (REQUIRES_CONFIRM_NAME.includes(input.type) && !same(input.confirmName ?? '', device.displayName)) {
       throw new BadRequestException({
         code: 'CONFIRMATION_MISMATCH',
         message: 'Digite o nome do aparelho exatamente como aparece para confirmar.',
@@ -248,7 +259,14 @@ export class CommandsService {
           message: 'Apagar aparelhos está desligado. Um administrador pode ligar em Configurações.',
         });
       }
-      await this.stepUp.verify(a, headers, input.mfaCode, 'apagar aparelho');
+    }
+    if (REQUIRES_STEP_UP.includes(input.type)) {
+      await this.stepUp.verify(
+        a,
+        headers,
+        input.mfaCode,
+        input.type === 'wipe' ? 'apagar aparelho' : 'localizar aparelho',
+      );
     }
 
     const created = await withTenant(this.appDb.db, a.tenantId, async (tx) => {
@@ -287,7 +305,11 @@ export class CommandsService {
         targetType: 'device',
         targetId: deviceId,
         reason,
-        metadata: { commandId: c.id, tipo: input.type, ...(input.type === 'wipe' ? { mfa: 'refeito' } : {}) },
+        metadata: {
+          commandId: c.id,
+          tipo: input.type,
+          ...(REQUIRES_STEP_UP.includes(input.type) ? { mfa: 'refeito' } : {}),
+        },
         requestId: a.requestId,
         sourceIp: a.ip,
       });
@@ -295,6 +317,76 @@ export class CommandsService {
     });
     await this.enqueue(a.tenantId, [created.id]);
     return this.view(created, device.displayName);
+  }
+
+  // ----- localização (I-5) -----------------------------------------------------------------------
+  /**
+   * Mostra a localização de um “Localizar aparelho” aplicado. Só para quem pediu, lida NA HORA no provedor e
+   * nunca gravada no DW Solutions (nem na auditoria: só o fato de ter sido vista).
+   */
+  async location(a: AuthContext, commandId: string) {
+    const [c] = await withTenant(this.appDb.db, a.tenantId, (tx) =>
+      tx.select().from(deviceCommands).where(eq(deviceCommands.id, commandId)),
+    );
+    if (!c || c.type !== 'locate_device') {
+      throw new NotFoundException({ code: 'NOT_FOUND', message: 'Pedido de localização não encontrado.' });
+    }
+    if (c.requestedBy !== a.userId) {
+      await this.deny(a, 'command.location_view', 'só quem pediu pode ver a localização', { commandId });
+      throw new ForbiddenException({
+        code: 'NOT_REQUESTER',
+        message: 'Só o administrador que pediu a localização pode vê-la.',
+      });
+    }
+    if (c.state !== 'applied_verified') {
+      throw new ConflictException({
+        code: 'LOCATION_NOT_READY',
+        message: 'O aparelho ainda não relatou a localização.',
+      });
+    }
+    const [device] = await withTenant(this.appDb.db, a.tenantId, (tx) =>
+      tx.select({ providerRef: devices.providerRef }).from(devices).where(eq(devices.id, c.deviceId)),
+    );
+    const loc = await this.provider.getLocateResult({
+      tenantId: a.tenantId,
+      commandId: c.id,
+      deviceId: c.deviceId,
+      deviceProviderRef: device?.providerRef ?? null,
+      sentAt: c.createdAt,
+      appliedAt: c.finishedAt,
+    });
+    await withTenant(this.appDb.db, a.tenantId, (tx) =>
+      recordAudit(tx, {
+        tenantId: a.tenantId,
+        actorType: 'user',
+        actorId: a.userId,
+        action: 'command.location_view',
+        outcome: loc ? 'success' : 'failure',
+        targetType: 'device',
+        targetId: c.deviceId,
+        // Sem coordenadas: a auditoria registra só que a localização foi vista.
+        metadata: { commandId: c.id, ...(loc ? {} : { motivo: 'o provedor não tem mais a localização' }) },
+        requestId: a.requestId,
+        sourceIp: a.ip,
+      }),
+    );
+    if (!loc) {
+      throw new ConflictException({
+        code: 'LOCATION_GONE',
+        message: `O provedor não tem mais esta localização (guarda por até ${LOCATION_PROVIDER_RETENTION_HOURS} h). Peça de novo se precisar.`,
+      });
+    }
+    return {
+      commandId: c.id,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      accuracyMeters: loc.accuracyMeters,
+      observedAt: loc.observedAt,
+      availableUntil: c.finishedAt
+        ? new Date(c.finishedAt.getTime() + LOCATION_PROVIDER_RETENTION_HOURS * HOUR)
+        : null,
+      source: this.provider.kind,
+    };
   }
 
   // ----- vários aparelhos -------------------------------------------------------------------------

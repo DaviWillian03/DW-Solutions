@@ -6,10 +6,12 @@ import {
   type DeviceManagementProvider,
   type EnrollmentRequest,
   type EnrollmentToken,
+  type DeviceLocation,
   type IssueCommandRequest,
+  type LocateResultRequest,
 } from '@dw/contracts';
 import type { GraphClient } from './client.js';
-import { toGraphAction } from './commands.js';
+import { locateResult, toGraphAction } from './commands.js';
 
 export class IntuneDisabledError extends Error {
   constructor() {
@@ -77,6 +79,14 @@ export class IntuneProvider implements DeviceManagementProvider {
         status: 'requires_eligibility',
         note: `Limite de 500 por dia no tenant. ${DOCS}`,
       },
+      'command.locate': {
+        status: 'requires_eligibility',
+        note: 'Sob demanda, só totalmente gerenciados (dedicados desligados — I-6); o responsável é avisado. A Microsoft guarda a posição por 24 h.',
+      },
+      'command.play_sound': {
+        status: 'requires_eligibility',
+        note: `Graph /beta. ${DOCS}`,
+      },
       'location.continuous': {
         status: 'unsupported',
         note: 'Rastreamento contínuo de funcionários não é oferecido.',
@@ -109,5 +119,12 @@ export class IntuneProvider implements DeviceManagementProvider {
     await this.cfg.client.deviceAction(req.deviceProviderRef, action, body);
     // 204 = o Intune ACEITOU. Sem número de operação: o acompanhamento é por ação + horário do envio.
     return { providerRef: `${req.deviceProviderRef}/${action}` };
+  }
+
+  /** Lê na hora no Intune (a Microsoft guarda 24 h); o DW Solutions não grava as coordenadas (I-5). */
+  async getLocateResult(req: LocateResultRequest): Promise<DeviceLocation | null> {
+    this.assertEnabled();
+    if (!req.deviceProviderRef) return null;
+    return locateResult(req.sentAt, await this.cfg.client.getActionResults(req.deviceProviderRef));
   }
 }

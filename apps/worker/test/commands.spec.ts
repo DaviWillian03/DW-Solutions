@@ -4,8 +4,10 @@ import {
   commandEvents,
   createDb,
   deviceCommands,
+  deviceEvents,
   devices,
   eq,
+  inArray,
   policyVersions,
   recordAudit,
   simDevices,
@@ -175,17 +177,31 @@ describe('aparelho recebe e relata', () => {
     ]);
   });
 
-  it('modo perdido: liga e desliga, com estado relatado pelo aparelho', async () => {
-    const id = reliable[5]!;
-    const off = await sendAndCheckIn(id, 'stop_lost_mode');
-    expect(off.state).toBe('failed');
-    expect(off.stateDetail).toContain('não estava em modo perdido');
-    await sendAndCheckIn(id, 'start_lost_mode', { message: 'Devolva à loja', phone: '11 99999-0000' });
-    const [d] = await withTenant(appDb.db, tenantId, (tx) =>
-      tx.select().from(devices).where(eq(devices.id, id)),
+  it('localizar: verificado no totalmente gerenciado; dedicado falha (I-6); tocar som verificado', async () => {
+    const modes = await withTenant(appDb.db, tenantId, (tx) =>
+      tx
+        .select({ id: devices.id, mode: devices.managementMode })
+        .from(devices)
+        .where(inArray(devices.id, reliable.slice(5))),
     );
-    expect(d!.lostModeSince).not.toBeNull();
-    expect((await sendAndCheckIn(id, 'stop_lost_mode')).state).toBe('applied_verified');
+    const managed = modes.find((d) => d.mode === 'fully_managed')!.id;
+    const dedicated = modes.find((d) => d.mode === 'dedicated')!.id;
+    const ok = await sendAndCheckIn(managed, 'locate_device');
+    expect(ok.state).toBe('applied_verified');
+    expect(ok.stateDetail).toContain('só para quem pediu');
+    // Nenhuma coordenada é gravada: nem no comando, nem nos eventos do aparelho.
+    const [ev] = await withTenant(appDb.db, tenantId, (tx) =>
+      tx
+        .select()
+        .from(deviceEvents)
+        .where(and(eq(deviceEvents.deviceId, managed), eq(deviceEvents.type, 'located'))),
+    );
+    expect(ev!.details).toEqual({});
+    expect(ok.params).toEqual({});
+    const ded = await sendAndCheckIn(dedicated, 'locate_device');
+    expect(ded.state).toBe('failed');
+    expect(ded.stateDetail).toContain('dedicados');
+    expect((await sendAndCheckIn(managed, 'play_lost_sound')).state).toBe('applied_verified');
   });
 
   it('limpar dados: falha com motivo se o app não está no aparelho', async () => {

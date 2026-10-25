@@ -16,8 +16,8 @@
 | CP6 / Fase F | Provedor Android real homologado | Elegibilidade + hardware | 🟡 CP6 decidido; conector pronto e desligado (ADR-0009); ligar depende de CP6-4 + cota |
 | Rota B | Estudo de MDM de terceiros (uso interno) | CP6-3 | ✅ estudo feito; **Intune escolhido** (B-4) |
 | Intune I1 | Conector `@dw/intune` desligado e testado sem rede (ADR-0010) | B-4 | ✅ |
-| Intune I2 | Localizar + Tocar som (no lugar do modo perdido), só admin com motivo + MFA | I-1, I-5 | ⏳ próximo |
-| Intune I3 | Sincronização (inventário, estado das ações, perfil por versão, grupos) | I2 | ⏳ |
+| Intune I2 | Localizar + Tocar som (no lugar do modo perdido), só admin com motivo + MFA | I-1, I-5 | ✅ |
+| Intune I3 | Sincronização (inventário, estado das ações, perfil por versão, grupos) | I2 | ⏳ próximo |
 | Intune I4 | Laboratório no aparelho Samsung/Motorola | licença (I-3) + app no Entra (I-4) | ⛔ bloqueado |
 | CP7 / Fase G | Automações e IA supervisionada | Fase E | ⚪ |
 | CP8 / Fase H | Hardening, piloto e publicação | Tudo acima | ⚪ |
