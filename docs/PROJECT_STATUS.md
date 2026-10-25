@@ -1,8 +1,8 @@
 # Estado do Projeto
 
-**Última atualização:** 2026-10-23
+**Última atualização:** 2026-10-25
 **Produto:** DW Solutions
-**Fase atual:** **PAUSADO** (B-3) — MVP completo no simulador, revisado; conector AMAPI pronto e desligado; rota de uso interno estudada (Intune). Aguardando a empresa (CP6-4, B-2)
+**Fase atual:** **Rota Intune** (B-4) — MVP completo no simulador; conector `@dw/intune` pronto e desligado (I1, ADR-0010). Próximo: I2 (Localizar + Tocar som). Aparelho real aguarda licença (I-3) e app no Entra (I-4)
 **Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
@@ -45,15 +45,19 @@
 | 13 | ✅ CHECKPOINT 6 / F0 | Conector `@dw/amapi` desligado, trava contra apagamento automático (ADR-0009) | — |
 | 13b | ✅ Revisão geral | Acessibilidade AA automática (0 falhas) e celular 390 px em 11 telas | — |
 | 13c | ✅ Estudo rota B | MDMs de terceiros comparados; empresa usa Microsoft 365 → Intune candidato | — |
-| 14 | Fase F real | Ligar AMAPI em aparelho de laboratório | Enquadramento comercial (CP6-4) + cota do Google |
+| 14 | ✅ Decisão B-4 | Provedor real = Microsoft Intune (uso interno); pesquisa `docs/android/INTUNE.md` | — |
+| 15 | ✅ Intune I1 | `@dw/intune` desligado: comandos, inventário, estado das ações, perfil com travas, cadastro, grupos (18 testes sem rede) | — |
+| 16 | Intune I2 | Localizar + Tocar som (só admin, motivo + MFA, coordenadas não guardadas); modo perdido/limpar dados indisponíveis no Intune | — |
+| 17 | Intune I3 | Sincronização com o Intune (worker) e modo real na tela | I2 |
+| 18 | Intune I4 | Laboratório no aparelho Samsung/Motorola | Licença (I-3) + app no Entra (I-4) |
 
 A fatia 5 (esqueleto) pode começar logo após o CHECKPOINT 4.
 
 ## Testes executados
-Ver `docs/TEST_REPORT.md` (Fases A–E: 181 testes + 28 E2E passando).
+Ver `docs/TEST_REPORT.md` (212 testes + 30 E2E passando).
 
 ## Como retomar
 1. Ler `docs/OPEN_QUESTIONS.md` (pendências da empresa) e `docs/android/` (CP6 e rota B).
-2. Se uso interno + Intune: conector `ExternalMdmProvider` para Microsoft Graph, no mesmo padrão do `@dw/amapi`
-   (desligado, testado sem rede). Se venda/licença: pedir cota da AMAPI e ligar `@dw/amapi` em laboratório.
+2. Rota decidida: **Intune** (ADR-0010). Seguir a fatia I2 e depois I3; o laboratório (I4) só com licença e app
+   no Entra confirmados.
 3. Pendência com data: **2026-10-29** atualizar body-parser/multer e remover a exceção de auditoria.

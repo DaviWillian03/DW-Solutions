@@ -27,6 +27,7 @@ export const HOLDER_ROLE: Record<string, string> = {
 export const SOURCE: Record<string, string> = {
   simulator: 'simulador',
   android_management_api: 'Android Management API',
+  microsoft_intune: 'Microsoft Intune',
 };
 
 export const EVENT_LABEL: Record<string, string> = {

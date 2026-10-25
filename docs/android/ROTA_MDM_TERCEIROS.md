@@ -1,5 +1,7 @@
 # Estudo — rota com MDM de terceiros (rota B, 2026-10-25)
 
+> **Decidido em 2026-10-25 (B-4):** Microsoft Intune. Pesquisa detalhada em `docs/android/INTUNE.md`; ADR-0010.
+
 **Para quê:** se a empresa for usar o DW Solutions **só internamente** (CP6-3/4), a Android Management API não se
 enquadra. A alternativa é a empresa contratar um MDM que já é EMM validado pelo Google, e o DW Solutions virar um
 **painel por cima** dele, via API do fornecedor (`ExternalMdmProvider`, previsto no ADR-0001). Nada foi contratado.

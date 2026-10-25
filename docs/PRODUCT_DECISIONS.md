@@ -271,3 +271,24 @@ Estudo: `docs/android/ROTA_MDM_TERCEIROS.md` (fontes oficiais e não oficiais se
 | B-2 | Serviços que a empresa já usa | **Microsoft 365** · Google Workspace · já tem MDM · não sei | **Microsoft 365** — Intune (Microsoft Graph) é o candidato natural para uso interno |
 | B-3 | O que fazer com o estudo | **registrar e pausar (rec.)** · conector Intune desligado · laboratório Headwind | **Registrar e pausar** até a empresa responder |
 | B-4 | Provedor real | AMAPI (venda) · **Microsoft Intune (uso interno)** | **Microsoft Intune** (2026-10-25) — uso interno da empresa; `@dw/amapi` fica arquivado como referência (a AMAPI não permite uso exclusivamente interno) |
+
+## Rota Microsoft Intune (DECIDIDO em 2026-10-25)
+
+Pesquisa oficial: `docs/android/INTUNE.md`. Arquitetura: `docs/adr/0010-conector-intune-desligado.md`.
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| I-1 | Modo perdido e limpar dados de app (o Intune não tem no Android) | indisponível no real · **trocar por Localizar + som** · remover | **Modo perdido vira “Localizar aparelho” + “Tocar som”**. Limpar dados de app fica **indisponível no Intune** (aviso na tela), mantido no simulador |
+| I-2 | Onde ficam as políticas | Intune configura, DW confere · **DW publica no Intune** | **DW publica no Intune** (perfil de configuração no Graph /beta + atribuição de apps) |
+| I-3 | Licença que inclui o Intune | **não sei, vou conferir** · Business Premium · Basic/Standard · E3/E5 | **A conferir** — só Business Premium e E3/E5 incluem o Intune Plan 1; Basic/Standard não |
+| I-4 | Quem cria o aplicativo no Entra | **TI da empresa, depois** · usuário em tenant de teste | **TI da empresa, depois** — passo a passo com permissões mínimas; chave só como segredo do ambiente |
+| I-5 | Regras do Localizar | **só admin, motivo + MFA** · só admin, motivo · admin e Leitura | **Só admin, motivo escrito + MFA de novo**, sob demanda, auditado; coordenadas mostradas na hora e **não guardadas** no DW |
+| I-6 | Última localização automática dos dedicados (Intune guarda 7 dias) | **desligar a coleta** · manter | **Desligar** (`locateDeviceUserlessDisabled`); aparelho dedicado não é localizável |
+| I-7 | Como o aparelho entra na política no Intune | **TI cria os grupos, DW gerencia membros** · DW cria tudo | **TI cria 2 grupos de aparelhos** (Vendas, Merchandising); o DW só adiciona/remove membros |
+| I-8 | Bloquear redefinição de fábrica (em Samsung, impede o APAGAR remoto de terminar) | **não enviar** · só Motorola · enviar mesmo assim | **Não enviar no Intune**; a opção aparece como “não enviada no Intune” |
+| I-9 | Senha da tela no Intune (usa o app do Google por baixo; bloqueio automático não documentado) | **manter só monitorar** · exigir pelo Intune | **Mantém CP6-7**: nenhuma regra de senha vai ao Intune até prova em laboratório |
+
+**Consequências:** o conector nunca envia regras de senha, nem “apagar após N tentativas”, nem o bloqueio de
+redefinição; também recusa e denuncia políticas de conformidade do Intune com ação automática (`block`, `retire`,
+`wipe`, `remoteLock`). Nada é ligado sem licença confirmada, aplicativo no Entra criado pela TI e teste em
+laboratório (CP6-6).

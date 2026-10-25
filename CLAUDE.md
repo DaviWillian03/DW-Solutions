@@ -31,7 +31,7 @@ monograma M2 (M1 no favicon), animações expressivas com `prefers-reduced-motio
 
 ## Arquitetura (CP3)
 Monólito modular TypeScript 6: `apps/web` (Next.js 16), `apps/api` (NestJS 12), `apps/worker` (BullMQ),
-`packages/contracts|db|config|simulator|amapi`. PostgreSQL com **RLS por `tenant_id`** (toda consulta via `withTenant`),
+`packages/contracts|db|config|simulator|amapi|intune`. PostgreSQL com **RLS por `tenant_id`** (toda consulta via `withTenant`),
 Drizzle, Better Auth (TOTP + passkey, MFA obrigatório para admins), plataforma **sem acesso** a dados de
 clientes. Ver `docs/adr/0002`–`0009`.
 
@@ -68,6 +68,10 @@ perdido, limpar dados de app e wipe (1 aparelho: nome + MFA; vários: 2º admin)
   tentativas negadas vão para a auditoria.
 - Android real (ADR-0009): `@dw/amapi` fica DESLIGADO; nunca enviar `passwordPolicies`/`minimumApiLevel`/
   `policyEnforcementRules` (bloqueio/apagamento automático do Google — CP6-7/8); nenhuma chamada real sem cota.
+- Android real escolhido = **Microsoft Intune** (ADR-0010, I-1…I-9): `@dw/intune` fica DESLIGADO; nunca enviar
+  `password*` (exceto tempo de tela), `*SignInFailureCountBeforeFactoryReset` nem `factoryResetBlocked`
+  (`assertSafeConfiguration`); o DW não cria políticas de conformidade no Intune; modo perdido e limpar dados de app
+  não existem no Intune para Android (aviso, nunca fingir).
 - Verificação antes de commit: rode lint, format:check, typecheck e test em sequência parando no 1º erro
   (nunca `comando | grep && git commit`).
 - Site: textos em pt-BR, componentes de `apps/web/components/ui.tsx`, tokens do design system em

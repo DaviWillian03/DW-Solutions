@@ -314,3 +314,13 @@ body-parser/multer — https://github.com/DaviWillian03/DW-Solutions/actions/run
 build e 30 testes de navegador passaram nele. Resolvido pela exceção temporária no commit seguinte: ✅
 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40178793945 · revisão geral ✅
 https://github.com/DaviWillian03/DW-Solutions/actions/runs/40180518160
+
+## 2026-10-25 · Intune I1 (conector desligado) · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm --filter @dw/intune test` | ✅ **18 testes**, todos sem rede (transporte falso) |
+| `pnpm test` (todos os pacotes) · lint · typecheck · format:check | ✅ **212 testes**: contratos 10 · amapi 13 · banco 51 · intune 18 · simulador 17 · API 88 · worker 15 |
+
+**NÃO EXECUTADO:** nenhuma chamada real ao Microsoft Graph/Intune (sem licença confirmada nem aplicativo no Entra);
+`pnpm e2e` não foi refeito porque nenhuma tela mudou.

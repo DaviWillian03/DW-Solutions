@@ -1,9 +1,9 @@
 import type { CommandType } from './commands.js';
 
 // Contrato entre o produto e quem realmente gerencia os aparelhos (ADR-0001, prompt-mestre §11).
-// Hoje só existe o SimulatorProvider; o AndroidManagementProvider entra no CHECKPOINT 6, se elegível.
+// Hoje só o SimulatorProvider está ligado; @dw/amapi e @dw/intune existem desligados (ADR-0009, ADR-0010).
 
-export type ProviderKind = 'simulator' | 'android_management_api';
+export type ProviderKind = 'simulator' | 'android_management_api' | 'microsoft_intune';
 
 /** Classificação obrigatória de cada capacidade (prompt-mestre §17). */
 export type CapabilityStatus =

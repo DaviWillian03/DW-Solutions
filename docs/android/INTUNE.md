@@ -15,8 +15,8 @@ Modos de cadastro que interessam (Android Enterprise, aparelho da empresa):
 | Bloquear | `POST /deviceManagement/managedDevices/{id}/remoteLock` | COBO, COSU, COPE ✅ | Só adianta se o aparelho **já tiver senha**: sem senha, a tela apenas apaga |
 | Reiniciar | `.../rebootNow` | COBO e COSU ✅ (COPE ❌) | Começa em até ~5 min e depende de notificação push: com o aparelho desligado da internet, fica para depois |
 | Apagar (redefinição de fábrica) | `.../wipe` (`persistEsimDataPlan`) | COBO, COSU, COPE ✅ | Limite de **500 por dia por tenant**. Em Samsung, se “Redefinição de fábrica” estiver **bloqueada** no perfil, o wipe **não termina** e o aparelho perde contato |
-| Modo perdido | — | **Não existe no Android** | O modo perdido do Intune é só para iPhone/iPad e ChromeOS. No Android há “Localizar aparelho” e “Tocar som de aparelho perdido” |
-| Limpar dados de app | — | **Não existe no Intune** | Não aparece na lista de ações do Android |
+| Modo perdido | — | **Não existe no Android** | Só iPhone/iPad e ChromeOS. **Decisão I-1:** vira `locateDevice` + `playLostModeSound` (COBO; nos dedicados o Localizar fica desligado — I-6) |
+| Limpar dados de app | — | **Não existe no Intune** | Não aparece na lista do Android. **I-1:** indisponível no Intune, com aviso |
 
 Outras ações que o Intune oferece no Android e que hoje **ficam fora do escopo** (CP4): aposentar (`retire`), excluir,
 sincronizar (`syncDevice`), redefinir senha, localizar, tocar som, notificação personalizada, assistência remota.
@@ -66,12 +66,36 @@ mais frequência” e recomenda o v1.0 quando houver. Pontos principais:
   - **Nenhuma ação de conformidade apaga o aparelho automaticamente.**
 - A regra que vem para o DW Solutions é **nunca criar ou aceitar uma política de conformidade com bloqueio remoto
   automático**. O conector deve recusar essa configuração, como a trava do `@dw/amapi`.
-- Configuração do aparelho (apps obrigatórios, restrições, atualizações, tempo de bloqueio da tela): no Intune isso
-  fica em **perfis de configuração** e **atribuições de apps do Google Play gerenciado**, que são recursos diferentes da
-  política de conformidade. Os nomes exatos no Graph para Android totalmente gerenciado **ainda não foram conferidos**
-  e ficam para a próxima etapa, se a opção escolhida exigir.
+- Configuração do aparelho: perfil `androidDeviceOwnerGeneralDeviceConfiguration`, **só no Graph /beta**. Campos usados:
+  `appsAllowInstallFromUnknownSources`, `securityDeveloperSettingsEnabled`,
+  `passwordMinutesOfInactivityBeforeScreenTimeout`, `systemUpdateInstallType` com janela em minutos desde a meia-noite,
+  `locateDeviceUserlessDisabled` e `locateDeviceLostModeEnabled`. Campos **perigosos**, que nunca são enviados:
+  - `passwordSignInFailureCountBeforeFactoryReset`, que **apaga** após N senhas erradas;
+  - regras de senha;
+  - `factoryResetBlocked`.
+- Apps obrigatórios: `POST /deviceAppManagement/mobileApps/{id}/assignments` com `intent: required` para o grupo (v1.0).
+  O `/assign` não é usado porque substituiria as atribuições feitas pela TI.
+- A enumeração `deviceComplianceActionType` (v1.0) aceita `block`, `retire` e **`wipe`**. O portal não oferece wipe
+  automático, mas a API aceita. O DW denuncia essas ações quando as encontra (ADR-0010).
+
+## 4b. Localizar aparelho (privacidade)
+- Só é coletado quando um admin pede. O Graph devolve latitude e longitude em
+  `deviceActionResults[].deviceLocation`, só no `/beta`. A Microsoft guarda por **24 h** e apaga sozinha.
+- **Totalmente gerenciado:** precisa estar ligado no perfil. O funcionário recebe aviso quando o Localizar é usado, se
+  as notificações estiverem ligadas.
+- **Dedicado:** vem **ligado por padrão**. O Intune coleta a última posição **a cada 8 h** e a guarda por **7 dias**.
+  **Decisão I-6:** desligado pelo perfil.
+- Regras do DW (I-5):
+  - só admin;
+  - motivo escrito e MFA de novo;
+  - auditado;
+  - o mapa é mostrado na hora e as coordenadas **não ficam guardadas** no DW.
 
 ## 5. Acesso, licença e limites
+- **Plano da empresa (I-3, a conferir):** só **Microsoft 365 Business Premium** e os planos **E3/E5** incluem o
+  Intune Plan 1. **Business Basic e Business Standard não incluem:** dão acesso ao Office, mas trazem só o “Basic
+  Mobility and Security”, sem a API do Intune
+  ([visão geral de segurança do Microsoft 365 para empresas](https://learn.microsoft.com/en-us/microsoft-365/admin/security-and-compliance/m365b-security-overview?view=o365-worldwide)).
 - **Licença:** a API do Intune no Graph “exige licença ativa do Intune no tenant”. A Microsoft diz que é preciso licença
   para “qualquer usuário ou aparelho que se beneficie, direta ou indiretamente”, **inclusive por API**. Aparelhos
   dedicados (sem usuário) podem usar licença **só de aparelho**. Quais planos do Microsoft 365 incluem o Intune deve
