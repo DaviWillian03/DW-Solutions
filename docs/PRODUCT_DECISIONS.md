@@ -270,3 +270,4 @@ Estudo: `docs/android/ROTA_MDM_TERCEIROS.md` (fontes oficiais e não oficiais se
 | B-1 | Próximo passo após a revisão | segurança e operação · CP7 · **estudar MDM de terceiros** · pausar | **Estudar a rota com MDM de terceiros** |
 | B-2 | Serviços que a empresa já usa | **Microsoft 365** · Google Workspace · já tem MDM · não sei | **Microsoft 365** — Intune (Microsoft Graph) é o candidato natural para uso interno |
 | B-3 | O que fazer com o estudo | **registrar e pausar (rec.)** · conector Intune desligado · laboratório Headwind | **Registrar e pausar** até a empresa responder |
+| B-4 | Provedor real | AMAPI (venda) · **Microsoft Intune (uso interno)** | **Microsoft Intune** (2026-10-25) — uso interno da empresa; `@dw/amapi` fica arquivado como referência (a AMAPI não permite uso exclusivamente interno) |
