@@ -297,3 +297,25 @@ MFA, como bloquear). Na visão geral, o indicador “Em modo perdido” deu luga
 redefinição; também recusa e denuncia políticas de conformidade do Intune com ação automática (`block`, `retire`,
 `wipe`, `remoteLock`). Nada é ligado sem licença confirmada, aplicativo no Entra criado pela TI e teste em
 laboratório (CP6-6).
+
+## Custo zero (DECIDIDO em 2026-10-27)
+
+| ID | Pergunta | Opções | Decisão |
+|----|----------|--------|---------|
+| R-1 | Gasto extra (licença, hospedagem, domínio) | — | **Fora de cogitação.** Só o que a empresa já paga ou é gratuito. Reforça a regra de orçamento R$ 0 |
+| R-2 | Quantos celulares | **até 25** · mais de 25 · não sei | **Até 25** |
+| R-3 | Plano Microsoft 365 | **vou conferir** · Business Premium · E3/E5 · Basic/Standard | **A conferir** |
+
+**Consequências:**
+- **Business Premium ou E3/E5:** Intune sem custo extra, que é a rota atual (ADR-0010). Os aparelhos dedicados
+  podem exigir licença só de aparelho; a saída sem custo seria cadastrá-los como totalmente gerenciados, com
+  responsável (a confirmar).
+- **Basic/Standard:**
+  - O “Basic Mobility and Security” grátis só apaga e aposenta, sem bloquear, reiniciar nem localizar, e o acesso
+    pela API não está confirmado. Não serve para o CP4.
+  - Candidato: **ManageEngine MDM Plus grátis** (até 25 aparelhos, certificado Android Enterprise). Falta confirmar
+    se a API vem no plano grátis; sem API, o DW não consegue comandar.
+  - Headwind MDM (código aberto) não serve: bloquear, reiniciar e apagar só existem na versão paga.
+- **Hospedagem a R$ 0:** os celulares falam com a nuvem do provedor, não com o DW. Por isso o DW pode rodar num
+  computador da empresa, acessado só pelos admins, com cópias de segurança no OneDrive que já vem no Microsoft 365.
+  A decisão fica para o CHECKPOINT 8.

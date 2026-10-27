@@ -19,9 +19,10 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 - Aparelho Samsung/Motorola 12+ resetável existe, guardado (CP6-6).
 
 ## Rota Intune — ✅ decidida em 2026-10-25 (B-4, I-1…I-9). Pendências que bloqueiam o aparelho real:
-- **I-3:** qual é o plano Microsoft 365 da empresa? Só Business Premium e E3/E5 incluem o Intune; Basic e Standard
-  não. Aparelhos dedicados precisam de licença só de aparelho. Se faltar licença, a compra é custo da empresa e
-  precisa de aprovação.
+- **I-3 / R-3:** qual é o plano Microsoft 365 da empresa? Só Business Premium e E3/E5 incluem o Intune; Basic e
+  Standard não. **Comprar licença está fora de cogitação (R-1).** Se for Basic/Standard, a alternativa é o
+  ManageEngine MDM Plus grátis (até 25 aparelhos, R-2), mas antes é preciso confirmar se o plano grátis dá acesso à
+  API. Fontes: documentação e suporte do ManageEngine.
 - **I-4:** a TI da empresa cria o aplicativo no Entra com as permissões do ADR-0010 e os 2 grupos de aparelhos
   (I-7). O passo a passo será escrito antes do laboratório.
 - Laboratório (CP6-6): aparelho Samsung/Motorola 12+ guardado; só depois de I-3 e I-4.

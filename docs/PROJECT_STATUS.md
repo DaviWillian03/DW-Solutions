@@ -2,7 +2,7 @@
 
 **Última atualização:** 2026-10-25
 **Produto:** DW Solutions
-**Fase atual:** **Rota Intune** (B-4) — MVP completo no simulador; conector `@dw/intune` pronto e desligado (I1, ADR-0010); Localizar + Tocar som no lugar do modo perdido (I2). Próximo: I3 (sincronização). Aparelho real aguarda licença (I-3) e app no Entra (I-4)
+**Fase atual:** **Rota Intune** (B-4) — MVP completo no simulador; conector `@dw/intune` pronto e desligado (I1, ADR-0010); Localizar + Tocar som no lugar do modo perdido (I2). Próximo: I3 (sincronização). Aparelho real aguarda o plano 365 (R-3: Intune só se já incluído — gasto extra fora de cogitação, R-1) e app no Entra (I-4)
 **Código:** Fases A–D completas — login seguro, aparelhos simulados, responsáveis, cadastro por QR de demonstração, worker, políticas versionadas e conformidade, comandos com estados verificáveis e aprovação dupla, auditoria na tela. 181 testes + 28 E2E.
 
 ## Feito
