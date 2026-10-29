@@ -60,4 +60,4 @@ Ver `docs/TEST_REPORT.md` (212 testes + 30 E2E passando).
 1. Ler `docs/OPEN_QUESTIONS.md` (pendências da empresa) e `docs/android/` (CP6 e rota B).
 2. Rota decidida: **Intune** (ADR-0010). Seguir a fatia I3 (sincronização); o laboratório (I4) só com licença e app
    no Entra confirmados.
-3. Pendência com data: **2026-10-29** atualizar body-parser/multer e remover a exceção de auditoria.
+3. ✅ 2026-10-29: body-parser/multer atualizados; exceção de auditoria removida.

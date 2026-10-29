@@ -348,3 +348,15 @@ https://github.com/DaviWillian03/DW-Solutions/actions/runs/40180518160
 
 **NÃO EXECUTADO:** Localizar e Tocar som em aparelho real ou no Intune real (conector desligado; sem licença nem app
 no Entra).
+
+## 2026-10-29 · Fim da exceção temporária de auditoria · mesmo ambiente
+
+| Comando | Resultado |
+|---------|-----------|
+| `pnpm audit` (sem `ignoreGhsas`) | ✅ **nenhuma vulnerabilidade conhecida** |
+| `pnpm test` · lint · typecheck · format:check | ✅ **219 testes** |
+| `pnpm e2e` | ✅ **31 testes de navegador** |
+
+body-parser 2.3.0 → **2.4.0** (GHSA-27r3-jxmh-p828) e multer 2.4.0 → **2.5.0** (GHSA-q7qp-rjg7-q26m), forçados por
+`overrides` em `pnpm-workspace.yaml`. As duas versões foram publicadas em 2026-10-22 e liberadas hoje pelo prazo
+mínimo de 7 dias. A exceção `auditConfig.ignoreGhsas` foi removida.

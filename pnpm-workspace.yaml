@@ -13,11 +13,7 @@ onlyBuiltDependencies:
 # esbuild antigo (GHSA-67mh-4wv8-2f99) vindo de drizzle-kit > @esbuild-kit: força versão corrigida.
 overrides:
   '@esbuild-kit/core-utils>esbuild': ^0.25.0
-
-# EXCEÇÃO TEMPORÁRIA (2026-10-25, revisar em 2026-10-29): as correções (body-parser 2.4.0, multer 2.5.0) saíram
-# em 2026-10-22 e ainda estão dentro do prazo mínimo de 7 dias. Risco baixo: negação de serviço, API não exposta
-# à internet e nenhuma rota de upload (multer não é usado). Remover assim que as versões corrigidas entrarem.
-auditConfig:
-  ignoreGhsas:
-    - GHSA-27r3-jxmh-p828
-    - GHSA-q7qp-rjg7-q26m
+  # GHSA-27r3-jxmh-p828 (body-parser) e GHSA-q7qp-rjg7-q26m (multer): versões corrigidas, liberadas pelo prazo
+  # de 7 dias em 2026-10-29. Podem sair quando express/@nestjs/platform-express já trouxerem essas versões.
+  'express>body-parser': 2.4.0
+  '@nestjs/platform-express>multer': 2.5.0

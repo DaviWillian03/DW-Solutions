@@ -35,7 +35,7 @@ Formato acordado (P-001): perguntas de múltipla escolha, com recomendação mar
 ## Checkpoints futuros
 
 ## Pendências que não bloqueiam agora
-- **2026-10-29:** atualizar body-parser ≥ 2.4.0 e multer ≥ 2.5.0 e remover a exceção de `auditConfig` (TEST_REPORT).
+- ✅ 2026-10-29: body-parser 2.4.0 e multer 2.5.0 aplicados e exceção de `auditConfig` removida (TEST_REPORT).
 - Região de hospedagem dos dados (CP3-4) — CHECKPOINT 8.
 - Processo de verificação de identidade para recuperar acesso do admin de uma empresa (ADR-0005) — CHECKPOINT 8.
 - Aparelho Android resetável para laboratório — necessário só no CHECKPOINT 6.
