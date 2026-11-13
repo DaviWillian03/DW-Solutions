@@ -11,11 +11,11 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@better-auth/passkey": "1.7.10",
+    "@better-auth/passkey": "1.7.18",
     "@dw/contracts": "workspace:*",
     "@fontsource/plus-jakarta-sans": "5.3.0",
-    "better-auth": "1.7.10",
-    "next": "16.4.2",
+    "better-auth": "1.7.18",
+    "next": "16.4.5",
     "qrcode": "1.5.4",
     "react": "19.3.1",
     "react-dom": "19.3.1"
@@ -25,13 +25,13 @@
     "@dw/api": "workspace:*",
     "@dw/db": "workspace:*",
     "@dw/simulator": "workspace:*",
-    "@playwright/test": "1.64.1",
-    "@tailwindcss/postcss": "4.3.3",
+    "@playwright/test": "1.65.0",
+    "@tailwindcss/postcss": "4.3.4",
     "@types/node": "22.20.5",
     "@types/qrcode": "1.5.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "tailwindcss": "4.3.3",
+    "tailwindcss": "4.3.4",
     "typescript": "6.0.3"
   }
 }
